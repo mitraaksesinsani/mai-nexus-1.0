@@ -435,11 +435,14 @@ export default function UsersPage() {
                     <SelectContent>
                       <SelectItem value="ADMIN">Administrator</SelectItem>
                       <SelectItem value="DIREKTUR">Direktur</SelectItem>
-                      <SelectItem value="USER">Standard User</SelectItem>
-                      <SelectItem value="FINANCE">Finance</SelectItem>
-                      <SelectItem value="MANAGER">Manager</SelectItem>
+                      <SelectItem value="OWNER">Owner</SelectItem>
+                      <SelectItem value="PROJECT_MANAGER">Project Manager</SelectItem>
+                      <SelectItem value="SITE_MANAGER">Site Manager</SelectItem>
                       <SelectItem value="PROCUREMENT">Procurement</SelectItem>
                       <SelectItem value="LOGISTICS">Logistics</SelectItem>
+                      <SelectItem value="FINANCE">Finance</SelectItem>
+                      <SelectItem value="MANAGER">Manager</SelectItem>
+                      <SelectItem value="USER">Standard User</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
