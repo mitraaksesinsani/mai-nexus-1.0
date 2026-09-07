@@ -135,7 +135,7 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, code, name, location, coordinates, evidence, type, capacity, status, projectIds } = body;
+    const { id, code, name, location, coordinates, evidence, type, capacity, status, picName, projectIds } = body;
 
     if (!id || !code || !name) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
@@ -144,10 +144,10 @@ export async function PUT(request: Request) {
     const res = await pool.query(`
       UPDATE warehouses 
       SET code = $1, name = $2, location = $3, coordinates = $4, evidence = $5, type = $6, 
-          capacity = $7, status = $8, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $9
+          capacity = $7, status = $8, pic_name = $9, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $10
       RETURNING *
-    `, [code, name, location || '', coordinates || '', evidence || null, type || 'MAIN', capacity || '', status || 'ACTIVE', id]);
+    `, [code, name, location || '', coordinates || '', evidence || null, type || 'MAIN', capacity || '', status || 'ACTIVE', picName || null, id]);
 
     if (res.rowCount === 0) {
       return NextResponse.json({ message: 'Warehouse not found' }, { status: 404 });
@@ -160,7 +160,23 @@ export async function PUT(request: Request) {
       }
     }
 
-    return NextResponse.json({ data: res.rows[0], message: 'Warehouse updated' }, { status: 200 });
+    const row = res.rows[0];
+    const warehouse = {
+      id: row.id,
+      code: row.code,
+      name: row.name,
+      location: row.location,
+      coordinates: row.coordinates,
+      evidence: row.evidence,
+      type: row.type,
+      capacity: row.capacity,
+      status: row.status,
+      picName: row.pic_name,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    };
+
+    return NextResponse.json({ data: warehouse, message: 'Warehouse updated' }, { status: 200 });
   } catch (error: any) {
     console.error('Error updating warehouse:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });

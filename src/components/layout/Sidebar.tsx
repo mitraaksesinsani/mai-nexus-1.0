@@ -54,6 +54,10 @@ const groupedNavigation = [
         label: 'Owner Dashboard',
         href: '/owner-dashboard',
         icon: BarChart3,
+        children: [
+          { label: 'Overview', href: '/owner-dashboard' },
+          { label: 'Warehouse List', href: '/owner-dashboard/warehouse' },
+        ],
       },
     ]
   },
@@ -247,23 +251,28 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
       // Admin has access to everything
       if (userRole === 'ADMIN' || userRole === 'SUPER_ADMIN') return true;
 
+      // OWNER only has access to Owner Dashboard
+      if (userRole === 'OWNER') {
+        return item.label === 'Owner Dashboard';
+      }
+
       switch (item.label) {
         case 'Project Management':
           return ['SITE_MANAGER', 'PROJECT_MANAGER'].includes(userRole);
         case 'PR Management':
-          return ['SITE_MANAGER', 'PROJECT_MANAGER', 'PROCUREMENT', 'OWNER', 'DIREKTUR'].includes(userRole);
+          return ['SITE_MANAGER', 'PROJECT_MANAGER', 'PROCUREMENT', 'DIREKTUR'].includes(userRole);
         case 'RFC':
-          return userRole !== 'OWNER';
+          return true;
         case 'Owner Dashboard':
-          return false; // Only Admin sees it (Admin bypasses this switch)
+          return ['DIREKTUR'].includes(userRole);
         case 'Procurement':
-          return ['PROCUREMENT', 'OWNER', 'DIREKTUR'].includes(userRole);
+          return ['PROCUREMENT', 'DIREKTUR'].includes(userRole);
         case 'Logistics':
           return true; // All roles can view Logistics
         case 'Warehouse':
         case 'Inventory':
         case 'Material Transfer':
-          return ['PROCUREMENT', 'OWNER', 'DIREKTUR', 'SITE_MANAGER', 'PROJECT_MANAGER'].includes(userRole);
+          return ['PROCUREMENT', 'DIREKTUR', 'SITE_MANAGER', 'PROJECT_MANAGER'].includes(userRole);
         case 'Master Data':
           return ['PROCUREMENT'].includes(userRole);
         default:

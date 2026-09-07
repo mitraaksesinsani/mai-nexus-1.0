@@ -24,7 +24,13 @@ function LoginForm() {
 
     try {
       await login(email, password);
-      router.push('/');
+      const savedUserStr = localStorage.getItem('nims_user');
+      const savedUser = savedUserStr ? JSON.parse(savedUserStr) : null;
+      if (savedUser?.role?.toUpperCase() === 'OWNER') {
+        router.push('/owner-dashboard');
+      } else {
+        router.push('/');
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Email atau password salah');
     } finally {

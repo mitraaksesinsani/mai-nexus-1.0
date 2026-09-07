@@ -50,6 +50,7 @@ export async function GET(
       type: row.type,
       capacity: row.capacity,
       status: row.status,
+      picName: row.pic_name,
       totalMaterials: parseInt(row.total_materials, 10) || 0,
       totalStock: parseInt(row.total_stock, 10) || 0,
       projects: projectsRes.rows.map(p => ({

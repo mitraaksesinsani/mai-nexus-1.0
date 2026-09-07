@@ -12,11 +12,18 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
+  const isOwner = user?.role?.toUpperCase() === 'OWNER';
+  const isOwnerRoute = pathname === '/owner-dashboard' || pathname.startsWith('/owner-dashboard/');
+
   useEffect(() => {
-    if (!isLoading && !user && pathname !== '/login') {
-      router.push('/login');
+    if (!isLoading) {
+      if (!user && pathname !== '/login') {
+        router.push('/login');
+      } else if (isOwner && !isOwnerRoute) {
+        router.replace('/owner-dashboard');
+      }
     }
-  }, [user, isLoading, router, pathname]);
+  }, [user, isLoading, router, pathname, isOwner, isOwnerRoute]);
 
   if (isLoading) {
     return (
@@ -36,6 +43,19 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) return null;
+
+  if (isOwner && !isOwnerRoute) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4 animate-fade-in">
+          <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center animate-float">
+            <span className="text-white text-xl font-bold">N</span>
+          </div>
+          <p className="text-sm text-muted-foreground">Mengalihkan ke Owner Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider className="h-screen overflow-hidden">
