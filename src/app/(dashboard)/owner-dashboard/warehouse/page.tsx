@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { 
-  Warehouse as WarehouseIcon, Search, Box, ArrowRight, Package, Layers, User, ChevronRight, Home
+  Warehouse as WarehouseIcon, Search, Box, ArrowRight, Package, Layers, User, ChevronRight, Home, MapPin
 } from 'lucide-react';
 import api from '@/lib/api';
 import { Input } from '@/components/ui/input';
@@ -91,6 +91,12 @@ export default function OwnerWarehouseListPage() {
                   <div className="flex items-center gap-1.5 mt-1">
                     <Box className="w-[12.6px] h-[12.6px] text-[#737373]" />
                     <span className="text-[10.8px] font-medium text-[#737373] leading-[14.4px]">{w.code}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <MapPin className="w-[12.6px] h-[12.6px] text-[#737373]" />
+                    <span className="text-[10.8px] font-medium text-[#737373] leading-[14.4px] truncate" title={w.location || '-'}>
+                      {w.location || '-'}
+                    </span>
                   </div>
                 </div>
 
