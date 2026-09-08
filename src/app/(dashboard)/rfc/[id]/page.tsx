@@ -204,6 +204,103 @@ export default function RfcDetailPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         <div className="xl:col-span-3 space-y-6">
+          {isApproved && (
+            <Card className="border-primary/50 shadow-sm p-0 gap-0 overflow-hidden">
+              <CardHeader className="bg-primary/5 border-b px-6 py-4">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Package className="h-5 w-5 text-primary" />
+                  Warehouse Release Confirmation
+                </CardTitle>
+                <CardDescription>
+                  This request is approved. Please fill out the details below before releasing the materials. This will deduct the stock from the warehouse.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-6 py-5 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="takerName">Taker Name (Nama Pengambil) <span className="text-destructive">*</span></Label>
+                    <Input 
+                      id="takerName" 
+                      placeholder="e.g. Budi (Teknisi)" 
+                      value={takerName}
+                      onChange={(e) => setTakerName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="takerDate">Pickup Date (Tanggal Ambil) <span className="text-destructive">*</span></Label>
+                    <Input 
+                      id="takerDate" 
+                      type="date"
+                      value={takerDate}
+                      onChange={(e) => setTakerDate(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="evidence">Evidence Document (URL / Photo Link)</Label>
+                    <div className="flex gap-2">
+                      <Input 
+                        id="evidence" 
+                        placeholder="https://..." 
+                        value={evidenceUrl}
+                        onChange={(e) => setEvidenceUrl(e.target.value)}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">Upload a photo of the recipient with the materials or a signed form.</p>
+                  </div>
+                </div>
+                
+                <div className="pt-2 flex justify-end">
+                  <Button onClick={handleComplete} disabled={isCompleting || !takerName || !takerDate} className="gap-2">
+                    {isCompleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    Confirm Release & Deduct Stock
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {isCompleted && (
+            <Card className="border-green-500/40 shadow-sm p-0 gap-0 overflow-hidden">
+              <CardHeader className="bg-green-50/50 dark:bg-green-950/20 border-b px-6 py-4">
+                <CardTitle className="text-lg flex items-center gap-2 text-green-700 dark:text-green-400">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  Release Information
+                </CardTitle>
+                <CardDescription>
+                  Material has been verified and released from the warehouse.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-6 py-5">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Taken By</span>
+                    <span className="font-medium">{rfc.takerName || '-'}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Pickup Date</span>
+                    <span className="font-medium">{rfc.takerDate ? new Date(rfc.takerDate).toLocaleDateString() : '-'}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Processed By</span>
+                    <span className="font-medium">{rfc.completedByName || '-'}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Completed At</span>
+                    <span className="font-medium">{rfc.completedAt ? new Date(rfc.completedAt).toLocaleString() : '-'}</span>
+                  </div>
+                  {rfc.evidenceDocument && (
+                    <div className="col-span-2 md:col-span-4 mt-2 pt-2 border-t">
+                      <span className="text-muted-foreground block mb-1">Evidence Document</span>
+                      <a href={rfc.evidenceDocument} target="_blank" rel="noreferrer" className="text-primary hover:underline flex items-center gap-1 font-medium">
+                        <FileText className="h-4 w-4" /> View Document
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <Card>
             <CardHeader>
               <CardTitle>Requested Materials</CardTitle>
@@ -240,101 +337,6 @@ export default function RfcDetailPage() {
               </Table>
             </CardContent>
           </Card>
-
-          {isApproved && (
-            <Card className="border-primary/50 shadow-sm">
-              <CardHeader className="bg-primary/5 border-b pb-4">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Package className="h-5 w-5 text-primary" />
-                  Warehouse Release Confirmation
-                </CardTitle>
-                <CardDescription>
-                  This request is approved. Please fill out the details below before releasing the materials. This will deduct the stock from the warehouse.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="takerName">Taker Name (Nama Pengambil) <span className="text-destructive">*</span></Label>
-                    <Input 
-                      id="takerName" 
-                      placeholder="e.g. Budi (Teknisi)" 
-                      value={takerName}
-                      onChange={(e) => setTakerName(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="takerDate">Pickup Date (Tanggal Ambil) <span className="text-destructive">*</span></Label>
-                    <Input 
-                      id="takerDate" 
-                      type="date"
-                      value={takerDate}
-                      onChange={(e) => setTakerDate(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="evidence">Evidence Document (URL / Photo Link)</Label>
-                    <div className="flex gap-2">
-                      <Input 
-                        id="evidence" 
-                        placeholder="https://..." 
-                        value={evidenceUrl}
-                        onChange={(e) => setEvidenceUrl(e.target.value)}
-                      />
-                      {/* In a real app, this would be a file upload component */}
-                    </div>
-                    <p className="text-xs text-muted-foreground">Upload a photo of the recipient with the materials or a signed form.</p>
-                  </div>
-                </div>
-                
-                <div className="pt-4 flex justify-end">
-                  <Button onClick={handleComplete} disabled={isCompleting || !takerName || !takerDate} className="gap-2">
-                    {isCompleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    Confirm Release & Deduct Stock
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {isCompleted && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  Release Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Taken By</span>
-                    <span className="font-medium">{rfc.takerName || '-'}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Pickup Date</span>
-                    <span className="font-medium">{rfc.takerDate ? new Date(rfc.takerDate).toLocaleDateString() : '-'}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Processed By (Warehouse)</span>
-                    <span className="font-medium">{rfc.completedByName || '-'}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Completed At</span>
-                    <span className="font-medium">{rfc.completedAt ? new Date(rfc.completedAt).toLocaleString() : '-'}</span>
-                  </div>
-                  {rfc.evidenceDocument && (
-                    <div className="col-span-2 mt-2">
-                      <span className="text-muted-foreground block mb-1">Evidence Document</span>
-                      <a href={rfc.evidenceDocument} target="_blank" rel="noreferrer" className="text-primary hover:underline flex items-center gap-1">
-                        <FileText className="h-4 w-4" /> View Document
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
 
         <div className="xl:col-span-1 space-y-6">
