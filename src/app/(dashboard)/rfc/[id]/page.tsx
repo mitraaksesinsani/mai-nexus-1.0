@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, CheckCircle, XCircle, Package, User, Calendar, MapPin, Upload, Loader2, Save, FileText, Printer } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Package, User, Calendar, MapPin, Upload, Loader2, Save, FileText, Printer, X, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,6 +30,7 @@ export default function RfcDetailPage() {
   const [takerName, setTakerName] = useState('');
   const [takerDate, setTakerDate] = useState('');
   const [evidenceUrl, setEvidenceUrl] = useState('');
+  const [isUploadingEvidence, setIsUploadingEvidence] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
 
   // Approval modal states
@@ -59,9 +60,45 @@ export default function RfcDetailPage() {
     }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingEvidence(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.url) {
+        setEvidenceUrl(data.url);
+        toast.success('Bukti dokumen/foto berhasil diunggah');
+      } else {
+        toast.error(data.message || 'Gagal mengunggah file bukti');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Terjadi kesalahan saat mengunggah file');
+    } finally {
+      setIsUploadingEvidence(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleRemoveEvidence = () => {
+    setEvidenceUrl('');
+    toast.info('File bukti dihapus');
+  };
+
   const handleComplete = async () => {
-    if (!takerName) return toast.error('Please input the name of the person taking the materials');
-    if (!takerDate) return toast.error('Please input the pickup date');
+    if (!takerName) return toast.error('Silakan isi nama pengambil material');
+    if (!takerDate) return toast.error('Silakan tentukan tanggal pengambilan');
     // Evidence is optional depending on business logic, but let's encourage it or just make it optional.
 
     setIsCompleting(true);
@@ -236,21 +273,97 @@ export default function RfcDetailPage() {
                     />
                   </div>
                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="evidence">Evidence Document (URL / Photo Link)</Label>
-                    <div className="flex gap-2">
-                      <Input 
-                        id="evidence" 
-                        placeholder="https://..." 
-                        value={evidenceUrl}
-                        onChange={(e) => setEvidenceUrl(e.target.value)}
-                      />
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="evidenceFile" className="font-medium">
+                        Evidence Document / Bukti Pengambilan
+                      </Label>
+                      <span className="text-xs text-muted-foreground font-normal">
+                        (Sunnah / Opsional)
+                      </span>
                     </div>
-                    <p className="text-xs text-muted-foreground">Upload a photo of the recipient with the materials or a signed form.</p>
+
+                    {!evidenceUrl ? (
+                      <div>
+                        <Button 
+                          variant="outline" 
+                          type="button" 
+                          disabled={isUploadingEvidence}
+                          className="relative overflow-hidden cursor-pointer gap-2 h-10 w-full sm:w-auto"
+                        >
+                          {isUploadingEvidence ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                              <span>Mengunggah file...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 text-primary" />
+                              <span>Pilih File Bukti (Foto / PDF)</span>
+                            </>
+                          )}
+                          <input 
+                            id="evidenceFile"
+                            type="file" 
+                            accept="image/*,.pdf" 
+                            className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed" 
+                            onChange={handleFileUpload} 
+                            disabled={isUploadingEvidence}
+                          />
+                        </Button>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Tidak wajib. Anda dapat mengunggah foto penerima bersama barang atau surat jalan / formulir serah terima bertanda tangan (JPG, PNG, atau PDF).
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between p-3 border rounded-xl bg-card w-full shadow-sm">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 border bg-muted flex items-center justify-center">
+                            {evidenceUrl.match(/\.(jpeg|jpg|png|webp|gif)($|\?)/i) || evidenceUrl.startsWith('data:image') ? (
+                              <img src={evidenceUrl} alt="Evidence Preview" className="w-full h-full object-cover" />
+                            ) : (
+                              <FileText className="w-6 h-6 text-primary" />
+                            )}
+                          </div>
+                          <div className="flex flex-col min-w-0 pr-2">
+                            <span className="text-sm font-medium truncate max-w-[280px] sm:max-w-md">
+                              {evidenceUrl.split('/').pop()?.split('?')[0] || 'evidence_document'}
+                            </span>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                              <span className="uppercase font-semibold text-[10px] px-1.5 py-0.5 rounded bg-muted">
+                                {evidenceUrl.split('.').pop()?.split('?')[0] || 'FILE'}
+                              </span>
+                              <a
+                                href={evidenceUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary hover:underline inline-flex items-center gap-1 font-medium"
+                              >
+                                <Eye className="w-3 h-3" /> Lihat File
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={handleRemoveEvidence}
+                          className="text-muted-foreground hover:text-destructive shrink-0 h-8 w-8"
+                          title="Hapus file"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
                 <div className="pt-2 flex justify-end">
-                  <Button onClick={handleComplete} disabled={isCompleting || !takerName || !takerDate} className="gap-2">
+                  <Button 
+                    onClick={handleComplete} 
+                    disabled={isCompleting || isUploadingEvidence || !takerName || !takerDate} 
+                    className="gap-2"
+                  >
                     {isCompleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     Confirm Release & Deduct Stock
                   </Button>
