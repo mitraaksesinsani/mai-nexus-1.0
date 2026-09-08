@@ -81,20 +81,20 @@ export default function OwnerWarehouseListPage() {
         <div className="flex flex-col gap-3">
           {filteredWarehouses.map((w) => (
             <Link href={`/owner-dashboard/warehouse/${w.id}`} key={w.id} className="block group">
-              <div className="bg-white border border-gray-200 rounded-[14.4px] px-5 py-3.5 flex flex-row items-center gap-10 overflow-hidden transition-all duration-300 hover:border-gray-300 relative">
+              <div className="bg-card border border-border/60 hover:border-primary/40 rounded-[14.4px] px-5 py-3.5 flex flex-row items-center gap-10 overflow-hidden transition-all duration-300 hover:shadow-sm relative">
                 
                 {/* Left Column (Info) */}
                 <div className="flex flex-col flex-1 min-w-[200px]">
-                  <div className="text-[16.2px] font-bold text-[#0a0a0a] truncate leading-[25.2px]">
+                  <div className="text-[16.2px] font-bold text-foreground truncate leading-[25.2px] group-hover:text-primary transition-colors">
                     {w.name}
                   </div>
                   <div className="flex items-center gap-1.5 mt-1">
-                    <Box className="w-[12.6px] h-[12.6px] text-[#737373]" />
-                    <span className="text-[10.8px] font-medium text-[#737373] leading-[14.4px]">{w.code}</span>
+                    <Box className="w-[12.6px] h-[12.6px] text-muted-foreground" />
+                    <span className="text-[10.8px] font-medium text-muted-foreground leading-[14.4px]">{w.code}</span>
                   </div>
                   <div className="flex items-center gap-1.5 mt-1">
-                    <MapPin className="w-[12.6px] h-[12.6px] text-[#737373]" />
-                    <span className="text-[10.8px] font-medium text-[#737373] leading-[14.4px] truncate" title={w.location || '-'}>
+                    <MapPin className="w-[12.6px] h-[12.6px] text-muted-foreground" />
+                    <span className="text-[10.8px] font-medium text-muted-foreground leading-[14.4px] truncate" title={w.location || '-'}>
                       {w.location || '-'}
                     </span>
                   </div>
@@ -107,8 +107,8 @@ export default function OwnerWarehouseListPage() {
                       <Package className="w-[14.4px] h-[14.4px] text-blue-500" />
                     </div>
                     <div className="flex flex-col w-[66.83px]">
-                      <span className="text-[10px] font-medium text-[#737373] uppercase tracking-[0.5px] leading-[14.29px]">Total Stok</span>
-                      <span className="text-[12.6px] font-semibold text-[#0a0a0a] leading-[18px]">{w.totalStock?.toLocaleString() || 0}</span>
+                      <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-[0.5px] leading-[14.29px]">Total Stok</span>
+                      <span className="text-[12.6px] font-semibold text-foreground leading-[18px]">{w.totalStock?.toLocaleString() || 0}</span>
                     </div>
                   </div>
 
@@ -117,8 +117,8 @@ export default function OwnerWarehouseListPage() {
                       <Layers className="w-[14.4px] h-[14.4px] text-emerald-500" />
                     </div>
                     <div className="flex flex-col w-[79.27px]">
-                      <span className="text-[10px] font-medium text-[#737373] uppercase tracking-[0.5px] leading-[14.29px]">SKU Material</span>
-                      <span className="text-[12.6px] font-semibold text-[#0a0a0a] leading-[18px]">{w.totalMaterials?.toLocaleString() || 0}</span>
+                      <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-[0.5px] leading-[14.29px]">SKU Material</span>
+                      <span className="text-[12.6px] font-semibold text-foreground leading-[18px]">{w.totalMaterials?.toLocaleString() || 0}</span>
                     </div>
                   </div>
                   
@@ -127,20 +127,20 @@ export default function OwnerWarehouseListPage() {
                       <User className="w-[14.4px] h-[14.4px] text-purple-500" />
                     </div>
                     <div className="flex flex-col w-[79.27px]">
-                      <span className="text-[10px] font-medium text-[#737373] uppercase tracking-[0.5px] leading-[14.29px]">PIC Gudang</span>
-                      <span className="text-[12.6px] font-semibold text-[#0a0a0a] leading-[18px] truncate" title={w.picName || '-'}>{w.picName || '-'}</span>
+                      <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-[0.5px] leading-[14.29px]">PIC Gudang</span>
+                      <span className="text-[12.6px] font-semibold text-foreground leading-[18px] truncate" title={w.picName || '-'}>{w.picName || '-'}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Right Columns (Status & Action) */}
                 <div className="flex items-center gap-10 shrink-0 ml-auto">
-                  <div className={`border rounded-full px-[9px] py-[1.8px] flex items-center gap-[5.4px] ${w.status?.toLowerCase() === 'inactive' ? 'bg-red-50 border-red-200' : 'bg-[#dcfce7] border-[#b9f8cf]'}`}>
-                    <div className={`w-[5.4px] h-[5.4px] opacity-70 rounded-full ${w.status?.toLowerCase() === 'inactive' ? 'bg-red-600' : 'bg-[#008235]'}`}></div>
-                    <span className={`text-[10.8px] font-medium leading-[14.4px] capitalize ${w.status?.toLowerCase() === 'inactive' ? 'text-red-600' : 'text-[#008235]'}`}>{w.status || 'Active'}</span>
+                  <div className={`border rounded-full px-[9px] py-[1.8px] flex items-center gap-[5.4px] ${w.status?.toLowerCase() === 'inactive' ? 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'}`}>
+                    <div className={`w-[5.4px] h-[5.4px] opacity-80 rounded-full ${w.status?.toLowerCase() === 'inactive' ? 'bg-rose-500' : 'bg-emerald-500'}`}></div>
+                    <span className="text-[10.8px] font-medium leading-[14.4px] capitalize">{w.status || 'Active'}</span>
                   </div>
 
-                  <div className="flex items-center gap-[3.6px] text-[#171717] group-hover:text-primary transition-colors">
+                  <div className="flex items-center gap-[3.6px] text-foreground/80 group-hover:text-primary transition-colors">
                     <span className="text-[10.8px] font-medium leading-[14.4px]">Lihat Detil</span>
                     <ArrowRight className="w-[12.6px] h-[12.6px] group-hover:translate-x-0.5 transition-transform" />
                   </div>
