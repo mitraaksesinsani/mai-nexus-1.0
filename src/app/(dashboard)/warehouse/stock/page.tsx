@@ -109,32 +109,38 @@ export default function StockMonitoringPage() {
           </div>
         ) : stocks.length > 0 ? (
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="table-fixed min-w-[1100px] w-full">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Warehouse</TableHead>
-                  <TableHead>Material Code</TableHead>
-                  <TableHead className="min-w-[280px]">Material Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead className="text-right">Quantity</TableHead>
-                  <TableHead className="text-right">Last Updated</TableHead>
+                  <TableHead className="w-[200px]">Warehouse</TableHead>
+                  <TableHead className="w-[140px]">Material Code</TableHead>
+                  <TableHead className="w-[380px]">Material Name</TableHead>
+                  <TableHead className="w-[130px]">Category</TableHead>
+                  <TableHead className="w-[110px] text-right">Quantity</TableHead>
+                  <TableHead className="w-[140px] text-right">Last Updated</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {stocks.slice((page - 1) * pageSize, page * pageSize).map((stock, i) => (
                   <TableRow key={`${stock.id}-${i}`}>
-                    <TableCell className="font-medium">{stock.warehouseName}</TableCell>
-                    <TableCell>{stock.materialCode || '-'}</TableCell>
+                    <TableCell className="font-medium truncate" title={stock.warehouseName}>
+                      {stock.warehouseName}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground truncate" title={stock.materialCode || '-'}>
+                      {stock.materialCode || '-'}
+                    </TableCell>
                     <TableCell className="whitespace-normal">
                       <div className="max-w-[53ch] break-words text-sm font-medium leading-snug" style={{ maxWidth: '53ch' }}>
                         {stock.materialName}
                       </div>
                     </TableCell>
-                    <TableCell>{stock.category || '-'}</TableCell>
-                    <TableCell className="text-right font-bold text-primary">
-                      {stock.quantity}
+                    <TableCell className="truncate text-muted-foreground text-sm" title={stock.category || '-'}>
+                      {stock.category || '-'}
                     </TableCell>
-                    <TableCell className="text-right text-muted-foreground text-sm">
+                    <TableCell className="text-right font-bold text-primary whitespace-nowrap">
+                      {stock.quantity?.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-right text-muted-foreground text-xs whitespace-nowrap">
                       {stock.lastUpdated ? formatDate(stock.lastUpdated) : '-'}
                     </TableCell>
                   </TableRow>
