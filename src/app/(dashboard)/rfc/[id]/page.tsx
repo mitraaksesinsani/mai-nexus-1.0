@@ -137,23 +137,23 @@ export default function RfcDetailPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Material</TableHead>
-                    <TableHead className="text-right">Quantity</TableHead>
-                    <TableHead>Unit</TableHead>
-                    <TableHead>Notes</TableHead>
+                    <TableHead className="w-[45%] min-w-[280px]">Material</TableHead>
+                    <TableHead className="text-right w-[15%]">Quantity</TableHead>
+                    <TableHead className="w-[15%]">Unit</TableHead>
+                    <TableHead className="w-[25%]">Notes</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {rfc.items && rfc.items.length > 0 ? (
                     rfc.items.map((item: any) => (
                       <TableRow key={item.id}>
-                        <TableCell>
-                          <div className="font-medium">{item.materialName}</div>
-                          <div className="text-xs text-muted-foreground">{item.materialCode}</div>
+                        <TableCell className="max-w-[450px] whitespace-normal py-3 align-top">
+                          <div className="font-medium whitespace-normal break-words leading-relaxed">{item.materialName}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">{item.materialCode}</div>
                         </TableCell>
-                        <TableCell className="text-right font-medium">{item.requestQty}</TableCell>
-                        <TableCell>{item.unit}</TableCell>
-                        <TableCell className="text-muted-foreground text-sm">{item.notes || '-'}</TableCell>
+                        <TableCell className="text-right font-medium align-top py-3">{item.requestQty}</TableCell>
+                        <TableCell className="align-top py-3">{item.unit}</TableCell>
+                        <TableCell className="text-muted-foreground text-sm whitespace-normal break-words max-w-[250px] align-top py-3">{item.notes || '-'}</TableCell>
                       </TableRow>
                     ))
                   ) : (
