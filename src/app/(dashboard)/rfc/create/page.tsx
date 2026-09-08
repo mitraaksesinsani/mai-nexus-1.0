@@ -298,6 +298,139 @@ export default function CreateRfcPage() {
           </CardContent>
         </Card>
 
+        {/* Approver Berjenjang Card */}
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <UserCheck className="h-5 w-5 text-primary" />
+                  Approval Workflow (Approver Berjenjang)
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Pilih approver bertingkat yang berwenang memverifikasi dan menyetujui dokumen pengeluaran material ini
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Level 1: Site Verification */}
+              <div className="space-y-2.5 p-4 rounded-xl border bg-muted/20 border-border/70">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="approver-l1" className="font-semibold flex items-center gap-2 text-sm">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold">1</span>
+                    Level 1: Site Verification <span className="text-destructive">*</span>
+                  </Label>
+                  <span className="text-[11px] text-muted-foreground bg-background px-2 py-0.5 rounded border border-border/60">
+                    Review Lapangan
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Verifikasi fisik & kebutuhan teknis material proyek di lapangan
+                </p>
+                <Select 
+                  value={approverLevel1} 
+                  onValueChange={(val) => setApproverLevel1(val || '')}
+                  items={users.map((u) => ({
+                    value: u.id,
+                    label: `${u.name} (${u.role})`
+                  }))}
+                >
+                  <SelectTrigger id="approver-l1" className="h-11 bg-background">
+                    <SelectValue placeholder="Pilih Site Manager / Reviewer">
+                      {(() => {
+                        const selected = users.find((u) => u.id === approverLevel1);
+                        return selected ? `${selected.name} (${selected.role})` : undefined;
+                      })()}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {users.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        <div className="flex items-center justify-between w-full gap-2">
+                          <span className="font-medium">{u.name}</span>
+                          <span className="text-[11px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded border border-border/40">{u.role}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Level 2: Final Authorization */}
+              <div className="space-y-2.5 p-4 rounded-xl border bg-muted/20 border-border/70">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="approver-l2" className="font-semibold flex items-center gap-2 text-sm">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold">2</span>
+                    Level 2: Final Authorization <span className="text-destructive">*</span>
+                  </Label>
+                  <span className="text-[11px] text-muted-foreground bg-background px-2 py-0.5 rounded border border-border/60">
+                    Persetujuan Akhir
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Otorisasi pengeluaran barang sebelum material dapat diambil di gudang
+                </p>
+                <Select 
+                  value={approverLevel2} 
+                  onValueChange={(val) => setApproverLevel2(val || '')}
+                  items={users.map((u) => ({
+                    value: u.id,
+                    label: `${u.name} (${u.role})`
+                  }))}
+                >
+                  <SelectTrigger id="approver-l2" className="h-11 bg-background">
+                    <SelectValue placeholder="Pilih Direktur / Management Approver">
+                      {(() => {
+                        const selected = users.find((u) => u.id === approverLevel2);
+                        return selected ? `${selected.name} (${selected.role})` : undefined;
+                      })()}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {users.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        <div className="flex items-center justify-between w-full gap-2">
+                          <span className="font-medium">{u.name}</span>
+                          <span className="text-[11px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded border border-border/40">{u.role}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Visual Mini Stepper Preview */}
+            <div className="pt-3 border-t">
+              <span className="text-xs font-semibold text-muted-foreground block mb-2.5">
+                Preview Alur Persetujuan Dokumen:
+              </span>
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <div className="flex items-center gap-1.5 bg-muted/60 px-3 py-1.5 rounded-lg border">
+                  <span className="w-4 h-4 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center text-[10px]">0</span>
+                  <span className="font-medium">{user?.name || 'Requestor'} (Submit)</span>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30 font-medium">
+                  <span className="w-4 h-4 rounded-full bg-amber-500/20 font-bold flex items-center justify-center text-[10px]">1</span>
+                  <span>{users.find(u => u.id === approverLevel1)?.name || 'Pilih Level 1 Approver'}</span>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <div className="flex items-center gap-1.5 bg-blue-500/10 text-blue-700 dark:text-blue-400 px-3 py-1.5 rounded-lg border border-blue-500/30 font-medium">
+                  <span className="w-4 h-4 rounded-full bg-blue-500/20 font-bold flex items-center justify-center text-[10px]">2</span>
+                  <span>{users.find(u => u.id === approverLevel2)?.name || 'Pilih Level 2 Approver'}</span>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <div className="flex items-center gap-1.5 bg-muted/60 px-3 py-1.5 rounded-lg border text-muted-foreground">
+                  <span className="font-medium">Warehouse Dispatch</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {formData.warehouseId && isLoadingInventory && (
           <div className="bg-muted/50 border border-border p-4 rounded-md flex items-center gap-3 animate-pulse">
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
@@ -435,139 +568,6 @@ export default function CreateRfcPage() {
                   ))}
                 </TableBody>
               </Table>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Approver Berjenjang Card */}
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <UserCheck className="h-5 w-5 text-primary" />
-                  Approval Workflow (Approver Berjenjang)
-                </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Pilih approver bertingkat yang berwenang memverifikasi dan menyetujui dokumen pengeluaran material ini
-                </p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Level 1: Site Verification */}
-              <div className="space-y-2.5 p-4 rounded-xl border bg-muted/20 border-border/70">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="approver-l1" className="font-semibold flex items-center gap-2 text-sm">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold">1</span>
-                    Level 1: Site Verification <span className="text-destructive">*</span>
-                  </Label>
-                  <span className="text-[11px] text-muted-foreground bg-background px-2 py-0.5 rounded border border-border/60">
-                    Review Lapangan
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Verifikasi fisik & kebutuhan teknis material proyek di lapangan
-                </p>
-                <Select 
-                  value={approverLevel1} 
-                  onValueChange={(val) => setApproverLevel1(val || '')}
-                  items={users.map((u) => ({
-                    value: u.id,
-                    label: `${u.name} (${u.role})`
-                  }))}
-                >
-                  <SelectTrigger id="approver-l1" className="h-11 bg-background">
-                    <SelectValue placeholder="Pilih Site Manager / Reviewer">
-                      {(() => {
-                        const selected = users.find((u) => u.id === approverLevel1);
-                        return selected ? `${selected.name} (${selected.role})` : undefined;
-                      })()}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {users.map((u) => (
-                      <SelectItem key={u.id} value={u.id}>
-                        <div className="flex items-center justify-between w-full gap-2">
-                          <span className="font-medium">{u.name}</span>
-                          <span className="text-[11px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded border border-border/40">{u.role}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Level 2: Final Authorization */}
-              <div className="space-y-2.5 p-4 rounded-xl border bg-muted/20 border-border/70">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="approver-l2" className="font-semibold flex items-center gap-2 text-sm">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold">2</span>
-                    Level 2: Final Authorization <span className="text-destructive">*</span>
-                  </Label>
-                  <span className="text-[11px] text-muted-foreground bg-background px-2 py-0.5 rounded border border-border/60">
-                    Persetujuan Akhir
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Otorisasi pengeluaran barang sebelum material dapat diambil di gudang
-                </p>
-                <Select 
-                  value={approverLevel2} 
-                  onValueChange={(val) => setApproverLevel2(val || '')}
-                  items={users.map((u) => ({
-                    value: u.id,
-                    label: `${u.name} (${u.role})`
-                  }))}
-                >
-                  <SelectTrigger id="approver-l2" className="h-11 bg-background">
-                    <SelectValue placeholder="Pilih Direktur / Management Approver">
-                      {(() => {
-                        const selected = users.find((u) => u.id === approverLevel2);
-                        return selected ? `${selected.name} (${selected.role})` : undefined;
-                      })()}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {users.map((u) => (
-                      <SelectItem key={u.id} value={u.id}>
-                        <div className="flex items-center justify-between w-full gap-2">
-                          <span className="font-medium">{u.name}</span>
-                          <span className="text-[11px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded border border-border/40">{u.role}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Visual Mini Stepper Preview */}
-            <div className="pt-3 border-t">
-              <span className="text-xs font-semibold text-muted-foreground block mb-2.5">
-                Preview Alur Persetujuan Dokumen:
-              </span>
-              <div className="flex flex-wrap items-center gap-2 text-xs">
-                <div className="flex items-center gap-1.5 bg-muted/60 px-3 py-1.5 rounded-lg border">
-                  <span className="w-4 h-4 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center text-[10px]">0</span>
-                  <span className="font-medium">{user?.name || 'Requestor'} (Submit)</span>
-                </div>
-                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30 font-medium">
-                  <span className="w-4 h-4 rounded-full bg-amber-500/20 font-bold flex items-center justify-center text-[10px]">1</span>
-                  <span>{users.find(u => u.id === approverLevel1)?.name || 'Pilih Level 1 Approver'}</span>
-                </div>
-                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <div className="flex items-center gap-1.5 bg-blue-500/10 text-blue-700 dark:text-blue-400 px-3 py-1.5 rounded-lg border border-blue-500/30 font-medium">
-                  <span className="w-4 h-4 rounded-full bg-blue-500/20 font-bold flex items-center justify-center text-[10px]">2</span>
-                  <span>{users.find(u => u.id === approverLevel2)?.name || 'Pilih Level 2 Approver'}</span>
-                </div>
-                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <div className="flex items-center gap-1.5 bg-muted/60 px-3 py-1.5 rounded-lg border text-muted-foreground">
-                  <span className="font-medium">Warehouse Dispatch</span>
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>
