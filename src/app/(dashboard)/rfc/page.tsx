@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FileText, Plus, Search, Calendar, Filter, Eye } from 'lucide-react';
+import { FileText, Plus, Search, Calendar, Filter, Eye, Printer } from 'lucide-react';
 import api from '@/lib/api';
 import StatusBadge from '@/components/shared/StatusBadge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -169,13 +169,23 @@ export default function ConsumptionRfcPage() {
                    <TableCell>
                      <StatusBadge status={rfc.status} />
                    </TableCell>
-                   <TableCell className="text-right">
-                     <Link href={`/rfc/${rfc.id}`}>
-                       <Button variant="ghost" size="icon" title="View Details">
-                         <Eye className="h-4 w-4" />
-                       </Button>
-                     </Link>
-                   </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Print Document"
+                          onClick={() => window.open(`/print/rfc/${rfc.id}`, '_blank')}
+                        >
+                          <Printer className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                        </Button>
+                        <Link href={`/rfc/${rfc.id}`}>
+                          <Button variant="ghost" size="icon" title="View Details">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </TableCell>
                  </TableRow>
                ))
              ) : (

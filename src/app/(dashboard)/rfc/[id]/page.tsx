@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, CheckCircle, Package, User, Calendar, MapPin, Upload, Loader2, Save, FileText } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Package, User, Calendar, MapPin, Upload, Loader2, Save, FileText, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -86,18 +86,31 @@ export default function RfcDetailPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight">{rfc.rfcNumber}</h1>
-            <StatusBadge status={rfc.status} />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold tracking-tight">{rfc.rfcNumber}</h1>
+              <StatusBadge status={rfc.status} />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Created on {new Date(rfc.createdAt).toLocaleDateString()}
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Created on {new Date(rfc.createdAt).toLocaleDateString()}
-          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="gap-2 shadow-sm"
+            onClick={() => window.open(`/print/rfc/${rfc.id}`, '_blank')}
+          >
+            <Printer className="h-4 w-4" />
+            Print / PDF Document
+          </Button>
         </div>
       </div>
 
