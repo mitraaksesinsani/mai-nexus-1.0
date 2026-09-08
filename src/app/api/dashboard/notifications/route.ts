@@ -15,26 +15,56 @@ export async function GET(req: NextRequest) {
     const dynamicNotifications: any[] = [];
 
     // 1. RFC Approvals
-    if (['PROCUREMENT', 'OWNER', 'DIREKTUR', 'ADMIN', 'SUPER_ADMIN'].includes(role)) {
-      const rfcRes = await pool.query(`
-        SELECT id, rfc_number, created_at 
-        FROM rfcs 
-        WHERE status = 'WAITING_APPROVAL' 
-        AND (site_approver_id IS NULL OR site_approver_id = $1)
-        ORDER BY created_at DESC LIMIT 5
-      `, [userId]);
-      
-      rfcRes.rows.forEach(r => {
-        dynamicNotifications.push({
-          id: `rfc-${r.id}`,
-          title: 'RFC Approval Required',
-          message: `Request For Certificate ${r.rfc_number} is waiting for your approval.`,
-          link: `/rfc/approval?actionId=${r.id}`,
-          createdAt: r.created_at,
-          isRead: false,
-          type: 'RFC_APPROVAL'
+    if (['PROCUREMENT', 'OWNER', 'DIREKTUR', 'SITE_MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(role)) {
+      try {
+        const rfcRes = await pool.query(`
+          SELECT cr.id, cr.rfc_number, cr.created_at 
+          FROM consumption_requests cr
+          WHERE cr.status = 'WAITING_APPROVAL' 
+          AND (
+            EXISTS (
+              SELECT 1 FROM consumption_request_approvals cra 
+              WHERE cra.consumption_request_id = cr.id 
+              AND cra.step_order = COALESCE(cr.current_step_order, 1) 
+              AND (cra.approver_id = $1 OR $2 IN ('ADMIN', 'SUPER_ADMIN'))
+            )
+            OR NOT EXISTS (SELECT 1 FROM consumption_request_approvals cra WHERE cra.consumption_request_id = cr.id)
+          )
+          ORDER BY cr.created_at DESC LIMIT 5
+        `, [userId, role]);
+
+        rfcRes.rows.forEach(r => {
+          dynamicNotifications.push({
+            id: `rfc-${r.id}`,
+            title: 'RFC Approval Required',
+            message: `Request for Consumption ${r.rfc_number} is waiting for your approval.`,
+            link: `/rfc/approval`,
+            createdAt: r.created_at,
+            isRead: false,
+            type: 'RFC_APPROVAL'
+          });
         });
-      });
+      } catch {
+        const rfcRes = await pool.query(`
+          SELECT id, rfc_number, created_at 
+          FROM rfcs 
+          WHERE status = 'WAITING_APPROVAL' 
+          AND (site_approver_id IS NULL OR site_approver_id = $1)
+          ORDER BY created_at DESC LIMIT 5
+        `, [userId]);
+        
+        rfcRes.rows.forEach(r => {
+          dynamicNotifications.push({
+            id: `rfc-${r.id}`,
+            title: 'RFC Approval Required',
+            message: `Request For Certificate ${r.rfc_number} is waiting for your approval.`,
+            link: `/rfc/approval?actionId=${r.id}`,
+            createdAt: r.created_at,
+            isRead: false,
+            type: 'RFC_APPROVAL'
+          });
+        });
+      }
     }
 
     // 2. PO Approvals

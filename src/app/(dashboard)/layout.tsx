@@ -22,7 +22,6 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
     pathname.startsWith('/pr') ||
     pathname.startsWith('/procurement') ||
     pathname.startsWith('/logistics') ||
-    pathname.startsWith('/rfc') ||
     pathname.startsWith('/master-data');
 
   useEffect(() => {

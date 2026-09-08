@@ -256,10 +256,10 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
         return item.label === 'Owner Dashboard';
       }
 
-      // SITE_MANAGER only has access to Owner Dashboard and Non-Transactional except Master Data
+      // SITE_MANAGER has access to Owner Dashboard, RFC, and Non-Transactional except Master Data
       if (userRole === 'SITE_MANAGER') {
         if (item.label === 'Owner Dashboard') return true;
-        if (['Warehouse', 'Inventory', 'Material Transfer', 'Reports'].includes(item.label)) {
+        if (['Warehouse', 'Inventory', 'Material Transfer', 'Reports', 'RFC'].includes(item.label)) {
           return true;
         }
         return false;

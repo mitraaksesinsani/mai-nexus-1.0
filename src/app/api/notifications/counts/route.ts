@@ -16,14 +16,32 @@ export async function GET(req: NextRequest) {
 
     // 1. Count pending RFC approvals
     let rfcApprovals = 0;
-    if (['PROCUREMENT', 'OWNER', 'DIREKTUR', 'ADMIN', 'SUPER_ADMIN'].includes(role)) {
-      const rfcRes = await pool.query(`
-        SELECT COUNT(*) as count 
-        FROM rfcs 
-        WHERE status = 'WAITING_APPROVAL' 
-        AND (site_approver_id IS NULL OR site_approver_id = $1)
-      `, [userId]);
-      rfcApprovals = parseInt(rfcRes.rows[0].count, 10) || 0;
+    if (['PROCUREMENT', 'OWNER', 'DIREKTUR', 'SITE_MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(role)) {
+      try {
+        const rfcRes = await pool.query(`
+          SELECT COUNT(*) as count 
+          FROM consumption_requests cr
+          WHERE cr.status = 'WAITING_APPROVAL' 
+          AND (
+            EXISTS (
+              SELECT 1 FROM consumption_request_approvals cra 
+              WHERE cra.consumption_request_id = cr.id 
+              AND cra.step_order = COALESCE(cr.current_step_order, 1) 
+              AND (cra.approver_id = $1 OR $2 IN ('ADMIN', 'SUPER_ADMIN'))
+            )
+            OR NOT EXISTS (SELECT 1 FROM consumption_request_approvals cra WHERE cra.consumption_request_id = cr.id)
+          )
+        `, [userId, role]);
+        rfcApprovals = parseInt(rfcRes.rows[0]?.count, 10) || 0;
+      } catch {
+        const rfcRes = await pool.query(`
+          SELECT COUNT(*) as count 
+          FROM rfcs 
+          WHERE status = 'WAITING_APPROVAL' 
+          AND (site_approver_id IS NULL OR site_approver_id = $1)
+        `, [userId]);
+        rfcApprovals = parseInt(rfcRes.rows[0]?.count, 10) || 0;
+      }
     }
 
     // 2. Count pending POs
