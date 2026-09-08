@@ -139,7 +139,7 @@ export default function OwnerDashboard() {
             <WarehouseIcon className="w-4 h-4 text-primary" />
             <h3 className="text-base font-semibold">Recent Gudang Aktif</h3>
           </div>
-          <div className="[&_[data-slot=table-container]]:border-0 [&_[data-slot=table-container]]:bg-transparent">
+          <div className="rounded-xl border border-border bg-card overflow-hidden shadow-xs">
             {data?.recentWarehouses && data.recentWarehouses.length > 0 ? (
               <Table>
                 <TableHeader>
@@ -176,7 +176,7 @@ export default function OwnerDashboard() {
             <Package className="w-4 h-4 text-primary" />
             <h3 className="text-base font-semibold">Recent Material Aktif</h3>
           </div>
-          <div className="[&_[data-slot=table-container]]:border-0 [&_[data-slot=table-container]]:bg-transparent">
+          <div className="rounded-xl border border-border bg-card overflow-hidden shadow-xs">
             {data?.recentMaterials && data.recentMaterials.length > 0 ? (
               <Table>
                 <TableHeader>
