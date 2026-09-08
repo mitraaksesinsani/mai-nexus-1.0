@@ -256,11 +256,20 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
         return item.label === 'Owner Dashboard';
       }
 
+      // SITE_MANAGER only has access to Owner Dashboard and Non-Transactional except Master Data
+      if (userRole === 'SITE_MANAGER') {
+        if (item.label === 'Owner Dashboard') return true;
+        if (['Warehouse', 'Inventory', 'Material Transfer', 'Reports'].includes(item.label)) {
+          return true;
+        }
+        return false;
+      }
+
       switch (item.label) {
         case 'Project Management':
-          return ['SITE_MANAGER', 'PROJECT_MANAGER'].includes(userRole);
+          return ['PROJECT_MANAGER'].includes(userRole);
         case 'PR Management':
-          return ['SITE_MANAGER', 'PROJECT_MANAGER', 'PROCUREMENT', 'DIREKTUR'].includes(userRole);
+          return ['PROJECT_MANAGER', 'PROCUREMENT', 'DIREKTUR'].includes(userRole);
         case 'RFC':
           return true;
         case 'Owner Dashboard':
@@ -272,7 +281,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
         case 'Warehouse':
         case 'Inventory':
         case 'Material Transfer':
-          return ['PROCUREMENT', 'DIREKTUR', 'SITE_MANAGER', 'PROJECT_MANAGER'].includes(userRole);
+          return ['PROCUREMENT', 'DIREKTUR', 'PROJECT_MANAGER'].includes(userRole);
         case 'Master Data':
           return ['PROCUREMENT'].includes(userRole);
         default:

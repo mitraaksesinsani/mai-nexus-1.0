@@ -26,7 +26,7 @@ function LoginForm() {
       await login(email, password);
       const savedUserStr = localStorage.getItem('nims_user');
       const savedUser = savedUserStr ? JSON.parse(savedUserStr) : null;
-      if (savedUser?.role?.toUpperCase() === 'OWNER') {
+      if (savedUser?.role?.toUpperCase() === 'OWNER' || savedUser?.role?.toUpperCase() === 'SITE_MANAGER') {
         router.push('/owner-dashboard');
       } else {
         router.push('/');

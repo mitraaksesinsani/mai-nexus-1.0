@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 
     // 2. PO Approvals
     let targetPoStatuses: string[] = [];
-    if (['PROJECT_MANAGER', 'SITE_MANAGER'].includes(role)) {
+    if (['PROJECT_MANAGER'].includes(role)) {
       targetPoStatuses = ['WAITING_OPERATION_APPROVAL'];
     } else if (['ADMIN'].includes(role)) {
       targetPoStatuses = ['WAITING_ADMIN_APPROVAL'];
