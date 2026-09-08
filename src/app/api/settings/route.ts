@@ -23,6 +23,9 @@ export async function GET() {
     // Default values
     if (!settings.ppn) settings.ppn = '11';
     if (!settings.dp) settings.dp = '30';
+    if (!settings.uom_hdpe_roll) settings.uom_hdpe_roll = '200';
+    if (!settings.uom_kabel_tanah_haspel) settings.uom_kabel_tanah_haspel = '3000';
+    if (!settings.uom_kabel_udara_haspel) settings.uom_kabel_udara_haspel = '4000';
     
     return NextResponse.json({ success: true, data: settings });
   } catch (error: any) {

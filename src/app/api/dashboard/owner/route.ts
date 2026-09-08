@@ -13,13 +13,35 @@ export async function GET() {
     const materialTypesRes = await pool.query(`SELECT COUNT(*) FROM material_masters`);
     const totalMaterialTypes = parseInt(materialTypesRes.rows[0].count, 10) || 0;
 
-    // 3. Total Material Stock (Physical count: meter counts as 1 pcs per entry) & Total Cable Length
+    // 3. Load UOM Conversion Terms from settings
+    const settingsRes = await pool.query(`
+      SELECT key, value FROM settings 
+      WHERE key IN ('uom_hdpe_roll', 'uom_kabel_tanah_haspel', 'uom_kabel_udara_haspel')
+    `);
+    const settingsMap = settingsRes.rows.reduce((acc: any, row: any) => {
+      acc[row.key] = row.value;
+      return acc;
+    }, {});
+    const hdpeRoll = Number(settingsMap.uom_hdpe_roll) || 200;
+    const kabelTanahHaspel = Number(settingsMap.uom_kabel_tanah_haspel) || 3000;
+    const kabelUdaraHaspel = Number(settingsMap.uom_kabel_udara_haspel) || 4000;
+
+    // 4. Total Material Stock (Physical packaging count with UOM terms) & Total Cable Length
     const stockRes = await pool.query(`
       SELECT 
         COALESCE(SUM(
           CASE 
-            WHEN LOWER(TRIM(m.unit)) IN ('meter', 'mtr', 'm') 
-            THEN (CASE WHEN s.quantity > 0 THEN 1 ELSE 0 END)
+            WHEN LOWER(TRIM(m.unit)) IN ('meter', 'mtr', 'm') THEN
+              CASE 
+                WHEN s.quantity <= 0 THEN 0
+                WHEN LOWER(m.material_name) LIKE '%subduct%' OR LOWER(m.material_name) LIKE '%hdpe%' OR m.material_code LIKE '%-SD-%' 
+                  THEN GREATEST(1, ROUND(s.quantity::numeric / $1))
+                WHEN LOWER(m.material_name) LIKE '%kabel duct%' OR LOWER(m.material_name) LIKE '%kabel tanah%' OR m.material_code LIKE 'DC-OF%' 
+                  THEN GREATEST(1, ROUND(s.quantity::numeric / $2))
+                WHEN LOWER(m.material_name) LIKE '%kabel udara%' OR m.material_code LIKE 'AC-OF%' 
+                  THEN GREATEST(1, ROUND(s.quantity::numeric / $3))
+                ELSE 1
+              END
             ELSE GREATEST(0, s.quantity)
           END
         ), 0) as total_material_stock,
@@ -32,7 +54,7 @@ export async function GET() {
         ), 0) as total_cable_length
       FROM inventory_stocks s
       JOIN material_masters m ON s.material_id = m.id
-    `);
+    `, [hdpeRoll, kabelTanahHaspel, kabelUdaraHaspel]);
     const totalMaterialStock = Math.round(Number(stockRes.rows[0]?.total_material_stock)) || 0;
     const totalCableLength = Number(stockRes.rows[0]?.total_cable_length) || 0;
 
