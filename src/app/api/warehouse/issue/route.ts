@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { pool, generateId } from '@/lib/db';
+import { getUserFromRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,6 +8,7 @@ export async function POST(request: Request) {
   const client = await pool.connect();
   
   try {
+    const user = getUserFromRequest(request as any);
     const body = await request.json();
     const { rfcId, warehouseId, items } = body;
 
@@ -20,6 +22,14 @@ export async function POST(request: Request) {
     const rfcRes = await client.query('SELECT * FROM rfcs WHERE id = $1', [rfcId]);
     if (rfcRes.rows.length === 0) {
       throw new Error('RFC not found');
+    }
+
+    // Resolve creator name
+    let creatorName = user?.name || null;
+    let creatorId = user?.sub || null;
+    if (!creatorName) {
+      const whRes = await client.query('SELECT pic_name FROM warehouses WHERE id = $1', [warehouseId]);
+      creatorName = whRes.rowCount && whRes.rows[0].pic_name ? whRes.rows[0].pic_name : 'Admin';
     }
 
     // 2. Process each issued item
@@ -49,9 +59,9 @@ export async function POST(request: Request) {
       const txId = generateId();
       await client.query(`
         INSERT INTO inventory_transactions 
-        (id, warehouse_id, material_id, transaction_type, quantity, reference_id, notes)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-      `, [txId, warehouseId, item.materialId, 'RFC_ISSUE', -qty, rfcId, 'Issued for RFC']);
+        (id, warehouse_id, material_id, transaction_type, quantity, reference_id, notes, created_by, created_by_name)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `, [txId, warehouseId, item.materialId, 'RFC_ISSUE', -qty, rfcId, 'Issued for RFC', creatorId, creatorName]);
     }
 
     // 3. Update RFC status to COMPLETED

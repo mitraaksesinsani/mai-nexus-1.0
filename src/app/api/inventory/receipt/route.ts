@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { pool, generateId } from '@/lib/db';
+import { getUserFromRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
+    const user = getUserFromRequest(request as any);
     const { poId, warehouseId, doNumber, evidencePhotoUrl } = await request.json();
 
     if (!poId || !warehouseId) {
@@ -15,6 +17,14 @@ export async function POST(request: Request) {
 
     try {
       await client.query('BEGIN');
+
+      // Resolve creator name
+      let creatorName = user?.name || null;
+      let creatorId = user?.sub || null;
+      if (!creatorName) {
+        const whRes = await client.query('SELECT pic_name FROM warehouses WHERE id = $1', [warehouseId]);
+        creatorName = whRes.rowCount && whRes.rows[0].pic_name ? whRes.rows[0].pic_name : 'Admin';
+      }
 
       // 1. Fetch PO Items
       const poItemsRes = await client.query(
@@ -45,9 +55,9 @@ export async function POST(request: Request) {
         // Insert into inventory_transactions
         const txId = generateId();
         await client.query(`
-          INSERT INTO inventory_transactions (id, warehouse_id, material_id, transaction_type, quantity, reference_id, notes, do_number, evidence_photo_url)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        `, [txId, warehouseId, material_id, 'IN_PO_RECEIPT', quantity, poId, 'Received from PO', doNumber || null, evidencePhotoUrl || null]);
+          INSERT INTO inventory_transactions (id, warehouse_id, material_id, transaction_type, quantity, reference_id, notes, do_number, evidence_photo_url, created_by, created_by_name)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        `, [txId, warehouseId, material_id, 'IN_PO_RECEIPT', quantity, poId, 'Received from PO', doNumber || null, evidencePhotoUrl || null, creatorId, creatorName]);
       }
 
       // 3. Update PO status

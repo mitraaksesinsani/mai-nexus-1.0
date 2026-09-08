@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { pool, generateId } from '@/lib/db';
+import { getUserFromRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
+    const user = getUserFromRequest(request as any);
     const { warehouseId, items } = await request.json();
 
     if (!warehouseId || !Array.isArray(items) || items.length === 0) {
@@ -15,6 +17,19 @@ export async function POST(request: Request) {
 
     try {
       await client.query('BEGIN');
+
+      // Resolve default creator name if user token not provided
+      let creatorName = user?.name || null;
+      let creatorId = user?.sub || null;
+
+      if (!creatorName) {
+        const whRes = await client.query('SELECT pic_name FROM warehouses WHERE id = $1', [warehouseId]);
+        if (whRes.rowCount && whRes.rows[0].pic_name) {
+          creatorName = whRes.rows[0].pic_name;
+        } else {
+          creatorName = 'Admin';
+        }
+      }
 
       for (const item of items) {
         const { materialId, quantity, notes } = item;
@@ -37,9 +52,9 @@ export async function POST(request: Request) {
         // 2. Insert into inventory_transactions
         const txId = generateId();
         await client.query(`
-          INSERT INTO inventory_transactions (id, warehouse_id, material_id, transaction_type, quantity, notes)
-          VALUES ($1, $2, $3, $4, $5, $6)
-        `, [txId, warehouseId, materialId, 'IN_MANUAL_ENTRY', quantity, notes || 'Manual Stock Adjustment']);
+          INSERT INTO inventory_transactions (id, warehouse_id, material_id, transaction_type, quantity, notes, created_by, created_by_name)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `, [txId, warehouseId, materialId, 'IN_MANUAL_ENTRY', quantity, notes || 'Manual Stock Adjustment', creatorId, creatorName]);
       }
 
       await client.query('COMMIT');

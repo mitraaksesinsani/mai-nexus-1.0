@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import api from '@/lib/api';
@@ -66,7 +66,7 @@ export function MaterialLogModal({ isOpen, onClose, warehouseId, materialId, mat
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[1000px] max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-[1050px] max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Riwayat Transaksi Material</DialogTitle>
           <DialogDescription>
@@ -87,11 +87,12 @@ export function MaterialLogModal({ isOpen, onClose, warehouseId, materialId, mat
             <Table>
               <TableHeader className="bg-muted/50 sticky top-0 z-10">
                 <TableRow>
-                  <TableHead>Tanggal</TableHead>
-                  <TableHead>Tipe</TableHead>
-                  <TableHead className="text-right">Jumlah</TableHead>
-                  <TableHead>Referensi</TableHead>
-                  <TableHead>Catatan</TableHead>
+                  <TableHead className="w-[160px]">Tanggal</TableHead>
+                  <TableHead className="w-[140px]">Diinput Oleh</TableHead>
+                  <TableHead className="w-[130px]">Tipe</TableHead>
+                  <TableHead className="text-right w-[110px]">Jumlah</TableHead>
+                  <TableHead className="w-[140px]">Referensi</TableHead>
+                  <TableHead className="min-w-[160px]">Catatan</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -99,6 +100,12 @@ export function MaterialLogModal({ isOpen, onClose, warehouseId, materialId, mat
                   <TableRow key={log.id}>
                     <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
                       {format(new Date(log.createdAt), 'dd MMM yyyy, HH:mm', { locale: id })}
+                    </TableCell>
+                    <TableCell className="text-xs font-medium">
+                      <div className="flex items-center gap-1.5 text-foreground">
+                        <User className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                        <span>{log.createdByName || 'Admin'}</span>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className={`font-medium ${getTransactionTypeColor(log.transactionType)}`}>

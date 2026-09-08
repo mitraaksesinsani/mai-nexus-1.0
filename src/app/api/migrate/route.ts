@@ -52,6 +52,26 @@ export async function GET() {
       `);
     }
 
+    // Inventory transactions created_by & created_by_name
+    const txColCheck = await client.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'inventory_transactions'
+    `);
+    const txCols = txColCheck.rows.map(r => r.column_name);
+    if (!txCols.includes('created_by')) {
+      await client.query('ALTER TABLE inventory_transactions ADD COLUMN created_by UUID');
+    }
+    if (!txCols.includes('created_by_name')) {
+      await client.query('ALTER TABLE inventory_transactions ADD COLUMN created_by_name VARCHAR(255)');
+      await client.query(`
+        UPDATE inventory_transactions t
+        SET created_by_name = COALESCE(w.pic_name, 'Admin')
+        FROM warehouses w
+        WHERE t.warehouse_id = w.id AND (t.created_by_name IS NULL OR t.created_by_name = '')
+      `);
+    }
+
     await client.query('COMMIT');
     return NextResponse.json({ message: 'Migration successful!' });
   } catch (error: any) {

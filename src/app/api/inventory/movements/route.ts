@@ -14,6 +14,7 @@ export async function GET(request: Request) {
 
     let queryStr = `
       SELECT t.id, t.transaction_type, t.quantity, t.reference_id, t.notes, t.created_at,
+             t.created_by, t.created_by_name,
              m.material_name, m.material_code, m.unit,
              w.name as warehouse_name
       FROM inventory_transactions t
@@ -49,6 +50,8 @@ export async function GET(request: Request) {
       referenceId: row.reference_id,
       notes: row.notes,
       createdAt: row.created_at,
+      createdBy: row.created_by,
+      createdByName: row.created_by_name || 'Admin',
       material: {
         materialName: row.material_name,
         materialCode: row.material_code,

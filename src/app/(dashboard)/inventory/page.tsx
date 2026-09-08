@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Package, Search, ArrowDownRight, ArrowUpRight, History, ArrowDownToLine, ArrowUpFromLine, ArrowRightLeft, Loader2 } from 'lucide-react';
+import { Package, Search, ArrowDownRight, ArrowUpRight, History, ArrowDownToLine, ArrowUpFromLine, ArrowRightLeft, Loader2, User } from 'lucide-react';
 import api from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -47,19 +47,26 @@ export default function InventoryPage() {
   };
 
   const getTransactionIcon = (type: string) => {
-    switch (type) {
-      case 'IN': return <ArrowDownToLine className="w-4 h-4 text-emerald-500" />;
-      case 'OUT': return <ArrowUpFromLine className="w-4 h-4 text-red-500" />;
-      default: return <ArrowRightLeft className="w-4 h-4 text-blue-500" />;
-    }
+    if (type?.startsWith('IN') || type === 'DO_RECEIPT') return <ArrowDownToLine className="w-4 h-4 text-emerald-500 shrink-0" />;
+    if (type?.startsWith('OUT') || type === 'RFC_ISSUE') return <ArrowUpFromLine className="w-4 h-4 text-red-500 shrink-0" />;
+    return <ArrowRightLeft className="w-4 h-4 text-blue-500 shrink-0" />;
   };
 
   const getTransactionBadge = (type: string) => {
     switch (type) {
-      case 'IN': return <Badge variant="outline" className="text-emerald-600 bg-emerald-50 border-emerald-200">Goods In</Badge>;
-      case 'OUT': return <Badge variant="outline" className="text-red-600 bg-red-50 border-red-200">Goods Out</Badge>;
-      case 'TRANSFER': return <Badge variant="outline" className="text-blue-600 bg-blue-50 border-blue-200">Transfer</Badge>;
-      default: return <Badge variant="outline">{type}</Badge>;
+      case 'IN_MANUAL_ENTRY':
+        return <Badge variant="outline" className="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800">Manual Entry</Badge>;
+      case 'DO_RECEIPT':
+      case 'IN_PO_RECEIPT':
+      case 'IN':
+        return <Badge variant="outline" className="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800">Goods In</Badge>;
+      case 'RFC_ISSUE':
+      case 'OUT':
+        return <Badge variant="outline" className="text-red-600 bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800">Goods Out</Badge>;
+      case 'TRANSFER':
+        return <Badge variant="outline" className="text-blue-600 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">Transfer</Badge>;
+      default:
+        return <Badge variant="outline">{type?.replace(/_/g, ' ') || '-'}</Badge>;
     }
   };
 
@@ -79,7 +86,7 @@ export default function InventoryPage() {
       <div className="bg-card border border-border rounded-xl overflow-x-auto animate-fade-in" style={{ animationDelay: '200ms' }}>
         <table className="w-full whitespace-nowrap">
           <thead><tr className="border-b border-border bg-secondary/30">
-            <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Material</th>
+            <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3 min-w-[280px]">Material</th>
             <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Code</th>
             <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Warehouse</th>
             <th className="text-right text-xs font-medium text-muted-foreground px-4 py-3">Available</th>
@@ -97,9 +104,11 @@ export default function InventoryPage() {
               const isLow = item.availableStock <= item.minimumStock;
               return (
                 <tr key={item.id} className="border-b border-border hover:bg-secondary/20 transition-colors">
-                  <td className="px-4 py-3">
-                    <p className="text-sm font-medium">{item.material?.materialName}</p>
-                    <p className="text-xs text-muted-foreground">{item.material?.unit}</p>
+                  <td className="px-4 py-3 whitespace-normal">
+                    <div className="max-w-[53ch] break-words text-sm font-medium leading-snug" style={{ maxWidth: '53ch' }}>
+                      {item.material?.materialName}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">{item.material?.unit}</p>
                   </td>
                   <td className="px-4 py-3 text-sm font-mono text-muted-foreground">{item.material?.materialCode}</td>
                   <td className="px-4 py-3 text-sm">{item.warehouse?.warehouseName}</td>
@@ -133,7 +142,7 @@ export default function InventoryPage() {
       </div>
 
       <Dialog open={isLogsOpen} onOpenChange={setIsLogsOpen}>
-        <DialogContent className="sm:max-w-7xl w-[95vw] max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogContent className="sm:max-w-4xl w-[95vw] max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle>Material Movement Logs</DialogTitle>
             <DialogDescription>
@@ -149,33 +158,42 @@ export default function InventoryPage() {
               <Table className="whitespace-nowrap">
                 <TableHeader>
                   <TableRow className="bg-secondary/30">
-                    <TableHead className="w-[180px]">Date</TableHead>
-                    <TableHead className="w-[120px]">Type</TableHead>
-                    <TableHead className="w-[100px] text-right">Quantity</TableHead>
-                    <TableHead className="w-[200px]">Notes</TableHead>
+                    <TableHead className="w-[170px]">Date</TableHead>
+                    <TableHead className="w-[150px]">Diinput Oleh</TableHead>
+                    <TableHead className="w-[130px]">Type</TableHead>
+                    <TableHead className="w-[120px] text-right">Quantity</TableHead>
+                    <TableHead className="min-w-[180px]">Notes</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {logs.map((tx) => (
-                    <TableRow key={tx.id} className="hover:bg-muted/30">
-                      <TableCell className="text-muted-foreground text-sm">
-                        {new Date(tx.createdAt).toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getTransactionIcon(tx.transactionType)}
-                          {getTransactionBadge(tx.transactionType)}
-                        </div>
-                      </TableCell>
-                      <TableCell className={`text-right font-semibold ${tx.transactionType === 'IN' ? 'text-emerald-500' : tx.transactionType === 'OUT' ? 'text-red-500' : ''}`}>
-                        {tx.transactionType === 'IN' ? '+' : tx.transactionType === 'OUT' ? '-' : ''}
-                        {tx.quantity} {selectedStock?.material?.unit}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm truncate max-w-[200px]" title={tx.notes || '-'}>
-                        {tx.notes || '-'}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {logs.map((tx) => {
+                    const isPositive = tx.transactionType?.startsWith('IN') || tx.transactionType === 'DO_RECEIPT' || (Number(tx.quantity) > 0 && !tx.transactionType?.startsWith('OUT') && tx.transactionType !== 'RFC_ISSUE');
+                    return (
+                      <TableRow key={tx.id} className="hover:bg-muted/30">
+                        <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
+                          {new Date(tx.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          <div className="flex items-center gap-1.5 font-medium text-foreground">
+                            <User className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                            <span>{tx.createdByName || 'Admin'}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {getTransactionIcon(tx.transactionType)}
+                            {getTransactionBadge(tx.transactionType)}
+                          </div>
+                        </TableCell>
+                        <TableCell className={`text-right font-semibold text-sm ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
+                          {isPositive ? '+' : ''}{tx.quantity} {selectedStock?.material?.unit}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm max-w-[250px] truncate" title={tx.notes || '-'}>
+                          {tx.notes || '-'}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             ) : (
