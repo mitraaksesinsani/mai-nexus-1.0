@@ -190,10 +190,19 @@ export default function CreateRfcPage() {
                 <Label htmlFor="project">Project <span className="text-destructive">*</span></Label>
                 <Select 
                   value={formData.projectId} 
-                          onValueChange={(val) => setFormData({...formData, projectId: val || ''})}
+                  onValueChange={(val) => setFormData({...formData, projectId: val || ''})}
+                  items={projects.map((p) => ({
+                    value: p.id,
+                    label: `${p.projectCode} - ${p.projectName}`
+                  }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select Project" />
+                    <SelectValue placeholder="Select Project">
+                      {(() => {
+                        const selected = projects.find((p) => p.id === formData.projectId);
+                        return selected ? `${selected.projectCode} - ${selected.projectName}` : undefined;
+                      })()}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {projects.map((project) => (
@@ -210,9 +219,18 @@ export default function CreateRfcPage() {
                 <Select 
                   value={formData.warehouseId} 
                   onValueChange={(val) => setFormData({...formData, warehouseId: val || ''})}
+                  items={warehouses.map((wh) => ({
+                    value: wh.id,
+                    label: wh.name
+                  }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select Warehouse" />
+                    <SelectValue placeholder="Select Warehouse">
+                      {(() => {
+                        const selected = warehouses.find((w) => w.id === formData.warehouseId);
+                        return selected ? selected.name : undefined;
+                      })()}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {warehouses.map((wh) => (
@@ -278,9 +296,20 @@ export default function CreateRfcPage() {
                         <Select 
                           value={item.materialId} 
                           onValueChange={(val) => handleItemChange(index, 'materialId', val || '')}
+                          items={inventory.map((inv) => ({
+                            value: inv.materialId,
+                            label: `${inv.material?.materialCode || ''} - ${inv.material?.materialName || ''}`
+                          }))}
                         >
                           <SelectTrigger className={!item.materialId ? "text-muted-foreground" : ""}>
-                            <SelectValue placeholder="Select Material" />
+                            <SelectValue placeholder="Select Material">
+                              {(() => {
+                                const selected = inventory.find((i) => i.materialId === item.materialId);
+                                return selected?.material
+                                  ? `${selected.material.materialCode} - ${selected.material.materialName}`
+                                  : undefined;
+                              })()}
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             {inventory.map((inv) => (
