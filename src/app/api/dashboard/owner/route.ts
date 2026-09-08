@@ -13,9 +13,28 @@ export async function GET() {
     const materialTypesRes = await pool.query(`SELECT COUNT(*) FROM material_masters`);
     const totalMaterialTypes = parseInt(materialTypesRes.rows[0].count, 10) || 0;
 
-    // 3. Total Material Stock (Sum of all quantity in inventory_stocks)
-    const stockRes = await pool.query(`SELECT COALESCE(SUM(quantity), 0) as total FROM inventory_stocks`);
-    const totalMaterialStock = parseInt(stockRes.rows[0].total, 10) || 0;
+    // 3. Total Material Stock (Physical count: meter counts as 1 pcs per entry) & Total Cable Length
+    const stockRes = await pool.query(`
+      SELECT 
+        COALESCE(SUM(
+          CASE 
+            WHEN LOWER(TRIM(m.unit)) IN ('meter', 'mtr', 'm') 
+            THEN (CASE WHEN s.quantity > 0 THEN 1 ELSE 0 END)
+            ELSE GREATEST(0, s.quantity)
+          END
+        ), 0) as total_material_stock,
+        COALESCE(SUM(
+          CASE 
+            WHEN LOWER(TRIM(m.unit)) IN ('meter', 'mtr', 'm') 
+            THEN s.quantity 
+            ELSE 0 
+          END
+        ), 0) as total_cable_length
+      FROM inventory_stocks s
+      JOIN material_masters m ON s.material_id = m.id
+    `);
+    const totalMaterialStock = Math.round(Number(stockRes.rows[0]?.total_material_stock)) || 0;
+    const totalCableLength = Number(stockRes.rows[0]?.total_cable_length) || 0;
 
     // 4. Recent Warehouses with Activity
     const recentWarehousesRes = await pool.query(`
@@ -42,6 +61,7 @@ export async function GET() {
         totalWarehouses,
         totalMaterialTypes,
         totalMaterialStock,
+        totalCableLength,
         recentWarehouses: recentWarehousesRes.rows.map(row => ({
           id: row.id,
           name: row.name,

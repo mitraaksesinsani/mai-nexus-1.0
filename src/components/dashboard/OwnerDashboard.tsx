@@ -5,7 +5,8 @@ import {
   Package,
   Warehouse as WarehouseIcon,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Cable
 } from 'lucide-react';
 import api from '@/lib/api';
 import { cn, formatDate } from '@/lib/utils';
@@ -19,6 +20,7 @@ interface OwnerData {
   totalWarehouses: number;
   totalMaterialTypes: number;
   totalMaterialStock: number;
+  totalCableLength?: number;
   recentWarehouses: any[];
   recentMaterials: any[];
 }
@@ -47,8 +49,8 @@ export default function OwnerDashboard() {
       <div className="space-y-6">
         <div className="h-8 w-48 bg-muted rounded-lg animate-pulse mb-2" />
         <div className="h-4 w-72 bg-muted rounded animate-pulse" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[...Array(3)].map((_, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
             <div key={i} className="h-32 bg-muted rounded-xl animate-pulse" />
           ))}
         </div>
@@ -59,19 +61,26 @@ export default function OwnerDashboard() {
   const kpiCards = data ? [
     {
       title: 'Total Gudang',
-      value: data.totalWarehouses,
+      value: data.totalWarehouses.toLocaleString('id-ID'),
       icon: WarehouseIcon,
       isPrimary: true,
       href: '/owner-dashboard/warehouse'
     },
     {
       title: 'Total Material (Fisik)',
-      value: data.totalMaterialStock.toLocaleString(),
+      value: data.totalMaterialStock.toLocaleString('id-ID'),
+      unit: 'Pcs',
       icon: Package,
     },
     {
+      title: 'Total Panjang Material (Kabel)',
+      value: (data.totalCableLength || 0).toLocaleString('id-ID'),
+      unit: 'Meter',
+      icon: Cable,
+    },
+    {
       title: 'Total Jenis Material (SKU)',
-      value: data.totalMaterialTypes.toLocaleString(),
+      value: data.totalMaterialTypes.toLocaleString('id-ID'),
       icon: Layers,
       onClick: () => setIsMaterialModalOpen(true)
     },
@@ -88,7 +97,7 @@ export default function OwnerDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {kpiCards.map((card, index) => {
           const Icon = card.icon;
           const isClickable = !!card.onClick;
@@ -99,7 +108,7 @@ export default function OwnerDashboard() {
               onClick={card.onClick}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className={cn("text-lg font-medium", card.isPrimary ? "text-primary font-bold" : "text-foreground font-semibold")}>
+                <CardTitle className={cn("text-base font-medium leading-snug", card.isPrimary ? "text-primary font-bold" : "text-foreground font-semibold")}>
                   {card.title}
                 </CardTitle>
                 <div className={cn("w-10 h-10 rounded-md flex items-center justify-center shrink-0", card.isPrimary ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary")}>
@@ -107,7 +116,12 @@ export default function OwnerDashboard() {
                 </div>
               </CardHeader>
               <CardContent className="pt-4">
-                <div className={cn("font-bold tracking-tight", card.isPrimary ? "text-4xl text-primary" : "text-4xl text-foreground")}>{card.value}</div>
+                <div className={cn("font-bold tracking-tight flex items-baseline gap-1.5", card.isPrimary ? "text-primary" : "text-foreground")}>
+                  <span className="text-3xl sm:text-4xl">{card.value}</span>
+                  {card.unit && (
+                    <span className="text-sm font-normal text-muted-foreground">{card.unit}</span>
+                  )}
+                </div>
                 {card.href && (
                   <div className="flex items-center gap-1 mt-2 text-xs text-primary font-medium group cursor-pointer hover:underline">
                     Lihat List Gudang <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
