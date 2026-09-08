@@ -173,7 +173,10 @@ function NavCollapsible({ item, pathname, counts }: { item: any, pathname: strin
   }, [isItemActive]);
 
   const getBadgeForLabel = (childLabel: string, parentLabel: string) => {
-    if (childLabel === 'Approval Queue' && parentLabel === 'PR Management' && counts.rfcApprovals > 0) {
+    if (childLabel === 'Approval Queue' && parentLabel === 'PR Management' && counts.prApprovals > 0) {
+      return <Badge variant="destructive" className="ml-auto h-5 px-1.5 flex items-center justify-center text-[10px]">{counts.prApprovals}</Badge>;
+    }
+    if (childLabel === 'Approval Queue' && parentLabel === 'RFC' && counts.rfcApprovals > 0) {
       return <Badge variant="destructive" className="ml-auto h-5 px-1.5 flex items-center justify-center text-[10px]">{counts.rfcApprovals}</Badge>;
     }
     if (childLabel === 'Approval Queue' && parentLabel === 'Procurement' && counts.poApprovals > 0) {
@@ -190,7 +193,8 @@ function NavCollapsible({ item, pathname, counts }: { item: any, pathname: strin
 
   // Check if group itself needs a badge
   const groupHasNotification = () => {
-    if (item.label === 'PR Management' && counts.rfcApprovals > 0) return true;
+    if (item.label === 'PR Management' && counts.prApprovals > 0) return true;
+    if (item.label === 'RFC' && counts.rfcApprovals > 0) return true;
     if (item.label === 'Procurement' && counts.poApprovals > 0) return true;
     if (item.label === 'Logistics' && counts.pendingLogistics > 0) return true;
     if (item.label === 'Warehouse' && counts.materialReceives > 0) return true;
@@ -239,7 +243,7 @@ function NavCollapsible({ item, pathname, counts }: { item: any, pathname: strin
 export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const { user } = useAuth();
-  const [counts, setCounts] = React.useState({ rfcApprovals: 0, poApprovals: 0, materialReceives: 0, pendingLogistics: 0 });
+  const [counts, setCounts] = React.useState({ prApprovals: 0, rfcApprovals: 0, poApprovals: 0, materialReceives: 0, pendingLogistics: 0 });
 
   const filteredNavigation = groupedNavigation.map(group => {
     let filteredItems = group.items;
