@@ -68,10 +68,10 @@ export default function TermsMasterDataPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
+    <div className="space-y-6 max-w-4xl">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Terms & Settings Master Data</h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-1 text-sm">
           Atur parameter default sistem untuk dokumen pengadaan (PO) dan rasio konversi satuan material (UOM).
         </p>
       </div>
@@ -89,69 +89,85 @@ export default function TermsMasterDataPage() {
         </TabsList>
 
         {/* TAB 1: Ketentuan PO & Finansial */}
-        <TabsContent value="financial" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Percent className="w-5 h-5 text-primary" />
-                Ketentuan Finansial Dokumen PO
-              </CardTitle>
-              <CardDescription>
-                Konfigurasi persentase yang akan digunakan sebagai nilai default dalam pembuatan dokumen Purchase Order (PO).
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="ppn">Persentase PPN (%)</Label>
-                  <div className="relative">
-                    <Input
-                      id="ppn"
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={formData.ppn}
-                      onChange={(e) => setFormData({ ...formData, ppn: e.target.value })}
-                    />
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
-                      %
+        <TabsContent value="financial" className="mt-4 focus-visible:outline-none">
+          <Card className="min-h-[480px] flex flex-col justify-between">
+            <div>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Percent className="w-5 h-5 text-primary" />
+                  Ketentuan Finansial Dokumen PO
+                </CardTitle>
+                <CardDescription>
+                  Konfigurasi persentase yang akan digunakan sebagai nilai default dalam pembuatan dokumen Purchase Order (PO).
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2 p-4 rounded-xl border border-border/70 bg-card">
+                    <Label htmlFor="ppn" className="font-semibold text-sm">Persentase PPN (%)</Label>
+                    <div className="relative pt-1">
+                      <Input
+                        id="ppn"
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={formData.ppn}
+                        onChange={(e) => setFormData({ ...formData, ppn: e.target.value })}
+                        className="pr-8 text-base font-medium"
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground font-medium">
+                        %
+                      </div>
                     </div>
+                    <p className="text-xs text-muted-foreground pt-1">Nilai PPN standar yang ditambahkan ke total belanja (contoh: 11%).</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">Nilai PPN standar yang ditambahkan ke total belanja (contoh: 11).</p>
+
+                  <div className="space-y-2 p-4 rounded-xl border border-border/70 bg-card">
+                    <Label htmlFor="dp" className="font-semibold text-sm">Persentase Down Payment / DP (%)</Label>
+                    <div className="relative pt-1">
+                      <Input
+                        id="dp"
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={formData.dp}
+                        onChange={(e) => setFormData({ ...formData, dp: e.target.value })}
+                        className="pr-8 text-base font-medium"
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground font-medium">
+                        %
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground pt-1">Persentase DP awal untuk termin pembayaran vendor (contoh: 30%).</p>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="dp">Persentase Down Payment / DP (%)</Label>
-                  <div className="relative">
-                    <Input
-                      id="dp"
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={formData.dp}
-                      onChange={(e) => setFormData({ ...formData, dp: e.target.value })}
-                    />
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
-                      %
-                    </div>
+                <div className="rounded-xl bg-primary/5 border border-primary/20 p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Pemberlakuan Otomatis pada Purchase Order
                   </div>
-                  <p className="text-xs text-muted-foreground">Persentase DP awal untuk termin pembayaran vendor (contoh: 30).</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Nilai persentase ini akan otomatis terisi saat pembuatan dokumen Purchase Order (PO) baru dan dapat disesuaikan manual pada masing-masing dokumen jika terdapat kesepakatan khusus dengan vendor.
+                  </p>
                 </div>
-              </div>
+              </CardContent>
+            </div>
 
+            <div className="p-6 pt-0">
               <div className="flex justify-end pt-4 border-t">
                 <Button onClick={handleSave} disabled={saving} className="bg-primary text-white">
                   {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                   Simpan Perubahan
                 </Button>
               </div>
-            </CardContent>
+            </div>
           </Card>
         </TabsContent>
 
         {/* TAB 2: Konversi Satuan Material (UOM) */}
-        <TabsContent value="uom" className="mt-4">
-          <Card>
+        <TabsContent value="uom" className="mt-4 focus-visible:outline-none">
+          <Card className="min-h-[480px] flex flex-col justify-between">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Scale className="w-5 h-5 text-primary" />

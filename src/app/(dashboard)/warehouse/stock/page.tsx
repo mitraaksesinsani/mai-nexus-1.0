@@ -114,7 +114,7 @@ export default function StockMonitoringPage() {
                 <TableRow>
                   <TableHead>Warehouse</TableHead>
                   <TableHead>Material Code</TableHead>
-                  <TableHead>Material Name</TableHead>
+                  <TableHead className="min-w-[280px]">Material Name</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead className="text-right">Quantity</TableHead>
                   <TableHead className="text-right">Last Updated</TableHead>
@@ -125,7 +125,11 @@ export default function StockMonitoringPage() {
                   <TableRow key={`${stock.id}-${i}`}>
                     <TableCell className="font-medium">{stock.warehouseName}</TableCell>
                     <TableCell>{stock.materialCode || '-'}</TableCell>
-                    <TableCell>{stock.materialName}</TableCell>
+                    <TableCell className="whitespace-normal">
+                      <div className="max-w-[53ch] break-words text-sm font-medium leading-snug" style={{ maxWidth: '53ch' }}>
+                        {stock.materialName}
+                      </div>
+                    </TableCell>
                     <TableCell>{stock.category || '-'}</TableCell>
                     <TableCell className="text-right font-bold text-primary">
                       {stock.quantity}
