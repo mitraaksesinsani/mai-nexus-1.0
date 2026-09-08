@@ -10,8 +10,10 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
 import StatusBadge from '@/components/shared/StatusBadge';
+import RfcApprovalStepper from '@/components/rfc/RfcApprovalStepper';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 export default function RfcDetailPage() {
@@ -83,7 +85,7 @@ export default function RfcDetailPage() {
   const isCompleted = rfc.status === 'COMPLETED';
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-10">
+    <div className="space-y-6 max-w-7xl mx-auto pb-10">
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" onClick={() => router.back()}>
           <ArrowLeft className="h-4 w-4" />
@@ -98,6 +100,19 @@ export default function RfcDetailPage() {
           </p>
         </div>
       </div>
+
+      {/* Stepper Log Approver Berjenjang */}
+      <RfcApprovalStepper 
+        rfcStatus={rfc.status}
+        currentStepOrder={rfc.currentStepOrder || 1}
+        requestor={rfc.requestor}
+        createdAt={rfc.createdAt}
+        approvals={rfc.approvals || []}
+        takerName={rfc.takerName}
+        takerDate={rfc.takerDate}
+        evidenceDocument={rfc.evidenceDocument}
+        currentUserId={user?.id}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
@@ -278,7 +293,33 @@ export default function RfcDetailPage() {
                   </div>
                 </div>
 
-                {rfc.approvedAt && (
+                {rfc.approvals && rfc.approvals.length > 0 ? (
+                  rfc.approvals
+                    .filter((app: any) => app.status === 'APPROVED' || app.status === 'REJECTED')
+                    .map((app: any) => (
+                      <div key={app.id || app.stepOrder} className="relative">
+                        <div className="absolute -left-[29px] bg-background p-1 rounded-full">
+                          <div className={cn("w-3 h-3 rounded-full", app.status === 'APPROVED' ? "bg-green-500" : "bg-red-500")} />
+                        </div>
+                        <div className="text-sm">
+                          <p className="font-medium">
+                            {app.stepName} ({app.status === 'APPROVED' ? 'Approved' : 'Rejected'})
+                          </p>
+                          <p className="text-muted-foreground text-xs mt-0.5">
+                            {app.actionAt ? new Date(app.actionAt).toLocaleString() : '-'}
+                          </p>
+                          <p className="text-xs mt-1">
+                            By {app.approverName || 'Assigned Approver'} {app.approverRole ? `(${app.approverRole})` : ''}
+                          </p>
+                          {app.notes && (
+                            <p className="text-xs text-muted-foreground italic mt-1 bg-muted/40 p-1.5 rounded border">
+                              "{app.notes}"
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                ) : rfc.approvedAt ? (
                   <div className="relative">
                     <div className="absolute -left-[29px] bg-background p-1 rounded-full">
                       <div className="w-3 h-3 rounded-full bg-green-500" />
@@ -289,7 +330,7 @@ export default function RfcDetailPage() {
                       <p className="text-xs mt-1">By {rfc.approver?.name || 'Unknown'}</p>
                     </div>
                   </div>
-                )}
+                ) : null}
                 
                 {rfc.completedAt && (
                   <div className="relative">

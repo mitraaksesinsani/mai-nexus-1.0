@@ -26,6 +26,8 @@ export default function RfcApprovalPage() {
  const [approvingRfc, setApprovingRfc] = useState<any | null>(null);
  const [rejectingRfcId, setRejectingRfcId] = useState<string | null>(null);
  const [processingId, setProcessingId] = useState<string | null>(null);
+ const [approvalNotes, setApprovalNotes] = useState('');
+ const [rejectNotes, setRejectNotes] = useState('');
 
  useEffect(() => {
    fetchPendingRfcs();
@@ -49,10 +51,13 @@ export default function RfcApprovalPage() {
    try {
      await api.patch(`/api/rfc/${approvingRfc.id}`, { 
        status: 'APPROVED', 
-       approverId: user?.id 
+       approverId: user?.id,
+       notes: approvalNotes,
+       stepOrder: approvingRfc.currentStepOrder || 1
      });
      toast.success(`RFC ${approvingRfc.rfcNumber} approved successfully`);
      setApprovingRfc(null);
+     setApprovalNotes('');
      fetchPendingRfcs();
    } catch (error: any) {
      toast.error(error.response?.data?.message || 'Failed to approve RFC');
@@ -65,10 +70,15 @@ export default function RfcApprovalPage() {
    if (!rejectingRfcId) return;
    setProcessingId(rejectingRfcId);
    try {
-     await api.patch(`/api/rfc/${rejectingRfcId}`, { status: 'REJECTED', approverId: user?.id });
+     await api.patch(`/api/rfc/${rejectingRfcId}`, { 
+       status: 'REJECTED', 
+       approverId: user?.id,
+       notes: rejectNotes 
+     });
      toast.success('RFC rejected successfully');
      fetchPendingRfcs();
      setRejectingRfcId(null);
+     setRejectNotes('');
    } catch (error: any) {
      toast.error(error.response?.data?.message || 'Failed to reject RFC');
    } finally {
@@ -99,87 +109,107 @@ export default function RfcApprovalPage() {
      </div>
 
 
-       <Table>
-         <TableHeader>
-           <TableRow className="bg-muted/50">
-             <TableHead className="w-[180px]">RFC Number</TableHead>
-             <TableHead>Project</TableHead>
-             <TableHead>Warehouse</TableHead>
-             <TableHead>Requestor</TableHead>
-             <TableHead>Date</TableHead>
-             <TableHead className="text-right">Actions</TableHead>
-           </TableRow>
-         </TableHeader>
-         <TableBody>
-           {loading ? (
-             <TableRow>
-               <TableCell colSpan={6} className="h-24 text-center">
-                 <div className="flex justify-center"><div className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary"></div></div>
-               </TableCell>
-             </TableRow>
-           ) : rfcs.length > 0 ? (
-             rfcs.slice((page - 1) * pageSize, page * pageSize).map((rfc) => (
-               <TableRow key={rfc.id} className="hover:bg-muted/30">
-                 <TableCell className="font-medium text-primary">
-                   <Link href={`/rfc/${rfc.id}`} className="hover:underline">
-                     {rfc.rfcNumber}
-                   </Link>
-                 </TableCell>
-                 <TableCell>
-                   <div className="font-medium">{rfc.projectName}</div>
-                 </TableCell>
-                 <TableCell>{rfc.warehouseName || '-'}</TableCell>
-                 <TableCell>
-                   <div className="flex flex-col">
-                     <span className="text-sm font-medium">{rfc.requestorName || 'Unknown'}</span>
-                     <span className="text-xs text-muted-foreground">{rfc.requestorRole || ''}</span>
-                   </div>
-                 </TableCell>
-                 <TableCell>
-                   <div className="flex flex-col">
-                     <span className="text-sm">{formatDate(rfc.createdAt)}</span>
-                   </div>
-                 </TableCell>
-                 <TableCell className="text-right">
-                   <div className="flex items-center justify-end gap-2">
-                     <Link href={`/rfc/${rfc.id}`}>
-                       <Button variant="outline" size="sm">
-                         View Details
-                       </Button>
-                     </Link>
-                     <Button 
-                       variant="destructive" 
-                       size="icon" 
-                       className="h-8 w-8"
-                       title="Reject"
-                       onClick={() => setRejectingRfcId(rfc.id)}
-                       disabled={processingId === rfc.id}
-                     >
-                       <XCircle className="h-4 w-4" />
-                     </Button>
-                     <Button 
-                       variant="default" 
-                       size="icon" 
-                       className="h-8 w-8 bg-green-600 hover:bg-green-700 text-white"
-                       title="Approve"
-                       onClick={() => setApprovingRfc(rfc)}
-                       disabled={processingId === rfc.id}
-                     >
-                       <CheckCircle className="h-4 w-4" />
-                     </Button>
-                   </div>
-                 </TableCell>
-               </TableRow>
-             ))
-           ) : (
-             <TableRow>
-               <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                 No pending RFCs for approval.
-               </TableCell>
-             </TableRow>
-           )}
-         </TableBody>
-       </Table>
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <TableHead className="w-[180px]">RFC Number</TableHead>
+              <TableHead>Project</TableHead>
+              <TableHead>Warehouse</TableHead>
+              <TableHead>Requestor</TableHead>
+              <TableHead>Approval Stage</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={7} className="h-24 text-center">
+                  <div className="flex justify-center"><div className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary"></div></div>
+                </TableCell>
+              </TableRow>
+            ) : rfcs.length > 0 ? (
+              rfcs.slice((page - 1) * pageSize, page * pageSize).map((rfc) => (
+                <TableRow key={rfc.id} className="hover:bg-muted/30">
+                  <TableCell className="font-medium text-primary">
+                    <Link href={`/rfc/${rfc.id}`} className="hover:underline">
+                      {rfc.rfcNumber}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-medium">{rfc.projectName}</div>
+                  </TableCell>
+                  <TableCell>{rfc.warehouseName || '-'}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{rfc.requestorName || 'Unknown'}</span>
+                      <span className="text-xs text-muted-foreground">{rfc.requestorRole || ''}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-300/40">
+                          {rfc.currentStepName || `Level ${rfc.currentStepOrder || 1}`}
+                        </span>
+                        {rfc.totalSteps ? (
+                          <span className="text-[11px] text-muted-foreground font-mono">
+                            ({rfc.currentStepOrder || 1}/{rfc.totalSteps})
+                          </span>
+                        ) : null}
+                      </div>
+                      {rfc.currentApproverName && (
+                        <span className="text-xs text-muted-foreground">
+                          Assignee: <span className="font-medium text-foreground">{rfc.currentApproverName}</span>
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="text-sm">{formatDate(rfc.createdAt)}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Link href={`/rfc/${rfc.id}`}>
+                        <Button variant="outline" size="sm">
+                          View Details
+                        </Button>
+                      </Link>
+                      <Button 
+                        variant="destructive" 
+                        size="icon" 
+                        className="h-8 w-8"
+                        title="Reject"
+                        onClick={() => setRejectingRfcId(rfc.id)}
+                        disabled={processingId === rfc.id}
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="default" 
+                        size="icon" 
+                        className="h-8 w-8 bg-green-600 hover:bg-green-700 text-white"
+                        title="Approve"
+                        onClick={() => setApprovingRfc(rfc)}
+                        disabled={processingId === rfc.id}
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                  No pending RFCs for approval.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
      
      <div className="p-4">
        <DataTablePagination 
@@ -191,44 +221,72 @@ export default function RfcApprovalPage() {
        />
      </div>
 
-     <Dialog open={!!approvingRfc} onOpenChange={(open) => !open && setApprovingRfc(null)}>
-       <DialogContent>
-         <DialogHeader>
-           <DialogTitle>Approve RFC</DialogTitle>
-           <DialogDescription>
-             Are you sure you want to approve RFC {approvingRfc?.rfcNumber}? This will allow the warehouse to release the requested materials.
-           </DialogDescription>
-         </DialogHeader>
-         
-         <DialogFooter className="mt-4">
-           <Button variant="outline" onClick={() => setApprovingRfc(null)} disabled={!!processingId}>
-             Cancel
-           </Button>
-           <Button onClick={handleApprove} disabled={!!processingId} className="bg-green-600 hover:bg-green-700 text-white">
-             {processingId ? "Approving..." : "Yes, Approve RFC"}
-           </Button>
-         </DialogFooter>
-       </DialogContent>
-     </Dialog>
+      {/* Dialog Approve */}
+      <Dialog open={!!approvingRfc} onOpenChange={(open) => !open && setApprovingRfc(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Approve RFC</DialogTitle>
+            <DialogDescription>
+              Menyetujui dokumen RFC <strong>{approvingRfc?.rfcNumber}</strong> pada tahap: 
+              <span className="block mt-1 font-semibold text-foreground">
+                {approvingRfc?.currentStepName || `Level ${approvingRfc?.currentStepOrder || 1} Approval`}
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-2 my-2">
+            <label className="text-sm font-medium">Catatan Persetujuan (Opsional)</label>
+            <Input 
+              placeholder="Contoh: Terverifikasi, kebutuhan material sesuai..."
+              value={approvalNotes}
+              onChange={(e) => setApprovalNotes(e.target.value)}
+            />
+          </div>
 
-     <Dialog open={!!rejectingRfcId} onOpenChange={(open) => !open && setRejectingRfcId(null)}>
-       <DialogContent>
-         <DialogHeader>
-           <DialogTitle>Reject RFC</DialogTitle>
-           <DialogDescription>
-             Are you sure you want to reject this RFC? This action cannot be undone.
-           </DialogDescription>
-         </DialogHeader>
-         <DialogFooter className="mt-4">
-           <Button variant="outline" onClick={() => setRejectingRfcId(null)} disabled={!!processingId}>
-             Cancel
-           </Button>
-           <Button variant="destructive" onClick={handleReject} disabled={!!processingId}>
-             {processingId ? "Rejecting..." : "Yes, Reject"}
-           </Button>
-         </DialogFooter>
-       </DialogContent>
-     </Dialog>
-   </div>
- );
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setApprovingRfc(null)} disabled={!!processingId}>
+              Cancel
+            </Button>
+            <Button onClick={handleApprove} disabled={!!processingId} className="bg-green-600 hover:bg-green-700 text-white">
+              {processingId ? "Memproses..." : "Ya, Setujui Tahap Ini"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Reject */}
+      <Dialog open={!!rejectingRfcId} onOpenChange={(open) => !open && setRejectingRfcId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject RFC</DialogTitle>
+            <DialogDescription>
+              Apakah Anda yakin ingin menolak pengajuan RFC ini? Tindakan ini akan menghentikan proses pengeluaran material.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2 my-2">
+            <label className="text-sm font-medium">Alasan Penolakan <span className="text-destructive">*</span></label>
+            <Input 
+              placeholder="Jelaskan alasan penolakan pengajuan ini..."
+              value={rejectNotes}
+              onChange={(e) => setRejectNotes(e.target.value)}
+            />
+          </div>
+
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setRejectingRfcId(null)} disabled={!!processingId}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleReject} 
+              disabled={!!processingId || !rejectNotes.trim()}
+            >
+              {processingId ? "Menolak..." : "Ya, Tolak Pengajuan"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }

@@ -16,11 +16,16 @@ export async function GET(request: Request) {
         cr.notes, 
         cr.created_at as "createdAt",
         cr.requestor_id as "requestorId",
+        cr.current_step_order as "currentStepOrder",
         u.name as "requestorName",
         u.role as "requestorRole",
         p.project_name as "projectName",
         w.name as "warehouseName",
-        (SELECT COUNT(*) FROM consumption_request_items i WHERE i.consumption_request_id = cr.id) as "itemsCount"
+        (SELECT COUNT(*) FROM consumption_request_items i WHERE i.consumption_request_id = cr.id) as "itemsCount",
+        (SELECT u2.name FROM consumption_request_approvals cra JOIN users u2 ON cra.approver_id = u2.id WHERE cra.consumption_request_id = cr.id AND cra.step_order = COALESCE(cr.current_step_order, 1) LIMIT 1) as "currentApproverName",
+        (SELECT cra.step_name FROM consumption_request_approvals cra WHERE cra.consumption_request_id = cr.id AND cra.step_order = COALESCE(cr.current_step_order, 1) LIMIT 1) as "currentStepName",
+        (SELECT COUNT(*) FROM consumption_request_approvals cra WHERE cra.consumption_request_id = cr.id) as "totalSteps",
+        (SELECT COUNT(*) FROM consumption_request_approvals cra WHERE cra.consumption_request_id = cr.id AND cra.status = 'APPROVED') as "approvedSteps"
       FROM consumption_requests cr
       LEFT JOIN users u ON cr.requestor_id = u.id
       LEFT JOIN projects p ON cr.project_id = p.id
@@ -53,7 +58,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const { projectId, warehouseId, requestorId, notes, items } = body;
+  const { projectId, warehouseId, requestorId, notes, items, approvers } = body;
 
   if (!projectId || !warehouseId || !requestorId || !items || items.length === 0) {
     return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
@@ -69,13 +74,13 @@ export async function POST(request: Request) {
     const date = new Date();
     const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const rfcNumber = `RFC-\${dateStr}-\${randomSuffix}`;
+    const rfcNumber = `RFC-${dateStr}-${randomSuffix}`;
 
     const id = generateId();
 
     await client.query(`
-      INSERT INTO consumption_requests (id, rfc_number, project_id, warehouse_id, requestor_id, status, notes)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO consumption_requests (id, rfc_number, project_id, warehouse_id, requestor_id, status, notes, current_step_order)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, 1)
     `, [id, rfcNumber, projectId, warehouseId, requestorId, status, notes || '']);
 
     for (const item of items) {
@@ -84,6 +89,19 @@ export async function POST(request: Request) {
         INSERT INTO consumption_request_items (id, consumption_request_id, material_id, request_qty, notes)
         VALUES ($1, $2, $3, $4, $5)
       `, [itemId, id, item.materialId, item.requestQty, item.notes || '']);
+    }
+
+    // Insert tiered approvers if provided
+    if (approvers && Array.isArray(approvers) && approvers.length > 0) {
+      for (const app of approvers) {
+        if (app.approverId) {
+          const appRecordId = generateId();
+          await client.query(`
+            INSERT INTO consumption_request_approvals (id, consumption_request_id, step_order, step_name, approver_id, status)
+            VALUES ($1, $2, $3, $4, $5, 'PENDING')
+          `, [appRecordId, id, app.stepOrder, app.stepName, app.approverId]);
+        }
+      }
     }
 
     await client.query('COMMIT');

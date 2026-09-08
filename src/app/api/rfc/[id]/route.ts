@@ -16,6 +16,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         cr.taker_name as "takerName",
         cr.taker_date as "takerDate",
         cr.evidence_document as "evidenceDocument",
+        cr.current_step_order as "currentStepOrder",
         u.name as "requestorName",
         u.role as "requestorRole",
         a.name as "approverName",
@@ -55,13 +56,34 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     `;
     const itemsRes = await pool.query(itemsQuery, [id]);
 
+    const approvalsQuery = `
+      SELECT 
+        cra.id,
+        cra.step_order as "stepOrder",
+        cra.step_name as "stepName",
+        cra.approver_id as "approverId",
+        cra.status,
+        cra.notes,
+        cra.action_at as "actionAt",
+        cra.created_at as "createdAt",
+        u.name as "approverName",
+        u.role as "approverRole",
+        u.email as "approverEmail"
+      FROM consumption_request_approvals cra
+      LEFT JOIN users u ON cra.approver_id = u.id
+      WHERE cra.consumption_request_id = $1
+      ORDER BY cra.step_order ASC
+    `;
+    const approvalsRes = await pool.query(approvalsQuery, [id]);
+
     const formattedRfc = {
       ...rfc,
       project: { projectName: rfc.projectName },
       warehouse: { name: rfc.warehouseName, id: rfc.warehouseId },
       requestor: { name: rfc.requestorName, role: rfc.requestorRole },
       approver: rfc.approverName ? { name: rfc.approverName, role: rfc.approverRole } : null,
-      items: itemsRes.rows
+      items: itemsRes.rows,
+      approvals: approvalsRes.rows
     };
 
     return NextResponse.json({ data: formattedRfc }, { status: 200 });
@@ -74,23 +96,66 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const body = await request.json();
-  const { status, approverId, takerName, takerDate, evidenceDocument, completedBy } = body;
+  const { status, approverId, notes, stepOrder, takerName, takerDate, evidenceDocument, completedBy } = body;
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    if (status === 'APPROVED' || status === 'REJECTED') {
-      const res = await client.query(`
-        UPDATE consumption_requests 
-        SET status = $1, approver_id = $2, approved_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP 
-        WHERE id = $3 RETURNING *
-      `, [status, approverId, id]);
-      
-      if (res.rows.length === 0) {
-         await client.query('ROLLBACK');
-         return NextResponse.json({ message: 'RFC not found' }, { status: 404 });
+    if (status === 'APPROVED') {
+      const currentRfcRes = await client.query('SELECT current_step_order, status FROM consumption_requests WHERE id = $1', [id]);
+      if (currentRfcRes.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return NextResponse.json({ message: 'RFC not found' }, { status: 404 });
       }
+
+      const currentStep = stepOrder || currentRfcRes.rows[0].current_step_order || 1;
+
+      // Update current step approval record
+      await client.query(`
+        UPDATE consumption_request_approvals 
+        SET status = 'APPROVED', action_at = CURRENT_TIMESTAMP, notes = $1, approver_id = COALESCE($2, approver_id)
+        WHERE consumption_request_id = $3 AND step_order = $4
+      `, [notes || '', approverId || null, id, currentStep]);
+
+      // Check if there is a next pending step
+      const nextStepRes = await client.query(`
+        SELECT step_order FROM consumption_request_approvals 
+        WHERE consumption_request_id = $1 AND step_order > $2
+        ORDER BY step_order ASC LIMIT 1
+      `, [id, currentStep]);
+
+      if (nextStepRes.rows.length > 0) {
+        // Advance to next step
+        const nextStepOrder = nextStepRes.rows[0].step_order;
+        await client.query(`
+          UPDATE consumption_requests 
+          SET current_step_order = $1, updated_at = CURRENT_TIMESTAMP 
+          WHERE id = $2
+        `, [nextStepOrder, id]);
+      } else {
+        // All steps approved!
+        await client.query(`
+          UPDATE consumption_requests 
+          SET status = 'APPROVED', approver_id = $1, approved_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP 
+          WHERE id = $2
+        `, [approverId || null, id]);
+      }
+    } else if (status === 'REJECTED') {
+      const currentRfcRes = await client.query('SELECT current_step_order FROM consumption_requests WHERE id = $1', [id]);
+      const currentStep = stepOrder || currentRfcRes.rows[0]?.current_step_order || 1;
+
+      await client.query(`
+        UPDATE consumption_request_approvals 
+        SET status = 'REJECTED', action_at = CURRENT_TIMESTAMP, notes = $1, approver_id = COALESCE($2, approver_id)
+        WHERE consumption_request_id = $3 AND step_order = $4
+      `, [notes || '', approverId || null, id, currentStep]);
+
+      await client.query(`
+        UPDATE consumption_requests 
+        SET status = 'REJECTED', approver_id = $1, approved_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = $2
+      `, [approverId || null, id]);
     } else if (status === 'COMPLETED') {
       // Complete RFC and deduct stock
       const rfcRes = await client.query('SELECT warehouse_id FROM consumption_requests WHERE id = $1', [id]);
@@ -105,7 +170,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       
       // Deduct stock for each item
       for (const item of itemsRes.rows) {
-        // We assume inventory_stocks has one row per warehouse-material combo. If not found, it will fail silently or we should insert, but usually it exists if requested.
         await client.query(`
           UPDATE inventory_stocks 
           SET quantity = quantity - $1, last_updated = CURRENT_TIMESTAMP
@@ -113,7 +177,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         `, [item.request_qty, warehouseId, item.material_id]);
       }
 
-      const res = await client.query(`
+      await client.query(`
         UPDATE consumption_requests 
         SET status = $1, taker_name = $2, taker_date = $3, evidence_document = $4, completed_by = $5, completed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP 
         WHERE id = $6 RETURNING *
