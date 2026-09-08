@@ -9,7 +9,6 @@ export async function GET(req: NextRequest) {
     const user = getUserFromRequest(req);
     if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
-    const client = await pool.connect();
     const role = user.role?.toUpperCase();
     const userId = user.sub || user.id;
 
@@ -17,7 +16,7 @@ export async function GET(req: NextRequest) {
 
     // 1. RFC Approvals
     if (['PROCUREMENT', 'OWNER', 'DIREKTUR', 'ADMIN', 'SUPER_ADMIN'].includes(role)) {
-      const rfcRes = await client.query(`
+      const rfcRes = await pool.query(`
         SELECT id, rfc_number, created_at 
         FROM rfcs 
         WHERE status = 'WAITING_APPROVAL' 
@@ -50,7 +49,7 @@ export async function GET(req: NextRequest) {
 
     if (targetPoStatuses.length > 0) {
       const statusPlaceholders = targetPoStatuses.map((_, i) => `$${i + 1}`).join(',');
-      const poRes = await client.query(`
+      const poRes = await pool.query(`
         SELECT id, po_number, created_at 
         FROM purchase_orders 
         WHERE status IN (${statusPlaceholders})
@@ -73,11 +72,9 @@ export async function GET(req: NextRequest) {
     // Sort combined notifications by date descending
     dynamicNotifications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    client.release();
-
     return NextResponse.json(dynamicNotifications);
   } catch (error) {
     console.error('Error fetching dynamic notifications:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    return NextResponse.json([], { status: 200 });
   }
 }

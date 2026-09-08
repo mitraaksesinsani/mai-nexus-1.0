@@ -8,6 +8,9 @@ export const pool =
   new Pool({
     connectionString: process.env.DATABASE_URL?.replace(/"/g, ''), // Strip quotes just in case
     ssl: process.env.DATABASE_URL?.includes('supabase') || process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
   });
 
 if (process.env.NODE_ENV !== 'production') globalForPg.pool = pool;

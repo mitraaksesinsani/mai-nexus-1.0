@@ -11,59 +11,52 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const client = await pool.connect();
-    
     const role = user.role?.toUpperCase();
     const userId = user.sub || user.id;
 
     // 1. Count pending RFC approvals
     let rfcApprovals = 0;
     if (['PROCUREMENT', 'OWNER', 'DIREKTUR', 'ADMIN', 'SUPER_ADMIN'].includes(role)) {
-      const rfcRes = await client.query(`
+      const rfcRes = await pool.query(`
         SELECT COUNT(*) as count 
         FROM rfcs 
         WHERE status = 'WAITING_APPROVAL' 
         AND (site_approver_id IS NULL OR site_approver_id = $1)
       `, [userId]);
-      rfcApprovals = parseInt(rfcRes.rows[0].count, 10);
+      rfcApprovals = parseInt(rfcRes.rows[0].count, 10) || 0;
     }
 
     // 2. Count pending POs
     let poApprovals = 0;
     if (['PROCUREMENT', 'OWNER', 'DIREKTUR', 'ADMIN', 'SUPER_ADMIN'].includes(role)) {
-      const poRes = await client.query(`
+      const poRes = await pool.query(`
         SELECT COUNT(*) as count 
         FROM purchase_orders 
         WHERE status = 'WAITING_APPROVAL' 
         AND (approver_id IS NULL OR approver_id = $1)
       `, [userId]);
-      poApprovals = parseInt(poRes.rows[0].count, 10);
+      poApprovals = parseInt(poRes.rows[0].count, 10) || 0;
     }
 
     // 3. Count ready Material Receives (DOs that are shipping or waiting to be received)
-    // For Procurement, Owner, Site Manager, Project Manager, Admin, Super Admin
     let materialReceives = 0;
     if (['PROCUREMENT', 'OWNER', 'DIREKTUR', 'SITE_MANAGER', 'PROJECT_MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(role)) {
-      const doRes = await client.query(`
+      const doRes = await pool.query(`
         SELECT COUNT(*) as count 
         FROM delivery_orders 
         WHERE status IN ('SHIPPING', 'WAITING')
       `);
-      materialReceives = parseInt(doRes.rows[0].count, 10);
+      materialReceives = parseInt(doRes.rows[0].count, 10) || 0;
     }
 
     // 4. Count pending Logistics (Approved/Processed POs waiting to be made into DOs)
     let pendingLogistics = 0;
-    // Anyone who has access to logistics (all roles technically, but mostly ADMIN, PROCUREMENT, OWNER, SUPER_ADMIN)
-    const pendingLogisticsRes = await client.query(`
+    const pendingLogisticsRes = await pool.query(`
       SELECT COUNT(*) as count
       FROM delivery_orders
       WHERE status = 'WAITING'
     `);
-    pendingLogistics = parseInt(pendingLogisticsRes.rows[0].count, 10);
-
-    client.release();
-    console.log("Counts returned for user:", user.name, "Role:", role, "Counts:", { rfcApprovals, poApprovals, materialReceives, pendingLogistics });
+    pendingLogistics = parseInt(pendingLogisticsRes.rows[0].count, 10) || 0;
 
     return NextResponse.json({
       data: {
@@ -75,6 +68,14 @@ export async function GET(req: NextRequest) {
     }, { status: 200 });
   } catch (error: any) {
     console.error('Error fetching notification counts:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    // Return empty counts gracefully so UI sidebar doesn't throw 500 on temporary network hiccup
+    return NextResponse.json({
+      data: {
+        rfcApprovals: 0,
+        poApprovals: 0,
+        materialReceives: 0,
+        pendingLogistics: 0
+      }
+    }, { status: 200 });
   }
 }
