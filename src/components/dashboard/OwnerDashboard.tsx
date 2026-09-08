@@ -141,25 +141,25 @@ export default function OwnerDashboard() {
               <CardTitle className="text-base font-semibold">Recent Gudang Aktif</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="[&_[data-slot=table-container]]:border-0 [&_[data-slot=table-container]]: [&_[data-slot=table-container]]:bg-transparent">
+          <CardContent className="[&_[data-slot=table-container]]:border-0 [&_[data-slot=table-container]]:bg-transparent">
             {data?.recentWarehouses && data.recentWarehouses.length > 0 ? (
-              <Table className="whitespace-nowrap">
+              <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nama Gudang</TableHead>
-                    <TableHead className="text-right">Aktivitas Terakhir</TableHead>
+                    <TableHead className="text-right whitespace-nowrap">Aktivitas Terakhir</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.recentWarehouses.map((wh) => (
-                    <TableRow key={wh.id}>
-                      <TableCell className="font-medium">
-                        <Link href={`/owner-dashboard/warehouse/${wh.id}`} className="hover:underline text-primary">
+                    <TableRow key={wh.id} className="h-auto">
+                      <TableCell className="font-medium whitespace-normal h-auto py-2.5">
+                        <Link href={`/owner-dashboard/warehouse/${wh.id}`} className="hover:underline text-primary block max-w-[53ch] break-words leading-snug">
                           {wh.name}
                         </Link>
-                        <div className="text-[10px] text-muted-foreground font-normal">{wh.location}</div>
+                        <div className="text-[10px] text-muted-foreground font-normal mt-0.5 max-w-[53ch] break-words">{wh.location}</div>
                       </TableCell>
-                      <TableCell className="text-right text-xs text-muted-foreground">
+                      <TableCell className="text-right text-xs text-muted-foreground whitespace-nowrap h-auto py-2.5 align-top">
                         {formatDate(wh.lastActivity)}
                       </TableCell>
                     </TableRow>
@@ -180,23 +180,25 @@ export default function OwnerDashboard() {
               <CardTitle className="text-base font-semibold">Recent Material Aktif</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="[&_[data-slot=table-container]]:border-0 [&_[data-slot=table-container]]: [&_[data-slot=table-container]]:bg-transparent">
+          <CardContent className="[&_[data-slot=table-container]]:border-0 [&_[data-slot=table-container]]:bg-transparent">
             {data?.recentMaterials && data.recentMaterials.length > 0 ? (
-              <Table className="whitespace-nowrap">
+              <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Material</TableHead>
-                    <TableHead className="text-right">Aktivitas Terakhir</TableHead>
+                    <TableHead className="text-right whitespace-nowrap">Aktivitas Terakhir</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.recentMaterials.map((mat) => (
-                    <TableRow key={mat.id}>
-                      <TableCell className="font-medium">
-                        {mat.name}
-                        <div className="text-[10px] text-muted-foreground font-normal">{mat.code}</div>
+                    <TableRow key={mat.id} className="h-auto">
+                      <TableCell className="font-medium whitespace-normal h-auto py-2.5">
+                        <div className="max-w-[53ch] break-words leading-snug">
+                          {mat.name}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground font-normal mt-0.5">{mat.code}</div>
                       </TableCell>
-                      <TableCell className="text-right text-xs text-muted-foreground">
+                      <TableCell className="text-right text-xs text-muted-foreground whitespace-nowrap h-auto py-2.5 align-top">
                         {formatDate(mat.lastActivity)}
                       </TableCell>
                     </TableRow>
