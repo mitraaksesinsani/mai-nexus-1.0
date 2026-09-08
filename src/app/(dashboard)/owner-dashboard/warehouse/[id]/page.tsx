@@ -227,33 +227,32 @@ export default function OwnerWarehouseDetailPage({ params }: { params: Promise<{
       </div>
 
       {/* Materials Table */}
-      <Card className="shadow-none border-0 ring-0">
-        <CardHeader className="pb-4 px-0">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Layers className="w-5 h-5 text-primary" /> Daftar Material
-              </CardTitle>
-              <CardDescription>Rincian SKU dan stok yang tersedia di dalam gudang ini.</CardDescription>
-            </div>
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Cari material..."
-                className="pl-9 h-9 bg-background"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground">
+              <Layers className="w-5 h-5 text-primary" /> Daftar Material
+            </h2>
+            <p className="text-sm text-muted-foreground">Rincian SKU dan stok yang tersedia di dalam gudang ini.</p>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Cari material..."
+              className="pl-9 h-9 bg-background"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div>
           {filteredStocks.length > 0 ? (
             <Table>
               <TableHeader className="bg-muted/30">
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="w-[120px]">Kode SKU</TableHead>
-                  <TableHead>Nama Material</TableHead>
+                  <TableHead className="min-w-[320px]">Nama Material</TableHead>
                   <TableHead className="w-[150px]">Kategori</TableHead>
                   <TableHead className="w-[150px] text-right">Stok Fisik</TableHead>
                   <TableHead className="w-[180px]">Terakhir Diupdate</TableHead>
@@ -270,7 +269,11 @@ export default function OwnerWarehouseDetailPage({ params }: { params: Promise<{
                     }}
                   >
                     <TableCell className="font-medium text-muted-foreground">{stock.materialCode}</TableCell>
-                    <TableCell className="font-semibold">{stock.materialName}</TableCell>
+                    <TableCell className="font-semibold whitespace-normal">
+                      <div className="max-w-[53ch] break-words text-sm font-medium leading-snug" style={{ maxWidth: '53ch' }}>
+                        {stock.materialName}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="font-normal text-xs">{stock.category}</Badge>
                     </TableCell>
@@ -278,7 +281,7 @@ export default function OwnerWarehouseDetailPage({ params }: { params: Promise<{
                       <span className="font-bold">{stock.quantity.toLocaleString()}</span>
                       <span className="text-xs text-muted-foreground ml-1">{stock.unit}</span>
                     </TableCell>
-                    <TableCell className="text-muted-foreground whitespace-nowrap">
+                    <TableCell className="text-muted-foreground whitespace-nowrap text-xs">
                       {stock.lastUpdated ? format(new Date(stock.lastUpdated), 'dd MMM yyyy HH:mm') : '-'}
                     </TableCell>
                   </TableRow>
@@ -286,7 +289,7 @@ export default function OwnerWarehouseDetailPage({ params }: { params: Promise<{
               </TableBody>
             </Table>
           ) : (
-            <div className="p-12 text-center flex flex-col items-center">
+            <div className="p-12 text-center flex flex-col items-center bg-card border border-border rounded-xl">
               <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mb-4">
                 <Package className="w-8 h-8 text-muted-foreground opacity-50" />
               </div>
@@ -294,8 +297,8 @@ export default function OwnerWarehouseDetailPage({ params }: { params: Promise<{
               <p className="text-muted-foreground text-sm">Tidak ada material di dalam gudang ini yang sesuai dengan pencarian.</p>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {selectedLogMaterial && (
         <MaterialLogModal
