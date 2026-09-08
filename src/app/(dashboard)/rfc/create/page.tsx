@@ -32,6 +32,7 @@ export default function CreateRfcPage() {
   const [items, setItems] = useState<any[]>([{ materialId: '', requestQty: '', notes: '' }]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingMetadata, setIsLoadingMetadata] = useState(true);
+  const [isLoadingInventory, setIsLoadingInventory] = useState(false);
 
   useEffect(() => {
     fetchMetadata();
@@ -61,10 +62,14 @@ export default function CreateRfcPage() {
       fetchInventory(formData.warehouseId);
       // Reset items when warehouse changes to prevent invalid stock
       setItems([{ materialId: '', requestQty: '', notes: '' }]);
+    } else {
+      setInventory([]);
+      setItems([{ materialId: '', requestQty: '', notes: '' }]);
     }
   }, [formData.warehouseId]);
 
   const fetchInventory = async (warehouseId: string) => {
+    setIsLoadingInventory(true);
     try {
       const { data } = await api.get(`/api/inventory/stocks?warehouseId=${warehouseId}&limit=500`);
       // Filter out items with 0 stock and normalize material structure
@@ -82,6 +87,9 @@ export default function CreateRfcPage() {
     } catch (error) {
       console.error('Failed to fetch inventory:', error);
       toast.error('Failed to load warehouse inventory');
+      setInventory([]);
+    } finally {
+      setIsLoadingInventory(false);
     }
   };
 
@@ -265,7 +273,14 @@ export default function CreateRfcPage() {
           </CardContent>
         </Card>
 
-        {formData.warehouseId && inventory.length === 0 && (
+        {formData.warehouseId && isLoadingInventory && (
+          <div className="bg-muted/50 border border-border p-4 rounded-md flex items-center gap-3 animate-pulse">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Memeriksa stok material di gudang ini...</p>
+          </div>
+        )}
+
+        {formData.warehouseId && !isLoadingInventory && inventory.length === 0 && (
           <div className="bg-destructive/10 text-destructive border border-destructive/20 p-4 rounded-md flex items-start gap-3">
             <AlertCircle className="h-5 w-5 mt-0.5" />
             <div>
@@ -277,7 +292,7 @@ export default function CreateRfcPage() {
           </div>
         )}
 
-        <Card className={!formData.warehouseId || inventory.length === 0 ? 'opacity-50 pointer-events-none' : ''}>
+        <Card className={!formData.warehouseId || isLoadingInventory || inventory.length === 0 ? 'opacity-50 pointer-events-none' : ''}>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Requested Materials</CardTitle>
             <Button type="button" variant="outline" size="sm" onClick={addItem}>
