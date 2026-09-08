@@ -99,6 +99,15 @@ export async function GET() {
     });
   } catch (error: any) {
     console.error('Failed to fetch owner dashboard data:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({
+      data: {
+        totalWarehouses: 0,
+        totalMaterialTypes: 0,
+        totalMaterialStock: 0,
+        totalCableLength: 0,
+        recentWarehouses: [],
+        recentMaterials: []
+      }
+    }, { status: 200 });
   }
 }
