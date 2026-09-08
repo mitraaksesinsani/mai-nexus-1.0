@@ -52,7 +52,15 @@ export async function GET(request: Request) {
       ...row,
       quantity: parseInt(row.quantity, 10) || 0,
       unitPrice: parseFloat(row.unitPrice) || 0,
-      totalValue: parseFloat(row.totalValue) || 0
+      totalValue: parseFloat(row.totalValue) || 0,
+      material: {
+        id: row.materialId,
+        materialCode: row.materialCode,
+        materialName: row.materialName,
+        category: row.category,
+        unit: row.unit,
+        unitPrice: parseFloat(row.unitPrice) || 0,
+      }
     }));
 
     return NextResponse.json({ data: stocks }, { status: 200 });

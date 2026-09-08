@@ -66,9 +66,18 @@ export default function CreateRfcPage() {
 
   const fetchInventory = async (warehouseId: string) => {
     try {
-      const { data } = await api.get(`/api/inventory?warehouseId=${warehouseId}&limit=500`);
-      // Filter out items with 0 stock
-      const availableInventory = (data.data || []).filter((inv: any) => inv.quantity > 0);
+      const { data } = await api.get(`/api/inventory/stocks?warehouseId=${warehouseId}&limit=500`);
+      // Filter out items with 0 stock and normalize material structure
+      const availableInventory = (data.data || [])
+        .filter((inv: any) => inv.quantity > 0)
+        .map((inv: any) => ({
+          ...inv,
+          material: inv.material || {
+            materialCode: inv.materialCode,
+            materialName: inv.materialName,
+            unit: inv.unit,
+          }
+        }));
       setInventory(availableInventory);
     } catch (error) {
       console.error('Failed to fetch inventory:', error);
