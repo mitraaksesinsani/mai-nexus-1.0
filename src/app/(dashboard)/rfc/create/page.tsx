@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 export default function CreateRfcPage() {
@@ -302,21 +303,21 @@ export default function CreateRfcPage() {
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <Table className="min-w-[1300px]">
+              <Table className="min-w-[1200px]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[750px] min-w-[700px]">Material <span className="text-destructive">*</span></TableHead>
-                    <TableHead className="w-[130px]">Available Stock</TableHead>
-                    <TableHead className="w-[150px]">Req. Qty <span className="text-destructive">*</span></TableHead>
+                    <TableHead className="w-[560px] min-w-[540px]">Material <span className="text-destructive">*</span></TableHead>
+                    <TableHead className="w-[130px] text-center">Available Stock</TableHead>
+                    <TableHead className="w-[140px]">Req. Qty <span className="text-destructive">*</span></TableHead>
                     <TableHead className="w-[100px]">Unit</TableHead>
-                    <TableHead className="min-w-[200px]">Notes</TableHead>
+                    <TableHead className="min-w-[220px]">Notes</TableHead>
                     <TableHead className="w-[60px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {items.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
+                    <TableRow key={index} className="hover:bg-muted/30">
+                      <TableCell className="py-2.5 px-3 align-middle">
                         <Select 
                           value={item.materialId} 
                           onValueChange={(val) => handleItemChange(index, 'materialId', val || '')}
@@ -325,8 +326,17 @@ export default function CreateRfcPage() {
                             label: `${inv.material?.materialCode || ''} - ${inv.material?.materialName || ''}`
                           }))}
                         >
-                          <SelectTrigger className={!item.materialId ? "text-muted-foreground" : ""}>
-                            <SelectValue placeholder="Select Material">
+                          <SelectTrigger 
+                            className={cn(
+                              "h-[52px] min-h-[52px] py-1.5 px-3 text-left whitespace-normal leading-snug",
+                              "[&_[data-slot=select-value]]:line-clamp-2 [&_[data-slot=select-value]]:whitespace-normal [&_[data-slot=select-value]]:block [&_[data-slot=select-value]]:break-words",
+                              !item.materialId ? "text-muted-foreground" : ""
+                            )}
+                          >
+                            <SelectValue 
+                              placeholder="Select Material"
+                              className="!line-clamp-2 !whitespace-normal !block leading-snug text-left"
+                            >
                               {(() => {
                                 const selected = inventory.find((i) => i.materialId === item.materialId);
                                 return selected?.material
@@ -335,23 +345,31 @@ export default function CreateRfcPage() {
                               })()}
                             </SelectValue>
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="max-w-[600px]">
                             {inventory.map((inv) => (
-                              <SelectItem key={inv.materialId} value={inv.materialId}>
+                              <SelectItem 
+                                key={inv.materialId} 
+                                value={inv.materialId}
+                                className="py-2 whitespace-normal [&_[data-slot=select-item-text]]:whitespace-normal [&>span]:whitespace-normal"
+                              >
                                 {inv.material?.materialCode} - {inv.material?.materialName}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-2.5 px-3 align-middle">
                         {item.materialId ? (
-                          <div className="font-mono text-sm bg-muted px-2 py-1 rounded inline-block">
+                          <div className="font-mono text-sm bg-muted/80 border border-border/60 px-3 h-[52px] rounded-lg flex items-center justify-center w-full font-semibold">
                             {getAvailableStock(item.materialId)}
                           </div>
-                        ) : '-'}
+                        ) : (
+                          <div className="font-mono text-sm text-muted-foreground/60 h-[52px] rounded-lg border border-dashed border-border/40 flex items-center justify-center w-full">
+                            -
+                          </div>
+                        )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-2.5 px-3 align-middle">
                         <Input 
                           type="number" 
                           min="0"
@@ -361,24 +379,29 @@ export default function CreateRfcPage() {
                           value={item.requestQty}
                           onChange={(e) => handleItemChange(index, 'requestQty', e.target.value)}
                           disabled={!item.materialId}
+                          className="h-[52px] text-base md:text-sm font-medium"
                         />
                       </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-muted-foreground">{getMaterialUnit(item.materialId) || '-'}</span>
+                      <TableCell className="py-2.5 px-3 align-middle">
+                        <div className="h-[52px] flex items-center">
+                          <span className="text-sm font-medium text-muted-foreground">{getMaterialUnit(item.materialId) || '-'}</span>
+                        </div>
                       </TableCell>
-                      <TableCell>
-                        <Input 
+                      <TableCell className="py-2.5 px-3 align-middle">
+                        <Textarea 
+                          rows={2}
                           placeholder="Optional notes" 
                           value={item.notes}
                           onChange={(e) => handleItemChange(index, 'notes', e.target.value)}
+                          className="h-[52px] min-h-[52px] resize-none py-2 px-3 text-sm leading-snug"
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-2.5 px-3 align-middle">
                         <Button 
                           type="button" 
                           variant="ghost" 
                           size="icon" 
-                          className="text-destructive hover:bg-destructive/10"
+                          className="text-destructive hover:bg-destructive/10 h-[52px] w-[52px] rounded-lg flex items-center justify-center"
                           onClick={() => removeItem(index)}
                         >
                           <Trash2 className="h-4 w-4" />
