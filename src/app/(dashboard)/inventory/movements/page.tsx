@@ -70,44 +70,52 @@ export default function MovementsPage() {
           </div>
         ) : movements.length > 0 ? (
           <div className="space-y-4">
-            <Table className="whitespace-nowrap">
+            <Table className="table-fixed min-w-[1240px] w-full">
               <TableHeader>
-                  <TableRow className="bg-secondary/30">
-                    <TableHead className="w-[180px]">Date</TableHead>
-                    <TableHead className="w-[120px]">Type</TableHead>
-                    <TableHead className="w-[250px]">Material</TableHead>
-                    <TableHead className="w-[150px]">Warehouse</TableHead>
-                    <TableHead className="w-[100px] text-right">Quantity</TableHead>
-                    <TableHead className="w-[200px]">Notes</TableHead>
+                <TableRow className="bg-secondary/30">
+                  <TableHead className="w-[170px]">Date</TableHead>
+                  <TableHead className="w-[130px]">Type</TableHead>
+                  <TableHead className="w-[460px]">Material</TableHead>
+                  <TableHead className="w-[180px]">Warehouse</TableHead>
+                  <TableHead className="w-[120px] text-right">Quantity</TableHead>
+                  <TableHead className="w-[180px]">Notes</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {movements.slice((page - 1) * pageSize, page * pageSize).map((tx) => (
+                  <TableRow key={tx.id} className="hover:bg-muted/30">
+                    <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
+                      {new Date(tx.createdAt).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        {getTransactionIcon(tx.transactionType)}
+                        {getTransactionBadge(tx.transactionType)}
+                      </div>
+                    </TableCell>
+                    <TableCell className="whitespace-normal">
+                      <div 
+                        className="max-w-[67ch] break-words text-sm font-medium text-primary leading-snug" 
+                        style={{ maxWidth: '67ch' }}
+                        title={tx.material?.materialName}
+                      >
+                        {tx.material?.materialName || '—'}
+                      </div>
+                      <p className="text-xs text-muted-foreground font-mono mt-0.5">{tx.material?.materialCode}</p>
+                    </TableCell>
+                    <TableCell className="truncate text-sm" title={tx.warehouse?.warehouseName || tx.warehouse?.name || '—'}>
+                      {tx.warehouse?.warehouseName || tx.warehouse?.name || '—'}
+                    </TableCell>
+                    <TableCell className={`text-right font-semibold whitespace-nowrap ${tx.transactionType === 'IN' ? 'text-emerald-500' : tx.transactionType === 'OUT' ? 'text-red-500' : ''}`}>
+                      {tx.transactionType === 'IN' ? '+' : tx.transactionType === 'OUT' ? '-' : ''}
+                      {Number(tx.quantity || 0).toLocaleString()} {tx.material?.unit}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm truncate" title={tx.notes || '-'}>
+                      {tx.notes || '-'}
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {movements.slice((page - 1) * pageSize, page * pageSize).map((tx) => (
-                    <TableRow key={tx.id} className="hover:bg-muted/30">
-                      <TableCell className="text-muted-foreground text-sm">
-                        {new Date(tx.createdAt).toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getTransactionIcon(tx.transactionType)}
-                          {getTransactionBadge(tx.transactionType)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <p className="font-medium text-primary">{tx.material?.materialName || '—'}</p>
-                        <p className="text-xs text-muted-foreground">{tx.material?.materialCode}</p>
-                      </TableCell>
-                      <TableCell>{tx.warehouse?.warehouseName || tx.warehouse?.name || '—'}</TableCell>
-                      <TableCell className={`text-right font-semibold ${tx.transactionType === 'IN' ? 'text-emerald-500' : tx.transactionType === 'OUT' ? 'text-red-500' : ''}`}>
-                        {tx.transactionType === 'IN' ? '+' : tx.transactionType === 'OUT' ? '-' : ''}
-                        {tx.quantity} {tx.material?.unit}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm truncate max-w-[200px]" title={tx.notes || '-'}>
-                        {tx.notes || '-'}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
+                ))}
+              </TableBody>
             </Table>
             <div className="px-1">
               <DataTablePagination 
