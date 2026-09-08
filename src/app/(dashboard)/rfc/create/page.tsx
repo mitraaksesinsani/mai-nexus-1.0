@@ -185,7 +185,7 @@ export default function CreateRfcPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-10">
+    <div className="space-y-6 max-w-7xl mx-auto pb-10">
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" onClick={() => router.back()}>
           <ArrowLeft className="h-4 w-4" />
@@ -302,14 +302,14 @@ export default function CreateRfcPage() {
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <Table>
+              <Table className="min-w-[1300px]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[300px]">Material <span className="text-destructive">*</span></TableHead>
-                    <TableHead className="w-[120px]">Available Stock</TableHead>
+                    <TableHead className="w-[750px] min-w-[700px]">Material <span className="text-destructive">*</span></TableHead>
+                    <TableHead className="w-[130px]">Available Stock</TableHead>
                     <TableHead className="w-[150px]">Req. Qty <span className="text-destructive">*</span></TableHead>
                     <TableHead className="w-[100px]">Unit</TableHead>
-                    <TableHead>Notes</TableHead>
+                    <TableHead className="min-w-[200px]">Notes</TableHead>
                     <TableHead className="w-[60px]"></TableHead>
                   </TableRow>
                 </TableHeader>
