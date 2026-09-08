@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, CheckCircle, Package, User, Calendar, MapPin, Upload, Loader2, Save, FileText, Printer } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Package, User, Calendar, MapPin, Upload, Loader2, Save, FileText, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
 import StatusBadge from '@/components/shared/StatusBadge';
@@ -29,6 +31,13 @@ export default function RfcDetailPage() {
   const [takerDate, setTakerDate] = useState('');
   const [evidenceUrl, setEvidenceUrl] = useState('');
   const [isCompleting, setIsCompleting] = useState(false);
+
+  // Approval modal states
+  const [isApproveOpen, setIsApproveOpen] = useState(false);
+  const [isRejectOpen, setIsRejectOpen] = useState(false);
+  const [approvalNotes, setApprovalNotes] = useState('');
+  const [rejectNotes, setRejectNotes] = useState('');
+  const [isSubmittingApproval, setIsSubmittingApproval] = useState(false);
 
   useEffect(() => {
     fetchRfcDetails();
@@ -73,6 +82,53 @@ export default function RfcDetailPage() {
     }
   };
 
+  const currentStep = rfc?.approvals?.find((a: any) => a.stepOrder === (rfc?.currentStepOrder || 1));
+  const canApprove = rfc?.status === 'WAITING_APPROVAL' && (
+    user?.role === 'ADMIN' || 
+    user?.role === 'SUPER_ADMIN' || 
+    user?.id === currentStep?.approverId ||
+    (!currentStep && ['SITE_MANAGER', 'DIREKTUR', 'OWNER', 'PROCUREMENT'].includes(user?.role || ''))
+  );
+
+  const handleApprove = async () => {
+    setIsSubmittingApproval(true);
+    try {
+      await api.patch(`/api/rfc/${rfc.id}`, { 
+        status: 'APPROVED', 
+        approverId: user?.id,
+        notes: approvalNotes,
+        stepOrder: rfc.currentStepOrder || 1
+      });
+      toast.success(`RFC ${rfc.rfcNumber} approved successfully`);
+      setIsApproveOpen(false);
+      setApprovalNotes('');
+      fetchRfcDetails();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to approve RFC');
+    } finally {
+      setIsSubmittingApproval(false);
+    }
+  };
+
+  const handleReject = async () => {
+    setIsSubmittingApproval(true);
+    try {
+      await api.patch(`/api/rfc/${rfc.id}`, { 
+        status: 'REJECTED', 
+        approverId: user?.id,
+        notes: rejectNotes 
+      });
+      toast.success('RFC rejected successfully');
+      setIsRejectOpen(false);
+      setRejectNotes('');
+      fetchRfcDetails();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to reject RFC');
+    } finally {
+      setIsSubmittingApproval(false);
+    }
+  };
+
   if (loading) {
     return <div className="flex h-[400px] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
@@ -102,7 +158,26 @@ export default function RfcDetailPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {canApprove && (
+            <>
+              <Button
+                variant="destructive"
+                className="gap-2 shadow-sm"
+                onClick={() => setIsRejectOpen(true)}
+              >
+                <XCircle className="h-4 w-4" />
+                Reject
+              </Button>
+              <Button
+                className="gap-2 shadow-sm bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => setIsApproveOpen(true)}
+              >
+                <CheckCircle className="h-4 w-4" />
+                Approve
+              </Button>
+            </>
+          )}
           <Button
             variant="outline"
             className="gap-2 shadow-sm"
@@ -362,6 +437,83 @@ export default function RfcDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* Dialog Approve */}
+      <Dialog open={isApproveOpen} onOpenChange={setIsApproveOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Approve RFC Request</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to approve request {rfc?.rfcNumber}?
+              {currentStep && (
+                <span className="block mt-1 text-primary font-medium">
+                  Stage: {currentStep.stepName}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <Label htmlFor="approve-notes" className="text-xs font-semibold">
+              Approval Notes (Optional)
+            </Label>
+            <Textarea
+              id="approve-notes"
+              placeholder="e.g. Sesuai kebutuhan lapangan, material disetujui."
+              className="mt-1.5"
+              rows={3}
+              value={approvalNotes}
+              onChange={(e) => setApprovalNotes(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsApproveOpen(false)}>Cancel</Button>
+            <Button 
+              className="bg-green-600 hover:bg-green-700 text-white" 
+              onClick={handleApprove}
+              disabled={isSubmittingApproval}
+            >
+              {isSubmittingApproval ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+              Confirm Approval
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Reject */}
+      <Dialog open={isRejectOpen} onOpenChange={setIsRejectOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject RFC Request</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to reject request {rfc?.rfcNumber}? Please provide a reason.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <Label htmlFor="reject-notes" className="text-xs font-semibold">
+              Rejection Reason <span className="text-destructive">*</span>
+            </Label>
+            <Textarea
+              id="reject-notes"
+              placeholder="e.g. Kuantitas tidak sesuai rencana kerja..."
+              className="mt-1.5"
+              rows={3}
+              value={rejectNotes}
+              onChange={(e) => setRejectNotes(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRejectOpen(false)}>Cancel</Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleReject} 
+              disabled={!rejectNotes.trim() || isSubmittingApproval}
+            >
+              {isSubmittingApproval ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+              Confirm Rejection
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

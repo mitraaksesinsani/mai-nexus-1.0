@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
             id: `rfc-${r.id}`,
             title: 'RFC Approval Required',
             message: `Request for Consumption ${r.rfc_number} is waiting for your approval.`,
-            link: `/rfc/approval`,
+            link: `/rfc/${r.id}`,
             createdAt: r.created_at,
             isRead: false,
             type: 'RFC_APPROVAL'
@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
             id: `rfc-${r.id}`,
             title: 'RFC Approval Required',
             message: `Request For Certificate ${r.rfc_number} is waiting for your approval.`,
-            link: `/rfc/approval?actionId=${r.id}`,
+            link: `/rfc/${r.id}`,
             createdAt: r.created_at,
             isRead: false,
             type: 'RFC_APPROVAL'
