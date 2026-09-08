@@ -34,12 +34,9 @@ export async function GET() {
             WHEN LOWER(TRIM(m.unit)) IN ('meter', 'mtr', 'm') THEN
               CASE 
                 WHEN s.quantity <= 0 THEN 0
-                WHEN LOWER(m.material_name) LIKE '%subduct%' OR LOWER(m.material_name) LIKE '%hdpe%' OR m.material_code LIKE '%-SD-%' 
-                  THEN GREATEST(1, ROUND(s.quantity::numeric / $1))
-                WHEN LOWER(m.material_name) LIKE '%kabel duct%' OR LOWER(m.material_name) LIKE '%kabel tanah%' OR m.material_code LIKE 'DC-OF%' 
-                  THEN GREATEST(1, ROUND(s.quantity::numeric / $2))
-                WHEN LOWER(m.material_name) LIKE '%kabel udara%' OR m.material_code LIKE 'AC-OF%' 
-                  THEN GREATEST(1, ROUND(s.quantity::numeric / $3))
+                WHEN m.packaging_type = 'HDPE_SUBDUCT' THEN GREATEST(1, ROUND(s.quantity::numeric / $1))
+                WHEN m.packaging_type = 'KABEL_TANAH' THEN GREATEST(1, ROUND(s.quantity::numeric / $2))
+                WHEN m.packaging_type = 'KABEL_UDARA' THEN GREATEST(1, ROUND(s.quantity::numeric / $3))
                 ELSE 1
               END
             ELSE GREATEST(0, s.quantity)

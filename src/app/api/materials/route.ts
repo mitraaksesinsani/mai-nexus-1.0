@@ -54,6 +54,7 @@ export async function GET(request: Request) {
       category: row.category,
       specification: row.specification,
       unit: row.unit,
+      packagingType: row.packaging_type || 'NON_PACKAGING',
       unitPrice: parseFloat(row.unit_price) || 0,
       minimumStock: row.minimum_stock,
       isActive: row.is_active,
@@ -71,7 +72,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { code, name, group, uom, description, category, unitPrice, price } = body;
+    const { code, name, group, uom, description, category, unitPrice, price, packagingType, packaging_type } = body;
 
     if (!code || !name || !uom) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
@@ -83,13 +84,14 @@ export async function POST(request: Request) {
     const resolvedCategory = group || category || 'STANDARD';
     const specification = description || '';
     const unit = uom;
+    const resolvedPackagingType = packagingType || packaging_type || 'NON_PACKAGING';
     const parsedUnitPrice = parseFloat(unitPrice !== undefined ? unitPrice : (price !== undefined ? price : 0)) || 0;
 
     const res = await pool.query(`
-      INSERT INTO material_masters (id, material_code, material_name, category, specification, unit, unit_price, minimum_stock, is_active)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      INSERT INTO material_masters (id, material_code, material_name, category, specification, unit, unit_price, minimum_stock, is_active, packaging_type)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *
-    `, [id, materialCode, materialName, resolvedCategory, specification, unit, parsedUnitPrice, 0, true]);
+    `, [id, materialCode, materialName, resolvedCategory, specification, unit, parsedUnitPrice, 0, true, resolvedPackagingType]);
 
     const row = res.rows[0];
     const material = {
@@ -99,6 +101,7 @@ export async function POST(request: Request) {
       category: row.category,
       specification: row.specification,
       unit: row.unit,
+      packagingType: row.packaging_type || 'NON_PACKAGING',
       unitPrice: parseFloat(row.unit_price) || 0,
       minimumStock: row.minimum_stock,
       isActive: row.is_active,
@@ -116,21 +119,23 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, materialCode, materialName, category, specification, unit, unitPrice, price, minimumStock, isActive } = body;
+    const { id, materialCode, materialName, category, specification, unit, unitPrice, price, minimumStock, isActive, packagingType, packaging_type } = body;
 
     if (!id || !materialCode || !materialName) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
 
     const parsedUnitPrice = parseFloat(unitPrice !== undefined ? unitPrice : (price !== undefined ? price : 0)) || 0;
+    const resolvedPackagingType = packagingType || packaging_type || 'NON_PACKAGING';
 
     const res = await pool.query(`
       UPDATE material_masters 
       SET material_code = $1, material_name = $2, category = $3, specification = $4, 
-          unit = $5, unit_price = $6, minimum_stock = $7, is_active = $8, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $9
+          unit = $5, unit_price = $6, minimum_stock = $7, is_active = $8, 
+          packaging_type = $9, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $10
       RETURNING *
-    `, [materialCode, materialName, category || '', specification || '', unit || '', parsedUnitPrice, minimumStock || 0, isActive !== undefined ? isActive : true, id]);
+    `, [materialCode, materialName, category || '', specification || '', unit || '', parsedUnitPrice, minimumStock || 0, isActive !== undefined ? isActive : true, resolvedPackagingType, id]);
 
     if (res.rowCount === 0) {
       return NextResponse.json({ message: 'Material not found' }, { status: 404 });
@@ -140,6 +145,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ 
       data: {
         ...row,
+        packagingType: row.packaging_type || 'NON_PACKAGING',
         unitPrice: parseFloat(row.unit_price) || 0
       }, 
       message: 'Material updated' 

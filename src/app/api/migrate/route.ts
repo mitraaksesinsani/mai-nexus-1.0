@@ -29,6 +29,29 @@ export async function GET() {
       await client.query('ALTER TABLE delivery_orders ADD COLUMN evidence TEXT');
     }
 
+    // Material masters packaging_type
+    const matColCheck = await client.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'material_masters'
+    `);
+    const matCols = matColCheck.rows.map(r => r.column_name);
+    if (!matCols.includes('packaging_type')) {
+      await client.query(`
+        ALTER TABLE material_masters 
+        ADD COLUMN packaging_type VARCHAR(50) DEFAULT 'NON_PACKAGING'
+      `);
+      await client.query(`
+        UPDATE material_masters SET packaging_type = 'KABEL_UDARA'
+        WHERE material_code LIKE 'AC-OF%' OR LOWER(material_name) LIKE '%kabel udara%';
+        UPDATE material_masters SET packaging_type = 'KABEL_TANAH'
+        WHERE material_code LIKE 'DC-OF%' OR LOWER(material_name) LIKE '%kabel duct%' OR LOWER(material_name) LIKE '%kabel tanah%';
+        UPDATE material_masters SET packaging_type = 'HDPE_SUBDUCT'
+        WHERE material_code LIKE '%-SD-%' OR LOWER(material_name) LIKE '%subduct%' OR LOWER(material_name) LIKE '%hdpe%';
+        UPDATE material_masters SET packaging_type = 'NON_PACKAGING' WHERE packaging_type IS NULL;
+      `);
+    }
+
     await client.query('COMMIT');
     return NextResponse.json({ message: 'Migration successful!' });
   } catch (error: any) {

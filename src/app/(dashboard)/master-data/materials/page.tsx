@@ -34,6 +34,13 @@ const MATERIAL_GROUPS = [
 ];
 const MATERIAL_UOMS = ['Meter', 'Roll', 'Pcs', 'Unit', 'Set', 'Box', 'Kg', 'Liter', 'Lot'];
 
+const PACKAGING_TYPES = [
+  { value: 'NON_PACKAGING', label: 'Bukan Kemasan / Satuan Biasa' },
+  { value: 'KABEL_UDARA', label: '1 Haspel Kabel Udara (4.000 m)' },
+  { value: 'KABEL_TANAH', label: '1 Haspel Kabel Tanah / Duct (3.000 m)' },
+  { value: 'HDPE_SUBDUCT', label: '1 Roll Subduct / HDPE (200 m)' },
+];
+
 export default function MaterialsPage() {
   const [materials, setMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,6 +70,7 @@ export default function MaterialsPage() {
     name: '',
     group: '',
     uom: '',
+    packagingType: 'NON_PACKAGING',
     unitPrice: '',
     description: '',
   });
@@ -111,7 +119,7 @@ export default function MaterialsPage() {
 
   const openCreateDialog = () => {
     setEditId(null);
-    setFormData({ code: '', name: '', group: '', uom: '', unitPrice: '', description: '' });
+    setFormData({ code: '', name: '', group: '', uom: '', packagingType: 'NON_PACKAGING', unitPrice: '', description: '' });
     setIsOpen(true);
   };
 
@@ -122,6 +130,7 @@ export default function MaterialsPage() {
       name: material.materialName,
       group: material.category,
       uom: material.unit,
+      packagingType: material.packagingType || 'NON_PACKAGING',
       unitPrice: material.unitPrice ? material.unitPrice.toString() : '',
       description: material.specification || '',
     });
@@ -140,6 +149,7 @@ export default function MaterialsPage() {
           category: formData.group,
           specification: formData.description,
           unit: formData.uom,
+          packagingType: formData.packagingType,
           unitPrice: parseFloat(formData.unitPrice) || 0,
           minimumStock: 0,
           isActive: true
@@ -151,6 +161,7 @@ export default function MaterialsPage() {
           name: formData.name,
           group: formData.group,
           uom: formData.uom,
+          packagingType: formData.packagingType,
           description: formData.description,
           unitPrice: parseFloat(formData.unitPrice) || 0,
         });
@@ -449,6 +460,25 @@ export default function MaterialsPage() {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="packagingType">Tipe Kemasan Fisik (Packaging UOM)</Label>
+              <Select 
+                value={formData.packagingType} 
+                onValueChange={(val) => setFormData({ ...formData, packagingType: val || 'NON_PACKAGING' })}
+              >
+                <SelectTrigger id="packagingType">
+                  <SelectValue placeholder="Pilih Tipe Kemasan" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PACKAGING_TYPES.map(p => (
+                    <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground">
+                Kategori kemasan standar untuk konversi material ke wujud haspel/roll di dashboard.
+              </p>
+            </div>
             <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
                 Cancel
@@ -560,6 +590,21 @@ export default function MaterialsPage() {
                         >
                           {material.materialName}
                         </span>
+                        {material.packagingType === 'KABEL_UDARA' && (
+                          <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                            1 Haspel (4.000m)
+                          </span>
+                        )}
+                        {material.packagingType === 'KABEL_TANAH' && (
+                          <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            1 Haspel (3.000m)
+                          </span>
+                        )}
+                        {material.packagingType === 'HDPE_SUBDUCT' && (
+                          <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                            1 Roll (200m)
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="text-xs font-normal bg-muted text-muted-foreground">
