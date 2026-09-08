@@ -85,7 +85,7 @@ export default function RfcDetailPage() {
   const isCompleted = rfc.status === 'COMPLETED';
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10">
+    <div className="space-y-6 w-full max-w-[1700px] mx-auto pb-10">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" onClick={() => router.back()}>
@@ -127,8 +127,8 @@ export default function RfcDetailPage() {
         currentUserId={user?.id}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        <div className="xl:col-span-3 space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Requested Materials</CardTitle>
@@ -137,23 +137,23 @@ export default function RfcDetailPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[45%] min-w-[280px]">Material</TableHead>
-                    <TableHead className="text-right w-[15%]">Quantity</TableHead>
-                    <TableHead className="w-[15%]">Unit</TableHead>
-                    <TableHead className="w-[25%]">Notes</TableHead>
+                    <TableHead className="w-[60%] min-w-[340px]">Material</TableHead>
+                    <TableHead className="text-right w-[12%] min-w-[90px]">Quantity</TableHead>
+                    <TableHead className="w-[10%] min-w-[80px]">Unit</TableHead>
+                    <TableHead className="w-[18%] min-w-[130px]">Notes</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {rfc.items && rfc.items.length > 0 ? (
                     rfc.items.map((item: any) => (
                       <TableRow key={item.id}>
-                        <TableCell className="max-w-[450px] whitespace-normal py-3 align-top">
-                          <div className="font-medium whitespace-normal break-words leading-relaxed">{item.materialName}</div>
+                        <TableCell className="whitespace-normal py-3 align-top">
+                          <div className="font-medium whitespace-normal break-words leading-relaxed text-sm">{item.materialName}</div>
                           <div className="text-xs text-muted-foreground mt-0.5">{item.materialCode}</div>
                         </TableCell>
                         <TableCell className="text-right font-medium align-top py-3">{item.requestQty}</TableCell>
                         <TableCell className="align-top py-3">{item.unit}</TableCell>
-                        <TableCell className="text-muted-foreground text-sm whitespace-normal break-words max-w-[250px] align-top py-3">{item.notes || '-'}</TableCell>
+                        <TableCell className="text-muted-foreground text-sm whitespace-normal break-words align-top py-3">{item.notes || '-'}</TableCell>
                       </TableRow>
                     ))
                   ) : (
@@ -262,7 +262,7 @@ export default function RfcDetailPage() {
           )}
         </div>
 
-        <div className="space-y-6">
+        <div className="xl:col-span-1 space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-sm">Information</CardTitle>
