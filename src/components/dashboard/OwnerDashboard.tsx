@@ -134,14 +134,12 @@ export default function OwnerDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Recent Warehouses Activity */}
-        <Card className="">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div className="flex items-center gap-2">
-              <WarehouseIcon className="w-4 h-4 text-primary" />
-              <CardTitle className="text-base font-semibold">Recent Gudang Aktif</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="[&_[data-slot=table-container]]:border-0 [&_[data-slot=table-container]]:bg-transparent">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 pb-1">
+            <WarehouseIcon className="w-4 h-4 text-primary" />
+            <h3 className="text-base font-semibold">Recent Gudang Aktif</h3>
+          </div>
+          <div className="[&_[data-slot=table-container]]:border-0 [&_[data-slot=table-container]]:bg-transparent">
             {data?.recentWarehouses && data.recentWarehouses.length > 0 ? (
               <Table>
                 <TableHeader>
@@ -169,18 +167,16 @@ export default function OwnerDashboard() {
             ) : (
               <p className="text-sm text-muted-foreground text-center py-6">Belum ada aktivitas gudang</p>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Recent Materials Activity */}
-        <Card className="">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div className="flex items-center gap-2">
-              <Package className="w-4 h-4 text-primary" />
-              <CardTitle className="text-base font-semibold">Recent Material Aktif</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="[&_[data-slot=table-container]]:border-0 [&_[data-slot=table-container]]:bg-transparent">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 pb-1">
+            <Package className="w-4 h-4 text-primary" />
+            <h3 className="text-base font-semibold">Recent Material Aktif</h3>
+          </div>
+          <div className="[&_[data-slot=table-container]]:border-0 [&_[data-slot=table-container]]:bg-transparent">
             {data?.recentMaterials && data.recentMaterials.length > 0 ? (
               <Table>
                 <TableHeader>
@@ -208,8 +204,8 @@ export default function OwnerDashboard() {
             ) : (
               <p className="text-sm text-muted-foreground text-center py-6">Belum ada aktivitas material</p>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       <GlobalMaterialDistributionModal 
