@@ -122,38 +122,40 @@ export default function StockMonitoringPage() {
           </div>
         ) : stocks.length > 0 ? (
           <div className="overflow-x-auto">
-            <Table className="table-fixed min-w-[1100px] w-full">
+            <Table className="min-w-[1100px] w-full">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[200px]">Warehouse</TableHead>
-                  <TableHead className="w-[140px]">Material Code</TableHead>
-                  <TableHead className="w-[380px]">Material Name</TableHead>
-                  <TableHead className="w-[130px]">Category</TableHead>
-                  <TableHead className="w-[110px] text-right">Quantity</TableHead>
-                  <TableHead className="w-[140px] text-right">Last Updated</TableHead>
+                  <TableHead className="w-[20ch] min-w-[160px] max-w-[20ch]">Warehouse</TableHead>
+                  <TableHead className="w-[170px] min-w-[170px] whitespace-nowrap">Material Code</TableHead>
+                  <TableHead className="w-[67ch] min-w-[340px] max-w-[67ch]">Material Name</TableHead>
+                  <TableHead className="w-[140px] min-w-[140px] whitespace-nowrap">Category</TableHead>
+                  <TableHead className="w-[110px] min-w-[110px] text-right whitespace-nowrap">Quantity</TableHead>
+                  <TableHead className="w-[160px] min-w-[160px] text-right whitespace-nowrap">Last Updated</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {stocks.slice((page - 1) * pageSize, page * pageSize).map((stock, i) => (
                   <TableRow key={`${stock.id}-${i}`}>
-                    <TableCell className="font-medium truncate" title={stock.warehouseName}>
-                      {stock.warehouseName}
+                    <TableCell className="w-[20ch] min-w-[160px] max-w-[20ch] align-top py-3">
+                      <div className="max-w-[20ch] whitespace-normal break-words font-medium leading-snug">
+                        {stock.warehouseName}
+                      </div>
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground truncate" title={stock.materialCode || '-'}>
+                    <TableCell className="w-[170px] min-w-[170px] whitespace-nowrap align-top py-3 font-mono text-xs text-muted-foreground">
                       {stock.materialCode || '-'}
                     </TableCell>
-                    <TableCell className="whitespace-normal">
-                      <div className="max-w-[53ch] break-words text-sm font-medium leading-snug" style={{ maxWidth: '53ch' }}>
+                    <TableCell className="w-[67ch] min-w-[340px] max-w-[67ch] align-top py-3">
+                      <div className="max-w-[67ch] whitespace-normal break-words leading-relaxed text-sm font-medium">
                         {stock.materialName}
                       </div>
                     </TableCell>
-                    <TableCell className="truncate text-muted-foreground text-sm" title={stock.category || '-'}>
+                    <TableCell className="w-[140px] min-w-[140px] whitespace-nowrap align-top py-3 text-muted-foreground text-sm">
                       {stock.category || '-'}
                     </TableCell>
-                    <TableCell className="text-right font-bold text-primary whitespace-nowrap">
+                    <TableCell className="w-[110px] min-w-[110px] text-right font-bold text-primary whitespace-nowrap align-top py-3">
                       {stock.quantity?.toLocaleString()}
                     </TableCell>
-                    <TableCell className="text-right text-muted-foreground text-xs whitespace-nowrap">
+                    <TableCell className="w-[160px] min-w-[160px] text-right text-muted-foreground text-xs whitespace-nowrap align-top py-3">
                       {stock.lastUpdated ? formatDate(stock.lastUpdated) : '-'}
                     </TableCell>
                   </TableRow>
