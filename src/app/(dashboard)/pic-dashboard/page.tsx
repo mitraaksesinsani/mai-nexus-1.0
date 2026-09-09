@@ -111,6 +111,7 @@ export default function PicDashboardPage() {
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>('');
   const [search, setSearch] = useState('');
   const [stockFilter, setStockFilter] = useState<'ALL' | 'LOW' | 'AVAILABLE'>('ALL');
+  const [activeTab, setActiveTab] = useState<'inventory' | 'movements'>('inventory');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -406,9 +407,60 @@ export default function PicDashboardPage() {
       </div>
 
       {/* Main Content Tabs */}
-      <Tabs defaultValue="inventory" className="space-y-4">
+      <Tabs 
+        value={activeTab} 
+        onValueChange={(val) => {
+          if (val) setActiveTab(val as 'inventory' | 'movements');
+        }} 
+        className="space-y-4"
+      >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <TabsList className="h-8 p-0.5">
+          {/* Mobile View (screen <= 640px / 390px): Dropdown Select */}
+          <div className="block sm:hidden w-full">
+            <Select 
+              value={activeTab} 
+              onValueChange={(val) => {
+                if (val) setActiveTab(val as 'inventory' | 'movements');
+              }}
+              items={[
+                { value: 'inventory', label: `Daftar Stok Material (${filteredStocks.length})` },
+                { value: 'movements', label: `Riwayat Transaksi Terkini (${data?.recentTransactions?.length || 0})` },
+              ]}
+            >
+              <SelectTrigger className="!h-8 data-[size=default]:!h-8 w-full text-[12px] bg-background">
+                <SelectValue placeholder="Pilih Tab">
+                  {activeTab === 'inventory' ? (
+                    <span className="flex items-center gap-1.5">
+                      <Package className="h-3.5 w-3.5" />
+                      <span>Daftar Stok Material ({filteredStocks.length})</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5" />
+                      <span>Riwayat Transaksi Terkini ({data?.recentTransactions?.length || 0})</span>
+                    </span>
+                  )}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="inventory" className="text-[12px]">
+                  <div className="flex items-center gap-1.5">
+                    <Package className="h-3.5 w-3.5" />
+                    <span>Daftar Stok Material ({filteredStocks.length})</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="movements" className="text-[12px]">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>Riwayat Transaksi Terkini ({data?.recentTransactions?.length || 0})</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Desktop / Tablet View (> 640px): Tab Bar */}
+          <TabsList className="hidden sm:inline-flex h-8 p-0.5">
             <TabsTrigger value="inventory" className="text-[12px] gap-1.5 h-7 px-3">
               <Package className="h-3.5 w-3.5" />
               <span>Daftar Stok Material ({filteredStocks.length})</span>
