@@ -187,6 +187,26 @@ export default function PicDashboardPage() {
     );
   }
 
+  if (!loading && !data) {
+    return (
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-4 text-center px-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+          <RefreshCw className="h-6 w-6" />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">Gagal Memuat Data PIC Dashboard</h2>
+          <p className="text-sm text-muted-foreground mt-1 max-w-sm">
+            Terjadi kendala koneksi saat menghubungi server database. Silakan coba lagi.
+          </p>
+        </div>
+        <Button onClick={() => fetchData(selectedWarehouseId || undefined)} className="gap-2 mt-2">
+          <RefreshCw className="h-4 w-4" />
+          <span>Coba Muat Ulang</span>
+        </Button>
+      </div>
+    );
+  }
+
   // State when not an admin and not assigned to any warehouse
   if (data && !data.isAdmin && data.assignedWarehouses.length === 0) {
     return (

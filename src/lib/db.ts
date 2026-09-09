@@ -22,20 +22,39 @@ pool.on('error', (err) => {
 
 if (process.env.NODE_ENV !== 'production') globalForPg.pool = pool;
 
-// A generic query helper function
-export const query = async (text: string, params?: any[]) => {
-  const start = Date.now();
-  try {
-    const res = await pool.query(text, params);
-    const duration = Date.now() - start;
-    return res;
-  } catch (err: any) {
-    if (err?.message?.includes('Connection terminated') || err?.message?.includes('timeout')) {
-      console.warn('[pg pool] Terminated socket detected, retrying query once...');
-      return await pool.query(text, params);
-    }
-    throw err;
+// Wrap pool.query with automatic retry for transient network/DNS errors (e.g. ENOTFOUND, ECONNRESET, socket drops)
+const rawQuery = pool.query.bind(pool);
+(pool as any).query = async function (text: any, params?: any, callback?: any) {
+  if (typeof params === 'function' || typeof callback === 'function') {
+    return (rawQuery as any)(text, params, callback);
   }
+
+  let attempts = 0;
+  while (attempts < 2) {
+    try {
+      return await rawQuery(text, params);
+    } catch (err: any) {
+      attempts++;
+      const isTransient =
+        err?.code === 'ENOTFOUND' ||
+        err?.code === 'ECONNRESET' ||
+        err?.code === 'ETIMEDOUT' ||
+        err?.message?.includes('Connection terminated') ||
+        err?.message?.includes('timeout');
+
+      if (isTransient && attempts < 2) {
+        console.warn(`[pg pool] Transient DB error (${err.code || err.message}). Retrying query in 500ms... (attempt ${attempts})`);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        continue;
+      }
+      throw err;
+    }
+  }
+};
+
+// A generic query helper function (delegates to resilient pool.query)
+export const query = async (text: string, params?: any[]) => {
+  return pool.query(text, params);
 };
 
 // Keep generateId for backwards compatibility and easy uuid generation
