@@ -241,12 +241,12 @@ export default function PicDashboardPage() {
         </div>
 
         {/* Warehouse Selector & Actions */}
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap w-full md:w-auto">
           {data && data.assignedWarehouses.length > 0 && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-1 sm:flex-initial">
               <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">Gudang:</span>
               <Select value={selectedWarehouseId} onValueChange={(val) => { if (val) handleWarehouseChange(val); }}>
-                <SelectTrigger className="w-[240px] bg-background">
+                <SelectTrigger className="w-full sm:w-[240px] bg-background">
                   <SelectValue placeholder="Pilih Gudang">
                     {selectedWarehouseId === 'ALL'
                       ? `Semua Gudang Terkait (${data.assignedWarehouses.length})`
@@ -287,8 +287,10 @@ export default function PicDashboardPage() {
         <div className="rounded-xl border bg-card p-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-base text-foreground">{activeWh.name}</span>
+              <span className="font-bold text-base text-foreground block">
+                {activeWh.name}
+              </span>
+              <div className="flex items-center gap-2 mt-1.5">
                 <Badge variant="outline" className="font-normal text-xs uppercase">
                   {activeWh.code}
                 </Badge>
@@ -299,7 +301,7 @@ export default function PicDashboardPage() {
                   {activeWh.status || 'ACTIVE'}
                 </Badge>
               </div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-muted-foreground mt-1">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-muted-foreground mt-2">
                 {activeWh.location && (
                   <span className="flex items-center gap-1">
                     <MapPin className="h-3.5 w-3.5 text-muted-foreground/70" />
@@ -316,7 +318,7 @@ export default function PicDashboardPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 self-end md:self-auto">
+            <div className="flex items-center gap-2 self-start md:self-auto">
               <Button variant="outline" size="sm" render={<Link href="/warehouse" />} nativeButton={false} className="h-8 text-[12px] gap-1.5">
                 <span>Detail Master Gudang</span>
                 <ArrowRight className="h-3 w-3" />
@@ -502,29 +504,31 @@ export default function PicDashboardPage() {
           </TabsList>
 
           {/* Quick Filter & Search for stock */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <Select 
-              value={stockFilter} 
-              onValueChange={(val) => { 
-                if (val) {
-                  setStockFilter(val as 'ALL' | 'LOW' | 'AVAILABLE'); 
-                  setCurrentPage(1); 
-                }
-              }}
-            >
-              <SelectTrigger className="!h-8 data-[size=default]:!h-8 w-[160px] text-[12px] bg-background">
-                <SelectValue placeholder="Filter Status">
-                  {stockFilter === 'ALL' && 'Semua Status'}
-                  {stockFilter === 'LOW' && 'Stok Menipis (≤ 10)'}
-                  {stockFilter === 'AVAILABLE' && 'Stok Aman (> 10)'}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL" className="text-[12px]">Semua Status</SelectItem>
-                <SelectItem value="LOW" className="text-[12px]">Stok Menipis (≤ 10)</SelectItem>
-                <SelectItem value="AVAILABLE" className="text-[12px]">Stok Aman (&gt; 10)</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+            <div className="w-full sm:w-[160px]">
+              <Select 
+                value={stockFilter} 
+                onValueChange={(val) => { 
+                  if (val) {
+                    setStockFilter(val as 'ALL' | 'LOW' | 'AVAILABLE'); 
+                    setCurrentPage(1); 
+                  }
+                }}
+              >
+                <SelectTrigger className="!h-8 data-[size=default]:!h-8 w-full text-[12px] bg-background">
+                  <SelectValue placeholder="Filter Status">
+                    {stockFilter === 'ALL' && 'Semua Status'}
+                    {stockFilter === 'LOW' && 'Stok Menipis (≤ 10)'}
+                    {stockFilter === 'AVAILABLE' && 'Stok Aman (> 10)'}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL" className="text-[12px]">Semua Status</SelectItem>
+                  <SelectItem value="LOW" className="text-[12px]">Stok Menipis (≤ 10)</SelectItem>
+                  <SelectItem value="AVAILABLE" className="text-[12px]">Stok Aman (&gt; 10)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             <div className="relative w-full sm:w-[240px]">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
@@ -750,7 +754,7 @@ export default function PicDashboardPage() {
         {/* Tab 2: Movements / Activity Log */}
         <TabsContent value="movements" className="space-y-3">
           <div className="rounded-xl border bg-card overflow-hidden">
-            <div className="p-4 border-b bg-muted/20 flex items-center justify-between">
+            <div className="p-4 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div>
                 <h3 className="font-semibold text-sm">Aktivitas Transaksi Gudang Terkini</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">Catatan mutasi material (Penerimaan, Pengeluaran, RFC, dsb)</p>
@@ -760,7 +764,7 @@ export default function PicDashboardPage() {
                 size="sm" 
                 render={<Link href="/inventory/movements" />} 
                 nativeButton={false}
-                className="text-[12px] h-7 gap-1"
+                className="text-[12px] h-7 gap-1 self-start sm:self-auto"
               >
                 <span>Lihat Seluruh Mutasi</span>
                 <ExternalLink className="h-3 w-3" />
