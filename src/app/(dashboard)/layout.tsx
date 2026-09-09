@@ -16,6 +16,8 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
     if (!isLoading) {
       if (!user && pathname !== '/login') {
         router.push('/login');
+      } else if (user?.role?.toUpperCase() === 'SITE_MANAGER' && pathname === '/') {
+        router.replace('/pic-dashboard');
       }
     }
   }, [user, isLoading, router, pathname]);

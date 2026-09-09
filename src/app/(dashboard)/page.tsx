@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 import OwnerDashboard from '@/components/dashboard/OwnerDashboard';
 
 interface KPIData {
@@ -45,6 +46,7 @@ interface Activity {
 
 export default function DashboardPage() {
   const { user, isLoading: authLoading } = useAuth();
+  const router = useRouter();
   const [kpi, setKpi] = useState<KPIData | null>(null);
   const [lowStock, setLowStock] = useState<any[]>([]);
   const [activities, setActivities] = useState<Activity | null>(null);
@@ -52,8 +54,14 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDashboard();
-  }, []);
+    if (!authLoading) {
+      if (user?.role?.toUpperCase() === 'SITE_MANAGER') {
+        router.replace('/pic-dashboard');
+        return;
+      }
+      fetchDashboard();
+    }
+  }, [user, authLoading, router]);
 
   const fetchDashboard = async () => {
     try {
@@ -149,6 +157,10 @@ export default function DashboardPage() {
         </div>
       </div>
     );
+  }
+
+  if (user?.role?.toUpperCase() === 'SITE_MANAGER') {
+    return null;
   }
 
   if (user?.role === 'OWNER') {

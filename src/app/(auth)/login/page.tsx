@@ -24,7 +24,13 @@ function LoginForm() {
 
     try {
       await login(email, password);
-      router.push('/');
+      const savedUserStr = typeof window !== 'undefined' ? localStorage.getItem('nims_user') : null;
+      const savedUser = savedUserStr ? JSON.parse(savedUserStr) : null;
+      if (savedUser?.role?.toUpperCase() === 'SITE_MANAGER') {
+        router.push('/pic-dashboard');
+      } else {
+        router.push('/');
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Email atau password salah');
     } finally {
