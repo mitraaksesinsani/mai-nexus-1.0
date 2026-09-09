@@ -79,16 +79,23 @@ export default function WarehouseDetailsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => router.push('/warehouse')}>
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
+      <div className="space-y-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={() => router.push('/warehouse')}
+            title="Back to Warehouses"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+        </div>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
             {warehouse.name}
           </h1>
-          <p className="text-muted-foreground text-sm flex items-center gap-1 mt-1">
-            <WarehouseIcon className="w-3.5 h-3.5" /> {warehouse.code} &bull; <MapPin className="w-3.5 h-3.5 ml-1" /> {warehouse.location}
+          <p className="text-muted-foreground text-sm flex items-center gap-1 mt-1 flex-wrap">
+            <WarehouseIcon className="w-3.5 h-3.5 shrink-0" /> {warehouse.code} &bull; <MapPin className="w-3.5 h-3.5 shrink-0 ml-1" /> {warehouse.location}
           </p>
         </div>
       </div>
@@ -175,37 +182,89 @@ export default function WarehouseDetailsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[120px]">Code</TableHead>
-                    <TableHead>Material Name</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead className="text-right w-[150px]">Available Quantity</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredMaterials.slice((page - 1) * pageSize, page * pageSize).map((mat: any, i: number) => (
-                    <TableRow 
-                      key={i} 
-                      className="cursor-pointer hover:bg-muted/60"
-                      onClick={() => {
-                        setSelectedLogMaterial(mat);
-                        setIsLogModalOpen(true);
-                      }}
-                    >
-                      <TableCell className="font-medium text-primary">{mat.materialCode}</TableCell>
-                      <TableCell>{mat.materialName}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="font-normal text-xs">{mat.category}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right font-bold text-base">
-                        {Number(mat.quantity).toLocaleString()}
-                      </TableCell>
+              {/* Desktop Table View (>= sm) */}
+              <div className="hidden sm:block border rounded-xl bg-card overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[140px]">Code</TableHead>
+                      <TableHead>Material Name</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead className="text-right w-[160px]">Available Quantity</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredMaterials.slice((page - 1) * pageSize, page * pageSize).map((mat: any, i: number) => (
+                      <TableRow 
+                        key={i} 
+                        className="cursor-pointer hover:bg-muted/60 transition-colors"
+                        onClick={() => {
+                          setSelectedLogMaterial(mat);
+                          setIsLogModalOpen(true);
+                        }}
+                      >
+                        <TableCell className="font-medium text-primary font-mono">{mat.materialCode}</TableCell>
+                        <TableCell className="font-medium">{mat.materialName}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="font-normal text-xs">{mat.category}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right font-bold text-base text-primary">
+                          {Number(mat.quantity).toLocaleString()}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Card List View (width <= 390px / < sm) */}
+              <div className="block sm:hidden divide-y divide-border/60 border rounded-xl overflow-hidden bg-card">
+                {filteredMaterials.slice((page - 1) * pageSize, page * pageSize).map((mat: any, i: number) => (
+                  <div 
+                    key={`mobile-mat-${i}`} 
+                    className="p-3.5 space-y-2 bg-card hover:bg-muted/30 transition-colors cursor-pointer active:bg-muted/50"
+                    onClick={() => {
+                      setSelectedLogMaterial(mat);
+                      setIsLogModalOpen(true);
+                    }}
+                  >
+                    <div className="flex items-start justify-between gap-2.5">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-semibold text-sm text-foreground break-words leading-snug">
+                          {mat.materialName}
+                        </h4>
+                        <p className="text-xs text-primary font-mono mt-0.5 font-medium">
+                          {mat.materialCode}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="text-base font-bold text-primary block">
+                          {Number(mat.quantity).toLocaleString()}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground uppercase font-medium">
+                          Available
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1 text-xs border-t border-border/40">
+                      <div>
+                        {mat.category ? (
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal">
+                            {mat.category}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground text-[11px]">-</span>
+                        )}
+                      </div>
+                      <span className="text-[11px] text-muted-foreground font-medium">
+                        Tap to view log &rarr;
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <DataTablePagination 
                 totalItems={filteredMaterials.length} 
                 pageSize={pageSize} 
