@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Layers, Loader2, Search } from 'lucide-react';
+import { Layers, Loader2, Search, Warehouse } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import api from '@/lib/api';
@@ -121,47 +122,91 @@ export default function StockMonitoringPage() {
             <p className="text-muted-foreground">Loading stock data...</p>
           </div>
         ) : stocks.length > 0 ? (
-          <div className="overflow-x-auto">
-            <Table className="min-w-[1100px] w-full">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[20ch] min-w-[160px] max-w-[20ch]">Warehouse</TableHead>
-                  <TableHead className="w-[170px] min-w-[170px] whitespace-nowrap">Material Code</TableHead>
-                  <TableHead className="w-[67ch] min-w-[340px] max-w-[67ch]">Material Name</TableHead>
-                  <TableHead className="w-[140px] min-w-[140px] whitespace-nowrap">Category</TableHead>
-                  <TableHead className="w-[110px] min-w-[110px] text-right whitespace-nowrap">Quantity</TableHead>
-                  <TableHead className="w-[160px] min-w-[160px] text-right whitespace-nowrap">Last Updated</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {stocks.slice((page - 1) * pageSize, page * pageSize).map((stock, i) => (
-                  <TableRow key={`${stock.id}-${i}`}>
-                    <TableCell className="w-[20ch] min-w-[160px] max-w-[20ch] align-top py-3">
-                      <div className="max-w-[20ch] whitespace-normal break-words font-medium leading-snug">
-                        {stock.warehouseName}
-                      </div>
-                    </TableCell>
-                    <TableCell className="w-[170px] min-w-[170px] whitespace-nowrap align-top py-3 text-xs text-muted-foreground">
-                      {stock.materialCode || '-'}
-                    </TableCell>
-                    <TableCell className="w-[67ch] min-w-[340px] max-w-[67ch] align-top py-3">
-                      <div className="max-w-[67ch] whitespace-normal break-words leading-relaxed text-sm font-medium">
-                        {stock.materialName}
-                      </div>
-                    </TableCell>
-                    <TableCell className="w-[140px] min-w-[140px] whitespace-nowrap align-top py-3 text-muted-foreground text-sm">
-                      {stock.category || '-'}
-                    </TableCell>
-                    <TableCell className="w-[110px] min-w-[110px] text-right font-bold text-primary whitespace-nowrap align-top py-3">
-                      {stock.quantity?.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="w-[160px] min-w-[160px] text-right text-muted-foreground text-xs whitespace-nowrap align-top py-3">
-                      {stock.lastUpdated ? formatDate(stock.lastUpdated) : '-'}
-                    </TableCell>
+          <div>
+            {/* Desktop Table View (sm and above) */}
+            <div className="hidden sm:block overflow-x-auto">
+              <Table className="min-w-[1100px] w-full">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[20ch] min-w-[160px] max-w-[20ch]">Warehouse</TableHead>
+                    <TableHead className="w-[170px] min-w-[170px] whitespace-nowrap">Material Code</TableHead>
+                    <TableHead className="w-[67ch] min-w-[340px] max-w-[67ch]">Material Name</TableHead>
+                    <TableHead className="w-[140px] min-w-[140px] whitespace-nowrap">Category</TableHead>
+                    <TableHead className="w-[110px] min-w-[110px] text-right whitespace-nowrap">Quantity</TableHead>
+                    <TableHead className="w-[160px] min-w-[160px] text-right whitespace-nowrap">Last Updated</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {stocks.slice((page - 1) * pageSize, page * pageSize).map((stock, i) => (
+                    <TableRow key={`${stock.id}-${i}`}>
+                      <TableCell className="w-[20ch] min-w-[160px] max-w-[20ch] align-top py-3">
+                        <div className="max-w-[20ch] whitespace-normal break-words font-medium leading-snug">
+                          {stock.warehouseName}
+                        </div>
+                      </TableCell>
+                      <TableCell className="w-[170px] min-w-[170px] whitespace-nowrap align-top py-3 text-xs text-muted-foreground">
+                        {stock.materialCode || '-'}
+                      </TableCell>
+                      <TableCell className="w-[67ch] min-w-[340px] max-w-[67ch] align-top py-3">
+                        <div className="max-w-[67ch] whitespace-normal break-words leading-relaxed text-sm font-medium">
+                          {stock.materialName}
+                        </div>
+                      </TableCell>
+                      <TableCell className="w-[140px] min-w-[140px] whitespace-nowrap align-top py-3 text-muted-foreground text-sm">
+                        {stock.category || '-'}
+                      </TableCell>
+                      <TableCell className="w-[110px] min-w-[110px] text-right font-bold text-primary whitespace-nowrap align-top py-3">
+                        {stock.quantity?.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="w-[160px] min-w-[160px] text-right text-muted-foreground text-xs whitespace-nowrap align-top py-3">
+                        {stock.lastUpdated ? formatDate(stock.lastUpdated) : '-'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile List View (width <= 390px / < sm) */}
+            <div className="block sm:hidden divide-y divide-border/60">
+              {stocks.slice((page - 1) * pageSize, page * pageSize).map((stock, i) => (
+                <div key={`mobile-${stock.id}-${i}`} className="p-3.5 space-y-2 bg-card hover:bg-muted/30 transition-colors">
+                  <div className="flex items-start justify-between gap-2.5">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-sm leading-snug text-foreground break-words">
+                        {stock.materialName}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5 font-mono">
+                        {stock.materialCode || '-'}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <span className="text-base font-bold text-primary">
+                        {stock.quantity?.toLocaleString()}
+                      </span>
+                      {stock.category && (
+                        <div>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal mt-0.5">
+                            {stock.category}
+                          </Badge>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1.5 text-[11px] text-muted-foreground border-t border-border/40">
+                    <div className="flex items-center gap-1.5 truncate max-w-[200px]">
+                      <Warehouse className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                      <span className="truncate font-medium">{stock.warehouseName}</span>
+                    </div>
+                    <span className="shrink-0">
+                      {stock.lastUpdated ? formatDate(stock.lastUpdated) : '-'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <DataTablePagination 
               totalItems={stocks.length} 
               pageSize={pageSize} 
