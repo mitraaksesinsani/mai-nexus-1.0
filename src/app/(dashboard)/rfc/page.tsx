@@ -140,54 +140,54 @@ export default function ConsumptionRfcPage() {
           </div>
         ) : rfcs.length > 0 ? (
           rfcs.slice((page - 1) * pageSize, page * pageSize).map((rfc) => (
-            <div key={rfc.id} className="p-3.5 flex flex-col gap-2 hover:bg-muted/20 transition-colors">
+            <div key={rfc.id} className="p-3.5 flex flex-col gap-2 hover:bg-muted/20 transition-colors text-[12px]">
               {/* Header: RFC Number & Status */}
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
                   <Link href={`/rfc/${rfc.id}`} className="font-semibold text-sm text-primary hover:underline truncate block">
                     {rfc.rfcNumber}
                   </Link>
-                  <div className="font-medium text-xs text-foreground mt-0.5 truncate">
+                  <div className="font-medium text-[12px] text-foreground mt-0.5 truncate">
                     {rfc.projectName}
                   </div>
                 </div>
                 <div className="shrink-0">
-                  <StatusBadge status={rfc.status} />
+                  <StatusBadge status={rfc.status} className="text-[12px]" />
                 </div>
               </div>
 
               {/* Detail Info: Warehouse, Requestor, Items */}
-              <div className="text-xs text-muted-foreground space-y-1">
+              <div className="text-[12px] text-muted-foreground space-y-1">
                 {rfc.warehouseName && (
-                  <div className="flex items-center gap-1.5 truncate">
+                  <div className="flex items-center gap-1.5 truncate text-[12px]">
                     <span className="text-muted-foreground/70">Gudang:</span>
                     <span className="text-foreground/90 font-medium truncate">{rfc.warehouseName}</span>
                   </div>
                 )}
-                <div className="flex items-center justify-between gap-2 pt-0.5">
+                <div className="flex items-center justify-between gap-2 pt-0.5 text-[12px]">
                   <div className="flex items-center gap-1.5 min-w-0">
-                    <div className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[9px] font-bold shrink-0">
+                    <div className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold shrink-0">
                       {rfc.requestorName?.charAt(0) || 'U'}
                     </div>
                     <span className="text-[12px] truncate">{rfc.requestorName || 'Unknown'}</span>
                   </div>
-                  <span className="text-[11px] bg-muted px-2 py-0.5 rounded font-medium shrink-0">
+                  <span className="text-[12px] bg-muted px-2 py-0.5 rounded font-medium shrink-0">
                     {rfc.itemsCount || 0} items
                   </span>
                 </div>
               </div>
 
               {/* Footer: Date & Actions */}
-              <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs">
-                <div className="flex items-center text-muted-foreground text-[11px]">
-                  <Calendar className="mr-1.5 h-3 w-3" />
+              <div className="flex items-center justify-between pt-2 border-t border-border/40 text-[12px]">
+                <div className="flex items-center text-muted-foreground text-[12px]">
+                  <Calendar className="mr-1.5 h-3.5 w-3.5" />
                   {formatDate(rfc.createdAt)}
                 </div>
                 <div className="flex items-center gap-1">
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 px-2 text-xs gap-1"
+                    className="h-7 px-2 text-[12px] gap-1"
                     title="Print Document"
                     onClick={() => window.open(`/print/rfc/${rfc.id}`, '_blank')}
                   >
@@ -195,7 +195,7 @@ export default function ConsumptionRfcPage() {
                     <span>Print</span>
                   </Button>
                   <Link href={`/rfc/${rfc.id}`}>
-                    <Button variant="outline" size="sm" className="h-7 px-2.5 text-xs gap-1" title="View Details">
+                    <Button variant="outline" size="sm" className="h-7 px-2.5 text-[12px] gap-1" title="View Details">
                       <Eye className="h-3.5 w-3.5" />
                       <span>Detail</span>
                     </Button>
