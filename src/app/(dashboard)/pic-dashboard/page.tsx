@@ -177,7 +177,7 @@ export default function PicDashboardPage() {
   if (data && !data.isAdmin && data.assignedWarehouses.length === 0) {
     return (
       <div className="container max-w-4xl py-12 space-y-6">
-        <Card className="border-dashed shadow-sm">
+        <Card className="border-dashed shadow-none">
           <CardHeader className="text-center pb-2">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 text-amber-600 dark:bg-amber-950/40">
               <Building2 className="h-8 w-8" />
@@ -266,7 +266,7 @@ export default function PicDashboardPage() {
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
 
-          <Button render={<Link href="/rfc" />} nativeButton={false} className="gap-2 shadow-sm">
+          <Button render={<Link href="/rfc" />} nativeButton={false} className="gap-2">
             <Package className="h-4 w-4" />
             <span>Kelola RFC</span>
           </Button>
@@ -275,7 +275,7 @@ export default function PicDashboardPage() {
 
       {/* Selected Warehouse Banner (if single warehouse selected) */}
       {activeWh && activeWh.id !== 'ALL' && (
-        <div className="rounded-xl border bg-card p-4 shadow-sm">
+        <div className="rounded-xl border bg-card p-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex items-start gap-3">
               <div className="p-2.5 rounded-lg bg-primary/10 text-primary mt-0.5">
@@ -325,7 +325,7 @@ export default function PicDashboardPage() {
       {/* Metrics Section */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Stock */}
-        <Card className="relative overflow-hidden shadow-sm hover:shadow transition-shadow">
+        <Card className="relative overflow-hidden shadow-none border">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Stok Barang
@@ -345,7 +345,7 @@ export default function PicDashboardPage() {
         </Card>
 
         {/* Total SKUs */}
-        <Card className="relative overflow-hidden shadow-sm hover:shadow transition-shadow">
+        <Card className="relative overflow-hidden shadow-none border">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Varian Material (SKU)
@@ -365,7 +365,7 @@ export default function PicDashboardPage() {
         </Card>
 
         {/* Low Stock Warning */}
-        <Card className="relative overflow-hidden shadow-sm hover:shadow transition-shadow">
+        <Card className="relative overflow-hidden shadow-none border">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Stok Menipis (≤ 10)
@@ -385,7 +385,7 @@ export default function PicDashboardPage() {
         </Card>
 
         {/* Managed Warehouses */}
-        <Card className="relative overflow-hidden shadow-sm hover:shadow transition-shadow">
+        <Card className="relative overflow-hidden shadow-none border">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Gudang Dikelola
@@ -469,7 +469,7 @@ export default function PicDashboardPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border bg-card overflow-hidden shadow-sm">
+          <div className="rounded-xl border bg-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="border-b bg-muted/40 text-xs font-semibold text-muted-foreground">
@@ -574,7 +574,7 @@ export default function PicDashboardPage() {
 
         {/* Tab 2: Movements / Activity Log */}
         <TabsContent value="movements" className="space-y-3">
-          <div className="rounded-xl border bg-card overflow-hidden shadow-sm">
+          <div className="rounded-xl border bg-card overflow-hidden">
             <div className="p-4 border-b bg-muted/20 flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-sm">Aktivitas Transaksi Gudang Terkini</h3>
