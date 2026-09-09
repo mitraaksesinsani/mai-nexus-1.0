@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { pool } from '@/lib/db';
+import { pool, generateId } from '@/lib/db';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -157,24 +157,49 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         WHERE id = $2
       `, [approverId || null, id]);
     } else if (status === 'COMPLETED') {
-      // Complete RFC and deduct stock
-      const rfcRes = await client.query('SELECT warehouse_id FROM consumption_requests WHERE id = $1', [id]);
+      // Complete RFC, deduct stock, and record inventory transaction
+      const rfcRes = await client.query('SELECT rfc_number, warehouse_id FROM consumption_requests WHERE id = $1', [id]);
       if (rfcRes.rows.length === 0) {
         await client.query('ROLLBACK');
         return NextResponse.json({ message: 'RFC not found' }, { status: 404 });
       }
       
       const warehouseId = rfcRes.rows[0].warehouse_id;
+      const rfcNumber = rfcRes.rows[0].rfc_number;
+
+      // Get user name for audit log
+      let completedByName = null;
+      if (completedBy) {
+        const uRes = await client.query('SELECT name FROM users WHERE id = $1', [completedBy]);
+        if (uRes.rows.length > 0) completedByName = uRes.rows[0].name;
+      }
       
       const itemsRes = await client.query('SELECT material_id, request_qty FROM consumption_request_items WHERE consumption_request_id = $1', [id]);
       
-      // Deduct stock for each item
+      // Deduct stock for each item & record transaction
       for (const item of itemsRes.rows) {
         await client.query(`
           UPDATE inventory_stocks 
           SET quantity = quantity - $1, last_updated = CURRENT_TIMESTAMP
           WHERE warehouse_id = $2 AND material_id = $3
         `, [item.request_qty, warehouseId, item.material_id]);
+
+        const txId = generateId();
+        await client.query(`
+          INSERT INTO inventory_transactions 
+          (id, warehouse_id, material_id, transaction_type, quantity, reference_id, notes, created_by, created_by_name)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `, [
+          txId,
+          warehouseId,
+          item.material_id,
+          'RFC_ISSUE',
+          -item.request_qty,
+          id,
+          `Issued for RFC ${rfcNumber || id} (Receiver: ${takerName || '-'})`,
+          completedBy || null,
+          completedByName || 'Warehouse Staff'
+        ]);
       }
 
       await client.query(`

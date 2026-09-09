@@ -124,7 +124,6 @@ const groupedNavigation = [
         children: [
           { label: 'Warehouse List', href: '/warehouse' },
           { label: 'Material Receive', href: '/warehouse/receive' },
-          { label: 'Material Issue', href: '/warehouse/issue' },
           { label: 'Stock Monitoring', href: '/warehouse/stock' },
         ],
       },
