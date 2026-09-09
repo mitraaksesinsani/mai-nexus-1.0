@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
+import { getUserFromRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
+    const user = getUserFromRequest(request as any);
     const { searchParams } = new URL(request.url);
     const warehouseId = searchParams.get('warehouseId');
     const search = (searchParams.get('search') || '').toLowerCase();
@@ -41,6 +43,14 @@ export async function GET(request: Request) {
       queryStr += ` AND (LOWER(m.material_name) LIKE $${paramIndex} OR LOWER(m.material_code) LIKE $${paramIndex} OR LOWER(w.name) LIKE $${paramIndex})`;
       queryParams.push(`%${search}%`);
       paramIndex++;
+    }
+
+    if (user?.role === 'SITE_MANAGER') {
+      const userId = user.sub || user.id;
+      const userName = user.name || '';
+      queryStr += ` AND (w.pic_id = $${paramIndex} OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${paramIndex + 1})))`;
+      queryParams.push(userId, userName);
+      paramIndex += 2;
     }
 
     queryStr += ' GROUP BY m.id, w.name, w.code, m.material_code, m.material_name, m.category, m.unit, m.unit_price';

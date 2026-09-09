@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 import { BarChart3, FileText, ShoppingCart, Warehouse, Package, FolderKanban, Download, Loader2 } from 'lucide-react';
 
 const reports = [
@@ -12,7 +14,23 @@ const reports = [
 ];
 
 export default function ReportsPage() {
+  const { user, isLoading: authLoading } = useAuth();
+  const router = useRouter();
   const [generating, setGenerating] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!authLoading && user?.role?.toUpperCase() === 'SITE_MANAGER') {
+      router.replace('/pic-dashboard');
+    }
+  }, [user, authLoading, router]);
+
+  if (authLoading || user?.role?.toUpperCase() === 'SITE_MANAGER') {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const handleGenerateReport = async (reportId: string) => {
     setGenerating(reportId);

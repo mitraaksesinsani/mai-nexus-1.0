@@ -72,6 +72,23 @@ export async function GET() {
       `);
     }
 
+    // Transfers table columns
+    await client.query(`
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS pic VARCHAR(255);
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS origin_pic_id VARCHAR(255);
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS destination_pic VARCHAR(255);
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS destination_pic_id VARCHAR(255);
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS from_warehouse_id VARCHAR(255);
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS to_warehouse_id VARCHAR(255);
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS material_id VARCHAR(255);
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS material_name VARCHAR(255);
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS material_code VARCHAR(255);
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS quantity NUMERIC DEFAULT 0;
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS unit VARCHAR(50);
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS received_at TIMESTAMP;
+      ALTER TABLE transfers ADD COLUMN IF NOT EXISTS received_by VARCHAR(255);
+    `);
+
     await client.query('COMMIT');
     return NextResponse.json({ message: 'Migration successful!' });
   } catch (error: any) {

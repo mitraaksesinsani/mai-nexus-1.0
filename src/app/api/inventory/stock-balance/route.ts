@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
+import { getUserFromRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
+    const user = getUserFromRequest(request as any);
     const { searchParams } = new URL(request.url);
     const search = (searchParams.get('search') || '').toLowerCase();
     
@@ -23,10 +25,22 @@ export async function GET(request: Request) {
       JOIN warehouses w ON s.warehouse_id = w.id
     `;
     const queryParams: any[] = [];
+    const conditions: string[] = [];
     
     if (search) {
-      queryStr += ` WHERE LOWER(m.material_name) LIKE $1 OR LOWER(m.material_code) LIKE $1`;
+      conditions.push(`(LOWER(m.material_name) LIKE $${queryParams.length + 1} OR LOWER(m.material_code) LIKE $${queryParams.length + 1})`);
       queryParams.push(`%${search}%`);
+    }
+
+    if (user?.role === 'SITE_MANAGER') {
+      const userId = user.sub || user.id;
+      const userName = user.name || '';
+      conditions.push(`(w.pic_id = $${queryParams.length + 1} OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${queryParams.length + 2})))`);
+      queryParams.push(userId, userName);
+    }
+
+    if (conditions.length > 0) {
+      queryStr += ` WHERE ${conditions.join(' AND ')}`;
     }
     
     queryStr += ' ORDER BY m.material_name ASC';

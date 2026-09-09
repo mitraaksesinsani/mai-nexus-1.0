@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { pool, generateId } from '@/lib/db';
+import { getUserFromRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
+    const user = getUserFromRequest(request as any);
     const { searchParams } = new URL(request.url);
     const search = (searchParams.get('search') || '').toLowerCase();
     const group = searchParams.get('group') || '';
@@ -31,6 +33,27 @@ export async function GET(request: Request) {
       queryStr += ` AND unit = $${paramIndex}`;
       queryParams.push(uom);
       paramIndex++;
+    }
+
+    if (user?.role === 'SITE_MANAGER') {
+      const userId = user.sub || user.id;
+      const userName = user.name || '';
+      queryStr += ` AND (
+        id IN (
+          SELECT DISTINCT s.material_id 
+          FROM inventory_stocks s 
+          JOIN warehouses w ON s.warehouse_id = w.id 
+          WHERE (w.pic_id = $${paramIndex} OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${paramIndex + 1})))
+        )
+        OR id IN (
+          SELECT DISTINCT t.material_id
+          FROM inventory_transactions t
+          JOIN warehouses w ON t.warehouse_id = w.id
+          WHERE (w.pic_id = $${paramIndex} OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${paramIndex + 1})))
+        )
+      )`;
+      queryParams.push(userId, userName);
+      paramIndex += 2;
     }
 
     if (sort === 'group-asc') {

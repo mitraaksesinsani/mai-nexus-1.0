@@ -257,9 +257,9 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
         return ['Dashboard', 'PIC Dashboard', 'Reports', 'Warehouse', 'Inventory', 'Project Management', 'RFC'].includes(item.label);
       }
 
-      // SITE_MANAGER has access to PIC Dashboard, RFC, and Non-Transactional except Master Data (no Main Dashboard)
+      // SITE_MANAGER has access to PIC Dashboard, RFC, and Non-Transactional except Master Data & Reports (no Main Dashboard)
       if (userRole === 'SITE_MANAGER') {
-        if (['PIC Dashboard', 'Warehouse', 'Inventory', 'Material Transfer', 'Reports', 'RFC'].includes(item.label)) {
+        if (['PIC Dashboard', 'Warehouse', 'Inventory', 'Material Transfer', 'RFC'].includes(item.label)) {
           return true;
         }
         return false;

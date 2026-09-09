@@ -149,6 +149,7 @@ export async function GET() {
         transfer_date TIMESTAMP,
         reason TEXT,
         status VARCHAR(50),
+        pic VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );

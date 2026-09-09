@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { pool, generateId } from '@/lib/db';
+import { getUserFromRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
+    const user = getUserFromRequest(request as any);
     const { searchParams } = new URL(request.url);
     const search = (searchParams.get('search') || '').toLowerCase();
     
@@ -44,6 +46,13 @@ export async function GET(request: Request) {
     if (status && status !== 'ALL') {
       conditions.push(`w.status = $${queryParams.length + 1}`);
       queryParams.push(status);
+    }
+
+    if (user?.role === 'SITE_MANAGER') {
+      const userId = user.sub || user.id;
+      const userName = user.name || '';
+      conditions.push(`(w.pic_id = $${queryParams.length + 1} OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${queryParams.length + 2})))`);
+      queryParams.push(userId, userName);
     }
 
     if (conditions.length > 0) {

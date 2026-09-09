@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
+import { getUserFromRequest } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
+    const user = getUserFromRequest(request as any);
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || '';
     const limit = parseInt(searchParams.get('limit') || '50');
@@ -35,6 +37,13 @@ export async function GET(request: Request) {
     if (warehouseId) {
       queryParams.push(warehouseId);
       queryStr += ` AND t.warehouse_id = $${queryParams.length}`;
+    }
+
+    if (user?.role === 'SITE_MANAGER') {
+      const userId = user.sub || user.id;
+      const userName = user.name || '';
+      queryParams.push(userId, userName);
+      queryStr += ` AND (w.pic_id = $${queryParams.length - 1} OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${queryParams.length})))`;
     }
 
     queryStr += ` ORDER BY t.created_at DESC LIMIT $${queryParams.length + 1}`;

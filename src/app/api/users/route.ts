@@ -5,7 +5,16 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    const res = await pool.query(`SELECT id, name, email, role, is_active as "isActive", password FROM users ORDER BY name ASC`);
+    const { searchParams } = new URL(request.url);
+    const role = searchParams.get('role');
+    let queryStr = `SELECT id, name, email, role, is_active as "isActive" FROM users`;
+    const params: any[] = [];
+    if (role) {
+      queryStr += ` WHERE role = $1`;
+      params.push(role);
+    }
+    queryStr += ` ORDER BY name ASC`;
+    const res = await pool.query(queryStr, params);
     return NextResponse.json({ data: res.rows }, { status: 200 });
   } catch (error: any) {
     console.error('Error fetching users:', error);
