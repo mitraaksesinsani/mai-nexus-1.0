@@ -202,11 +202,11 @@ export default function WarehouseOperationsPage() {
                 className="pl-9"
               />
             </div>
-            <div className="flex items-center gap-1 border rounded-md p-1 bg-muted/50 w-full sm:w-auto">
+            <div className="hidden sm:flex items-center gap-1 border rounded-md p-1 bg-muted/50 sm:w-auto">
               <Button 
                 variant={viewMode === 'card' ? 'secondary' : 'ghost'} 
                 size="sm" 
-                className="h-8 flex-1 sm:w-8 p-0"
+                className="h-8 w-8 p-0"
                 onClick={() => setViewMode('card')}
                 title="Card View"
               >
@@ -215,7 +215,7 @@ export default function WarehouseOperationsPage() {
               <Button 
                 variant={viewMode === 'list' ? 'secondary' : 'ghost'} 
                 size="sm" 
-                className="h-8 flex-1 sm:w-8 p-0"
+                className="h-8 w-8 p-0"
                 onClick={() => setViewMode('list')}
                 title="List View"
               >
@@ -239,79 +239,36 @@ export default function WarehouseOperationsPage() {
               );
             }
 
-            if (viewMode === 'list') {
-              return (
-                <div className="w-full">
-                  <div className="hidden sm:block overflow-x-auto">
-                    <Table className="whitespace-nowrap">
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[150px]">ID / Code</TableHead>
-                          <TableHead className="w-[250px]">Warehouse Name</TableHead>
-                          <TableHead className="w-[150px]">Type</TableHead>
-                          <TableHead className="w-[200px]">Location</TableHead>
-                          <TableHead className="w-[120px] text-center">Total Materials</TableHead>
-                          <TableHead className="w-[100px] text-right">Capacity</TableHead>
-                          <TableHead className="w-[120px] text-center">Status</TableHead>
-                          <TableHead className="w-[100px] text-right">Action</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filtered.slice((warehousePage - 1) * warehousePageSize, warehousePage * warehousePageSize).map(wh => (
-                          <TableRow key={wh.id}>
-                            <TableCell className="font-medium">{wh.code}</TableCell>
-                            <TableCell>{wh.name}</TableCell>
-                            <TableCell><span className="text-xs px-2 py-0.5 bg-muted rounded-full">{wh.type || 'MAIN'}</span></TableCell>
-                            <TableCell className="whitespace-normal max-w-[300px]" title={wh.location}>{wh.location || '-'}</TableCell>
-                            <TableCell className="text-center font-medium">{wh.totalMaterials || 0}</TableCell>
-                            <TableCell className="text-right">{wh.capacity ? `${wh.capacity} CBM` : '-'}</TableCell>
-                            <TableCell className="text-center">
-                              <span className={`font-medium ${wh.status === 'ACTIVE' ? 'text-green-600' : 'text-red-600'}`}>
-                                {wh.status || 'ACTIVE'}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Link href={`/warehouse/${wh.id}`}>
-                                <Button variant="outline" size="sm">View Details</Button>
-                              </Link>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-
-                  {/* Mobile View for Warehouse List (width <= 390px / < sm) */}
-                  <div className="block sm:hidden divide-y divide-border/60">
-                    {filtered.slice((warehousePage - 1) * warehousePageSize, warehousePage * warehousePageSize).map(wh => (
-                      <div key={`mobile-wh-${wh.id}`} className="p-3.5 space-y-2 bg-card">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <h3 className="font-semibold text-sm">{wh.name}</h3>
-                            <p className="text-xs text-muted-foreground font-mono">{wh.code}</p>
-                          </div>
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${wh.status === 'ACTIVE' ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
-                            {wh.status || 'ACTIVE'}
-                          </span>
-                        </div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate">{wh.location || 'No location'}</span>
-                        </div>
-                        <div className="flex items-center justify-between pt-1">
-                          <span className="text-xs text-muted-foreground">
-                            {wh.totalMaterials || 0} materials
-                          </span>
-                          <Link href={`/warehouse/${wh.id}`}>
-                            <Button variant="outline" size="sm" className="h-7 text-xs px-2.5">
-                              View Details
-                            </Button>
-                          </Link>
-                        </div>
+            const mobileListView = (
+              <div className="block sm:hidden divide-y divide-border/60 border rounded-xl overflow-hidden bg-card">
+                {filtered.slice((warehousePage - 1) * warehousePageSize, warehousePage * warehousePageSize).map(wh => (
+                  <div key={`mobile-wh-${wh.id}`} className="p-3.5 space-y-2 bg-card">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className="font-semibold text-sm">{wh.name}</h3>
+                        <p className="text-xs text-muted-foreground font-mono">{wh.code}</p>
                       </div>
-                    ))}
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${wh.status === 'ACTIVE' ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
+                        {wh.status || 'ACTIVE'}
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">{wh.location || 'No location'}</span>
+                    </div>
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-xs text-muted-foreground">
+                        {wh.totalMaterials || 0} materials
+                      </span>
+                      <Link href={`/warehouse/${wh.id}`}>
+                        <Button variant="outline" size="sm" className="h-7 text-xs px-2.5">
+                          View Details
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
-
+                ))}
+                <div className="p-3 border-t">
                   <DataTablePagination 
                     totalItems={filtered.length} 
                     pageSize={warehousePageSize} 
@@ -320,63 +277,127 @@ export default function WarehouseOperationsPage() {
                     onPageSizeChange={setWarehousePageSize} 
                   />
                 </div>
+              </div>
+            );
+
+            if (viewMode === 'list') {
+              return (
+                <div className="w-full">
+                  <div className="hidden sm:block border rounded-xl bg-card overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <Table className="whitespace-nowrap">
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-[150px]">ID / Code</TableHead>
+                            <TableHead className="w-[250px]">Warehouse Name</TableHead>
+                            <TableHead className="w-[150px]">Type</TableHead>
+                            <TableHead className="w-[200px]">Location</TableHead>
+                            <TableHead className="w-[120px] text-center">Total Materials</TableHead>
+                            <TableHead className="w-[100px] text-right">Capacity</TableHead>
+                            <TableHead className="w-[120px] text-center">Status</TableHead>
+                            <TableHead className="w-[100px] text-right">Action</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filtered.slice((warehousePage - 1) * warehousePageSize, warehousePage * warehousePageSize).map(wh => (
+                            <TableRow key={wh.id}>
+                              <TableCell className="font-medium">{wh.code}</TableCell>
+                              <TableCell>{wh.name}</TableCell>
+                              <TableCell><span className="text-xs px-2 py-0.5 bg-muted rounded-full">{wh.type || 'MAIN'}</span></TableCell>
+                              <TableCell className="whitespace-normal max-w-[300px]" title={wh.location}>{wh.location || '-'}</TableCell>
+                              <TableCell className="text-center font-medium">{wh.totalMaterials || 0}</TableCell>
+                              <TableCell className="text-right">{wh.capacity ? `${wh.capacity} CBM` : '-'}</TableCell>
+                              <TableCell className="text-center">
+                                <span className={`font-medium ${wh.status === 'ACTIVE' ? 'text-green-600' : 'text-red-600'}`}>
+                                  {wh.status || 'ACTIVE'}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Link href={`/warehouse/${wh.id}`}>
+                                  <Button variant="outline" size="sm">View Details</Button>
+                                </Link>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    <div className="p-3 border-t">
+                      <DataTablePagination 
+                        totalItems={filtered.length} 
+                        pageSize={warehousePageSize} 
+                        currentPage={warehousePage} 
+                        onPageChange={setWarehousePage} 
+                        onPageSizeChange={setWarehousePageSize} 
+                      />
+                    </div>
+                  </div>
+
+                  {/* Mobile View for Warehouse List (width <= 390px / < sm) */}
+                  {mobileListView}
+                </div>
               );
             }
 
             return (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filtered.map(wh => (
-                  <Card key={wh.id} className="overflow-visible hover:shadow-md transition-shadow relative hover:z-50">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg flex items-center justify-between">
-                        <span className="truncate pr-2">{wh.name}</span>
-                        <span className="text-xs font-normal px-2 py-0.5 bg-muted rounded-full shrink-0">{wh.type || 'MAIN'}</span>
-                      </CardTitle>
-                      <CardDescription>{wh.code}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3 text-sm">
-                      <div className="flex items-start gap-2 text-muted-foreground relative group cursor-default">
-                        <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
-                        <span className="whitespace-normal break-words">{wh.location || 'No location set'}</span>
-                        
-                        {wh.coordinates && (
-                          <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 w-72 h-48 bg-card border rounded-xl shadow-xl p-1.5 origin-bottom scale-95 group-hover:scale-100 pointer-events-none">
-                            <iframe 
-                              width="100%" 
-                              height="100%" 
-                              className="rounded-lg pointer-events-auto bg-muted"
-                              style={{ border: 0 }} 
-                              loading="lazy" 
-                              src={`https://maps.google.com/maps?q=${encodeURIComponent(wh.coordinates)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                            ></iframe>
-                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-card border-b border-r transform rotate-45" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex justify-between items-center pt-3 border-t">
-                        <span className="text-muted-foreground">Total Materials</span>
-                        <span className="font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs">
-                          {wh.totalMaterials || 0} unique
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Capacity</span>
-                        <span className="font-medium">{wh.capacity ? `${wh.capacity} CBM` : 'Unspecified'}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Status</span>
-                        <span className={`font-medium ${wh.status === 'ACTIVE' ? 'text-green-600' : 'text-red-600'}`}>
-                          {wh.status || 'ACTIVE'}
-                        </span>
-                      </div>
-                      <div className="pt-4 border-t mt-4">
-                        <Link href={`/warehouse/${wh.id}`} className="w-full">
-                          <Button variant="outline" className="w-full">View Details</Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+              <div className="w-full">
+                <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filtered.map(wh => (
+                    <Card key={wh.id} className="overflow-visible hover:shadow-md transition-shadow relative hover:z-50">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center justify-between">
+                          <span className="truncate pr-2">{wh.name}</span>
+                          <span className="text-xs font-normal px-2 py-0.5 bg-muted rounded-full shrink-0">{wh.type || 'MAIN'}</span>
+                        </CardTitle>
+                        <CardDescription>{wh.code}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3 text-sm">
+                        <div className="flex items-start gap-2 text-muted-foreground relative group cursor-default">
+                          <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
+                          <span className="whitespace-normal break-words">{wh.location || 'No location set'}</span>
+                          
+                          {wh.coordinates && (
+                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 w-72 h-48 bg-card border rounded-xl shadow-xl p-1.5 origin-bottom scale-95 group-hover:scale-100 pointer-events-none">
+                              <iframe 
+                                width="100%" 
+                                height="100%" 
+                                className="rounded-lg pointer-events-auto bg-muted"
+                                style={{ border: 0 }} 
+                                loading="lazy" 
+                                src={`https://maps.google.com/maps?q=${encodeURIComponent(wh.coordinates)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                              ></iframe>
+                              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-card border-b border-r transform rotate-45" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex justify-between items-center pt-3 border-t">
+                          <span className="text-muted-foreground">Total Materials</span>
+                          <span className="font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs">
+                            {wh.totalMaterials || 0} unique
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">Capacity</span>
+                          <span className="font-medium">{wh.capacity ? `${wh.capacity} CBM` : 'Unspecified'}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">Status</span>
+                          <span className={`font-medium ${wh.status === 'ACTIVE' ? 'text-green-600' : 'text-red-600'}`}>
+                            {wh.status || 'ACTIVE'}
+                          </span>
+                        </div>
+                        <div className="pt-4 border-t mt-4">
+                          <Link href={`/warehouse/${wh.id}`} className="w-full">
+                            <Button variant="outline" className="w-full">View Details</Button>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Mobile View for Warehouse List (width <= 390px / < sm) */}
+                {mobileListView}
               </div>
             );
           })()}
