@@ -25,8 +25,6 @@ export default function WarehousePage() {
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [projectsList, setProjectsList] = useState<any[]>([]);
   const [usersList, setUsersList] = useState<any[]>([]);
-  const [picSearch, setPicSearch] = useState('');
-  const [picPopoverOpen, setPicPopoverOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('ALL');
@@ -142,7 +140,6 @@ export default function WarehousePage() {
     setEditId(null);
     setFormData({ code: '', name: '', location: '', coordinates: '', evidence: '', type: 'MAIN', capacity: '', status: 'ACTIVE', picId: '', picName: '', projectIds: [] });
     setProjectSearch('');
-    setPicSearch('');
     setIsOpen(true);
   };
 
@@ -162,7 +159,6 @@ export default function WarehousePage() {
       projectIds: w.projects ? w.projects.map((p: any) => p.id) : []
     });
     setProjectSearch('');
-    setPicSearch('');
     setIsOpen(true);
   };
 
@@ -477,18 +473,50 @@ export default function WarehousePage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {w.picName ? (
-                          <div className="flex items-center gap-1.5">
-                            <User className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <span className="text-sm font-medium text-foreground">{w.picName}</span>
-                            {w.picUser?.role && (
-                              <Badge variant="outline" className="text-[9px] py-0 px-1 h-3.5 text-muted-foreground">
-                                {w.picUser.role.replace(/_/g, ' ')}
-                              </Badge>
-                            )}
+                        {w.picId ? (
+                          <div 
+                            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => openEditDialog(w)}
+                            title="Klik untuk ubah penugasan PIC"
+                          >
+                            <div className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                              <User className="w-3.5 h-3.5" />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-semibold text-foreground">{w.picName}</span>
+                              {w.picUser?.role ? (
+                                <Badge variant="outline" className="text-[9px] py-0 px-1 h-3.5 w-fit text-primary border-primary/30">
+                                  {w.picUser.role.replace(/_/g, ' ')}
+                                </Badge>
+                              ) : (
+                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Akun Terhubung</span>
+                              )}
+                            </div>
+                          </div>
+                        ) : w.picName ? (
+                          <div 
+                            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => openEditDialog(w)}
+                            title="Klik untuk menghubungkan ke Akun Pengguna"
+                          >
+                            <div className="w-7 h-7 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                              <User className="w-3.5 h-3.5" />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium text-foreground">{w.picName}</span>
+                              <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                                Belum Terhubung Akun
+                              </span>
+                            </div>
                           </div>
                         ) : (
-                          <span className="text-xs text-muted-foreground italic">Unassigned</span>
+                          <button
+                            type="button"
+                            onClick={() => openEditDialog(w)}
+                            className="text-xs text-muted-foreground italic hover:text-primary hover:underline transition-colors flex items-center gap-1"
+                          >
+                            <span>+ Assign PIC</span>
+                          </button>
                         )}
                       </TableCell>
                       <TableCell><StatusBadge status={w.status} /></TableCell>
@@ -504,8 +532,12 @@ export default function WarehousePage() {
                               <span>Lihat Detil</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => openEditDialog(w)} className="cursor-pointer">
+                              <User className="mr-2 h-4 w-4 text-primary" />
+                              <span>Assign / Ubah PIC</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openEditDialog(w)} className="cursor-pointer">
                               <Pencil className="mr-2 h-4 w-4" />
-                              <span>Edit</span>
+                              <span>Edit Gudang</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => openStockEntryDialog(w)} className="cursor-pointer">
                               <PackagePlus className="mr-2 h-4 w-4" />
@@ -622,88 +654,75 @@ export default function WarehousePage() {
 
               <div className="grid grid-cols-1 gap-4">
                 <div className="flex flex-col gap-2">
-                  <Label>PIC (Person In Charge) / Assign User</Label>
-                  <Popover open={picPopoverOpen} onOpenChange={setPicPopoverOpen}>
-                    <PopoverTrigger render={<Button variant="outline" role="combobox" className="w-full justify-between font-normal h-10" />}>
-                      {formData.picId ? (
-                        (() => {
-                          const u = usersList.find(user => user.id === formData.picId);
-                          return (
-                            <span className="flex items-center gap-2 truncate">
-                              <User className="w-4 h-4 text-primary shrink-0" />
-                              <span className="font-medium text-foreground">{u?.name || formData.picName}</span>
-                              {u?.role && (
-                                <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 ml-1">
-                                  {u.role.replace(/_/g, ' ')}
-                                </Badge>
-                              )}
-                            </span>
-                          );
-                        })()
-                      ) : formData.picName ? (
-                        <span className="flex items-center gap-2 truncate text-foreground">
-                          <User className="w-4 h-4 text-muted-foreground shrink-0" />
-                          <span>{formData.picName}</span>
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground">Pilih user sebagai PIC...</span>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="picSelect" className="font-medium text-sm">
+                      PIC (Person In Charge) / Assign Akun User
+                    </Label>
+                    {formData.picId && (
+                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                        <Check className="w-3 h-3" /> Akun Terhubung
+                      </span>
+                    )}
+                    {!formData.picId && formData.picName && (
+                      <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
+                        Teks Lama (Belum Terhubung)
+                      </span>
+                    )}
+                  </div>
+
+                  <Select
+                    value={formData.picId ? formData.picId : (formData.picName ? `LEGACY_${formData.picName}` : 'UNASSIGNED')}
+                    onValueChange={(val) => {
+                      if (!val || val === 'UNASSIGNED') {
+                        setFormData({ ...formData, picId: '', picName: '' });
+                      } else if (val.startsWith('LEGACY_')) {
+                        // Tetap teks lama
+                      } else {
+                        const selected = usersList.find(u => u.id === val);
+                        setFormData({
+                          ...formData,
+                          picId: val,
+                          picName: selected?.name || ''
+                        });
+                      }
+                    }}
+                  >
+                    <SelectTrigger id="picSelect" className="w-full h-10 bg-background">
+                      <SelectValue placeholder="Pilih User sebagai PIC Gudang" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      <SelectItem value="UNASSIGNED">
+                        <span className="text-muted-foreground italic py-0.5">-- Tanpa PIC (Kosongkan Penugasan) --</span>
+                      </SelectItem>
+
+                      {formData.picName && !formData.picId && (
+                        <SelectItem value={`LEGACY_${formData.picName}`}>
+                          <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 py-0.5 font-medium">
+                            <User className="w-3.5 h-3.5 shrink-0" />
+                            <span>{formData.picName} (Teks Lama - Belum Terhubung Akun)</span>
+                          </div>
+                        </SelectItem>
                       )}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[var(--anchor-width)] p-0" align="start">
-                      <div className="flex items-center border-b px-3">
-                        <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                        <Input 
-                          placeholder="Cari user (nama, email, role)..." 
-                          className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                          value={picSearch}
-                          onChange={(e) => setPicSearch(e.target.value)}
-                        />
-                      </div>
-                      <div className="max-h-60 overflow-y-auto p-1">
-                        <div 
-                          className="flex items-center justify-between p-2 hover:bg-muted rounded-md cursor-pointer text-sm text-muted-foreground"
-                          onClick={() => {
-                            setFormData({ ...formData, picId: '', picName: '' });
-                            setPicPopoverOpen(false);
-                          }}
-                        >
-                          <span>-- Tanpa PIC (Unassigned) --</span>
-                          {!formData.picId && <Check className="h-4 w-4 text-primary" />}
-                        </div>
-                        {usersList
-                          .filter(u => 
-                            u.name?.toLowerCase().includes(picSearch.toLowerCase()) || 
-                            u.email?.toLowerCase().includes(picSearch.toLowerCase()) ||
-                            u.role?.toLowerCase().includes(picSearch.toLowerCase())
-                          )
-                          .map((u) => {
-                            const isSelected = formData.picId === u.id;
-                            return (
-                              <div 
-                                key={u.id}
-                                className={`flex items-center justify-between p-2 hover:bg-muted rounded-md cursor-pointer text-sm ${isSelected ? 'bg-muted/60 font-medium' : ''}`}
-                                onClick={() => {
-                                  setFormData({ ...formData, picId: u.id, picName: u.name });
-                                  setPicPopoverOpen(false);
-                                }}
-                              >
-                                <div className="flex flex-col">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-foreground">{u.name}</span>
-                                    <Badge variant="outline" className="text-[10px] py-0 px-1 h-4">
-                                      {u.role?.replace(/_/g, ' ') || 'USER'}
-                                    </Badge>
-                                  </div>
-                                  <span className="text-xs text-muted-foreground">{u.email}</span>
-                                </div>
-                                {isSelected && <Check className="h-4 w-4 text-primary shrink-0" />}
-                              </div>
-                            );
-                          })}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+
+                      {usersList.map((u) => (
+                        <SelectItem key={u.id} value={u.id}>
+                          <div className="flex items-center gap-2 py-0.5">
+                            <User className="w-3.5 h-3.5 text-primary shrink-0" />
+                            <span className="font-semibold text-foreground">{u.name}</span>
+                            {u.role && (
+                              <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 font-normal">
+                                {u.role.replace(/_/g, ' ')}
+                              </Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground font-normal">({u.email})</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Pilih akun pengguna terdaftar untuk ditugaskan sebagai PIC gudang ini.
+                  </p>
                 </div>
               </div>
 
