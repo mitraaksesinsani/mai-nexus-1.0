@@ -17,6 +17,9 @@ async function main() {
 
     // Users
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS password VARCHAR(255) DEFAULT '123';`);
+
+    // Warehouses
+    await pool.query(`ALTER TABLE warehouses ADD COLUMN IF NOT EXISTS pic_id UUID REFERENCES users(id);`);
     
     console.log("Schema changes applied successfully");
   } catch (error) {

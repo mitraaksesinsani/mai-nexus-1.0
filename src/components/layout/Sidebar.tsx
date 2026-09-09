@@ -16,6 +16,7 @@ import {
   BarChart3,
   Database,
   Zap,
+  UserCheck,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -51,13 +52,9 @@ const groupedNavigation = [
         icon: LayoutDashboard,
       },
       {
-        label: 'Owner Dashboard',
-        href: '/owner-dashboard',
-        icon: BarChart3,
-        children: [
-          { label: 'Overview', href: '/owner-dashboard' },
-          { label: 'Warehouse List', href: '/owner-dashboard/warehouse' },
-        ],
+        label: 'PIC Dashboard',
+        href: '/pic-dashboard',
+        icon: UserCheck,
       },
     ]
   },
@@ -255,29 +252,28 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
       // Admin has access to everything
       if (userRole === 'ADMIN' || userRole === 'SUPER_ADMIN') return true;
 
-      // OWNER only has access to Owner Dashboard
+      // OWNER has access to overview dashboards, reports, warehouse & inventory
       if (userRole === 'OWNER') {
-        return item.label === 'Owner Dashboard';
+        return ['Dashboard', 'PIC Dashboard', 'Reports', 'Warehouse', 'Inventory', 'Project Management', 'RFC'].includes(item.label);
       }
 
-      // SITE_MANAGER has access to Owner Dashboard, RFC, and Non-Transactional except Master Data
+      // SITE_MANAGER has access to Dashboards, RFC, and Non-Transactional except Master Data
       if (userRole === 'SITE_MANAGER') {
-        if (item.label === 'Owner Dashboard') return true;
-        if (['Warehouse', 'Inventory', 'Material Transfer', 'Reports', 'RFC'].includes(item.label)) {
+        if (['Dashboard', 'PIC Dashboard', 'Warehouse', 'Inventory', 'Material Transfer', 'Reports', 'RFC'].includes(item.label)) {
           return true;
         }
         return false;
       }
 
       switch (item.label) {
+        case 'PIC Dashboard':
+          return true; // All roles can view PIC Dashboard
         case 'Project Management':
           return ['PROJECT_MANAGER'].includes(userRole);
         case 'PR Management':
           return ['PROJECT_MANAGER', 'PROCUREMENT', 'DIREKTUR'].includes(userRole);
         case 'RFC':
           return true;
-        case 'Owner Dashboard':
-          return ['DIREKTUR'].includes(userRole);
         case 'Procurement':
           return ['PROCUREMENT', 'DIREKTUR'].includes(userRole);
         case 'Logistics':

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Warehouse, Search, Plus, Loader2, Pencil, Trash2, MapPin, Upload, Image as ImageIcon, X, ExternalLink, Map, Globe, Check, ChevronsUpDown, MoreHorizontal, Eye, PackagePlus } from 'lucide-react';
+import { Warehouse, Search, Plus, Loader2, Pencil, Trash2, MapPin, Upload, Image as ImageIcon, X, ExternalLink, Map, Globe, Check, ChevronsUpDown, MoreHorizontal, Eye, PackagePlus, User } from 'lucide-react';
 import api from '@/lib/api';
 import StatusBadge from '@/components/shared/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -24,6 +24,9 @@ export default function WarehousePage() {
   const router = useRouter();
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [projectsList, setProjectsList] = useState<any[]>([]);
+  const [usersList, setUsersList] = useState<any[]>([]);
+  const [picSearch, setPicSearch] = useState('');
+  const [picPopoverOpen, setPicPopoverOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('ALL');
@@ -65,6 +68,7 @@ export default function WarehousePage() {
     type: 'MAIN',
     capacity: '',
     status: 'ACTIVE',
+    picId: '',
     picName: '',
     projectIds: [] as string[]
   });
@@ -93,8 +97,18 @@ export default function WarehousePage() {
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      const { data } = await api.get('/api/users');
+      setUsersList((data.data || []).filter((u: any) => u.isActive !== false));
+    } catch (e) {
+      console.error('Failed to fetch users', e);
+    }
+  };
+
   useEffect(() => {
     fetchProjects();
+    fetchUsers();
   }, []);
 
   useEffect(() => {
@@ -126,8 +140,9 @@ export default function WarehousePage() {
 
   const openCreateDialog = () => {
     setEditId(null);
-    setFormData({ code: '', name: '', location: '', coordinates: '', evidence: '', type: 'MAIN', capacity: '', status: 'ACTIVE', picName: '', projectIds: [] });
+    setFormData({ code: '', name: '', location: '', coordinates: '', evidence: '', type: 'MAIN', capacity: '', status: 'ACTIVE', picId: '', picName: '', projectIds: [] });
     setProjectSearch('');
+    setPicSearch('');
     setIsOpen(true);
   };
 
@@ -142,10 +157,12 @@ export default function WarehousePage() {
       type: w.type || 'MAIN',
       capacity: w.capacity ? w.capacity.toString() : '',
       status: w.status || 'ACTIVE',
+      picId: w.picId || '',
       picName: w.picName || '',
       projectIds: w.projects ? w.projects.map((p: any) => p.id) : []
     });
     setProjectSearch('');
+    setPicSearch('');
     setIsOpen(true);
   };
 
@@ -460,7 +477,19 @@ export default function WarehousePage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm font-medium">{w.picName || '-'}</div>
+                        {w.picName ? (
+                          <div className="flex items-center gap-1.5">
+                            <User className="w-3.5 h-3.5 text-primary shrink-0" />
+                            <span className="text-sm font-medium text-foreground">{w.picName}</span>
+                            {w.picUser?.role && (
+                              <Badge variant="outline" className="text-[9px] py-0 px-1 h-3.5 text-muted-foreground">
+                                {w.picUser.role.replace(/_/g, ' ')}
+                              </Badge>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground italic">Unassigned</span>
+                        )}
                       </TableCell>
                       <TableCell><StatusBadge status={w.status} /></TableCell>
                       <TableCell className="text-right">
@@ -593,13 +622,88 @@ export default function WarehousePage() {
 
               <div className="grid grid-cols-1 gap-4">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="picName">PIC (Person In Charge)</Label>
-                  <Input 
-                    id="picName" 
-                    placeholder="e.g. John Doe" 
-                    value={formData.picName}
-                    onChange={(e) => setFormData({...formData, picName: e.target.value})}
-                  />
+                  <Label>PIC (Person In Charge) / Assign User</Label>
+                  <Popover open={picPopoverOpen} onOpenChange={setPicPopoverOpen}>
+                    <PopoverTrigger render={<Button variant="outline" role="combobox" className="w-full justify-between font-normal h-10" />}>
+                      {formData.picId ? (
+                        (() => {
+                          const u = usersList.find(user => user.id === formData.picId);
+                          return (
+                            <span className="flex items-center gap-2 truncate">
+                              <User className="w-4 h-4 text-primary shrink-0" />
+                              <span className="font-medium text-foreground">{u?.name || formData.picName}</span>
+                              {u?.role && (
+                                <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 ml-1">
+                                  {u.role.replace(/_/g, ' ')}
+                                </Badge>
+                              )}
+                            </span>
+                          );
+                        })()
+                      ) : formData.picName ? (
+                        <span className="flex items-center gap-2 truncate text-foreground">
+                          <User className="w-4 h-4 text-muted-foreground shrink-0" />
+                          <span>{formData.picName}</span>
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">Pilih user sebagai PIC...</span>
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--anchor-width)] p-0" align="start">
+                      <div className="flex items-center border-b px-3">
+                        <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                        <Input 
+                          placeholder="Cari user (nama, email, role)..." 
+                          className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                          value={picSearch}
+                          onChange={(e) => setPicSearch(e.target.value)}
+                        />
+                      </div>
+                      <div className="max-h-60 overflow-y-auto p-1">
+                        <div 
+                          className="flex items-center justify-between p-2 hover:bg-muted rounded-md cursor-pointer text-sm text-muted-foreground"
+                          onClick={() => {
+                            setFormData({ ...formData, picId: '', picName: '' });
+                            setPicPopoverOpen(false);
+                          }}
+                        >
+                          <span>-- Tanpa PIC (Unassigned) --</span>
+                          {!formData.picId && <Check className="h-4 w-4 text-primary" />}
+                        </div>
+                        {usersList
+                          .filter(u => 
+                            u.name?.toLowerCase().includes(picSearch.toLowerCase()) || 
+                            u.email?.toLowerCase().includes(picSearch.toLowerCase()) ||
+                            u.role?.toLowerCase().includes(picSearch.toLowerCase())
+                          )
+                          .map((u) => {
+                            const isSelected = formData.picId === u.id;
+                            return (
+                              <div 
+                                key={u.id}
+                                className={`flex items-center justify-between p-2 hover:bg-muted rounded-md cursor-pointer text-sm ${isSelected ? 'bg-muted/60 font-medium' : ''}`}
+                                onClick={() => {
+                                  setFormData({ ...formData, picId: u.id, picName: u.name });
+                                  setPicPopoverOpen(false);
+                                }}
+                              >
+                                <div className="flex flex-col">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-foreground">{u.name}</span>
+                                    <Badge variant="outline" className="text-[10px] py-0 px-1 h-4">
+                                      {u.role?.replace(/_/g, ' ') || 'USER'}
+                                    </Badge>
+                                  </div>
+                                  <span className="text-xs text-muted-foreground">{u.email}</span>
+                                </div>
+                                {isSelected && <Check className="h-4 w-4 text-primary shrink-0" />}
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
 

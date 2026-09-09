@@ -15,6 +15,9 @@ export async function GET(request: Request) {
     let queryStr = `
       SELECT 
         w.*,
+        u.name as pic_user_name,
+        u.email as pic_user_email,
+        u.role as pic_user_role,
         COUNT(DISTINCT s.material_id) as total_materials,
         COALESCE(SUM(s.quantity), 0) as total_stock,
         (
@@ -24,13 +27,14 @@ export async function GET(request: Request) {
           WHERE wp.warehouse_id = w.id
         ) as projects
       FROM warehouses w
+      LEFT JOIN users u ON w.pic_id = u.id
       LEFT JOIN inventory_stocks s ON w.id = s.warehouse_id
     `;
     const queryParams: any[] = [];
     const conditions: string[] = [];
 
     if (search) {
-      conditions.push(`(LOWER(w.code) LIKE $${queryParams.length + 1} OR LOWER(w.name) LIKE $${queryParams.length + 1} OR LOWER(w.location) LIKE $${queryParams.length + 1})`);
+      conditions.push(`(LOWER(w.code) LIKE $${queryParams.length + 1} OR LOWER(w.name) LIKE $${queryParams.length + 1} OR LOWER(w.location) LIKE $${queryParams.length + 1} OR LOWER(COALESCE(u.name, w.pic_name, '')) LIKE $${queryParams.length + 1})`);
       queryParams.push(`%${search}%`);
     }
     if (type && type !== 'ALL') {
@@ -46,7 +50,7 @@ export async function GET(request: Request) {
       queryStr += ` WHERE ${conditions.join(' AND ')}`;
     }
 
-    queryStr += ` GROUP BY w.id, w.code, w.name, w.location, w.coordinates, w.evidence, w.type, w.capacity, w.status, w.pic_name, w.created_at, w.updated_at`;
+    queryStr += ` GROUP BY w.id, w.code, w.name, w.location, w.coordinates, w.evidence, w.type, w.capacity, w.status, w.pic_name, w.pic_id, w.created_at, w.updated_at, u.name, u.email, u.role`;
 
     if (sort === 'name-desc') {
       queryStr += ' ORDER BY w.name DESC';
@@ -70,7 +74,14 @@ export async function GET(request: Request) {
       type: row.type,
       capacity: row.capacity,
       status: row.status,
-      picName: row.pic_name,
+      picId: row.pic_id || null,
+      picName: row.pic_user_name || row.pic_name || null,
+      picUser: row.pic_id ? {
+        id: row.pic_id,
+        name: row.pic_user_name,
+        email: row.pic_user_email,
+        role: row.pic_user_role,
+      } : null,
       totalMaterials: parseInt(row.total_materials, 10) || 0,
       totalStock: parseInt(row.total_stock, 10) || 0,
       projects: row.projects || [],
@@ -88,19 +99,25 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { code, name, location, coordinates, evidence, type, capacity, picName, projectIds } = body;
+    const { code, name, location, coordinates, evidence, type, capacity, picName, picId, projectIds } = body;
 
     if (!code || !name) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
 
+    let resolvedPicName = picName || null;
+    if (picId && !resolvedPicName) {
+      const uRes = await pool.query('SELECT name FROM users WHERE id = $1', [picId]);
+      if (uRes.rows.length > 0) resolvedPicName = uRes.rows[0].name;
+    }
+
     const id = generateId();
 
     const res = await pool.query(`
-      INSERT INTO warehouses (id, code, name, location, coordinates, evidence, type, capacity, status, pic_name)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      INSERT INTO warehouses (id, code, name, location, coordinates, evidence, type, capacity, status, pic_name, pic_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *
-    `, [id, code, name, location || '', coordinates || '', evidence || null, type || 'MAIN', capacity || '', 'ACTIVE', picName || null]);
+    `, [id, code, name, location || '', coordinates || '', evidence || null, type || 'MAIN', capacity || '', 'ACTIVE', resolvedPicName, picId || null]);
 
     if (projectIds && Array.isArray(projectIds) && projectIds.length > 0) {
       for (const projectId of projectIds) {
@@ -119,6 +136,7 @@ export async function POST(request: Request) {
       type: row.type,
       capacity: row.capacity,
       status: row.status,
+      picId: row.pic_id || null,
       picName: row.pic_name,
       projects: projectIds || [],
       createdAt: row.created_at,
@@ -135,19 +153,25 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, code, name, location, coordinates, evidence, type, capacity, status, picName, projectIds } = body;
+    const { id, code, name, location, coordinates, evidence, type, capacity, status, picName, picId, projectIds } = body;
 
     if (!id || !code || !name) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
 
+    let resolvedPicName = picName || null;
+    if (picId && !resolvedPicName) {
+      const uRes = await pool.query('SELECT name FROM users WHERE id = $1', [picId]);
+      if (uRes.rows.length > 0) resolvedPicName = uRes.rows[0].name;
+    }
+
     const res = await pool.query(`
       UPDATE warehouses 
       SET code = $1, name = $2, location = $3, coordinates = $4, evidence = $5, type = $6, 
-          capacity = $7, status = $8, pic_name = $9, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $10
+          capacity = $7, status = $8, pic_name = $9, pic_id = $10, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $11
       RETURNING *
-    `, [code, name, location || '', coordinates || '', evidence || null, type || 'MAIN', capacity || '', status || 'ACTIVE', picName || null, id]);
+    `, [code, name, location || '', coordinates || '', evidence || null, type || 'MAIN', capacity || '', status || 'ACTIVE', resolvedPicName, picId || null, id]);
 
     if (res.rowCount === 0) {
       return NextResponse.json({ message: 'Warehouse not found' }, { status: 404 });
@@ -171,6 +195,7 @@ export async function PUT(request: Request) {
       type: row.type,
       capacity: row.capacity,
       status: row.status,
+      picId: row.pic_id || null,
       picName: row.pic_name,
       createdAt: row.created_at,
       updatedAt: row.updated_at
