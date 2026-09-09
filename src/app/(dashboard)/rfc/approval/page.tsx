@@ -109,117 +109,198 @@ export default function RfcApprovalPage() {
      </div>
 
 
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="w-[180px]">RFC Number</TableHead>
-              <TableHead>Project</TableHead>
-              <TableHead>Warehouse</TableHead>
-              <TableHead>Requestor</TableHead>
-              <TableHead>Approval Stage</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
-                  <div className="flex justify-center"><div className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary"></div></div>
-                </TableCell>
+      <div className="border rounded-xl bg-card overflow-hidden">
+        {/* Desktop Table View (>= sm) */}
+        <div className="hidden sm:block overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead className="w-[180px]">RFC Number</TableHead>
+                <TableHead>Project</TableHead>
+                <TableHead>Warehouse</TableHead>
+                <TableHead>Requestor</TableHead>
+                <TableHead>Approval Stage</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ) : rfcs.length > 0 ? (
-              rfcs.slice((page - 1) * pageSize, page * pageSize).map((rfc) => (
-                <TableRow key={rfc.id} className="hover:bg-muted/30">
-                  <TableCell className="font-medium text-primary">
-                    <Link href={`/rfc/${rfc.id}`} className="hover:underline">
-                      {rfc.rfcNumber}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <div className="font-medium">{rfc.projectName}</div>
-                  </TableCell>
-                  <TableCell>{rfc.warehouseName || '-'}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">{rfc.requestorName || 'Unknown'}</span>
-                      <span className="text-xs text-muted-foreground">{rfc.requestorRole || ''}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1.5">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-300/40">
-                          {rfc.currentStepName || `Level ${rfc.currentStepOrder || 1}`}
-                        </span>
-                        {rfc.totalSteps ? (
-                          <span className="text-[11px] text-muted-foreground">
-                            ({rfc.currentStepOrder || 1}/{rfc.totalSteps})
-                          </span>
-                        ) : null}
-                      </div>
-                      {rfc.currentApproverName && (
-                        <span className="text-xs text-muted-foreground">
-                          Assignee: <span className="font-medium text-foreground">{rfc.currentApproverName}</span>
-                        </span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="text-sm">{formatDate(rfc.createdAt)}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link href={`/rfc/${rfc.id}`}>
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
-                      </Link>
-                      <Button 
-                        variant="destructive" 
-                        size="icon" 
-                        className="h-8 w-8"
-                        title="Reject"
-                        onClick={() => setRejectingRfcId(rfc.id)}
-                        disabled={processingId === rfc.id}
-                      >
-                        <XCircle className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="default" 
-                        size="icon" 
-                        className="h-8 w-8 bg-green-600 hover:bg-green-700 text-white"
-                        title="Approve"
-                        onClick={() => setApprovingRfc(rfc)}
-                        disabled={processingId === rfc.id}
-                      >
-                        <CheckCircle className="h-4 w-4" />
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    <div className="flex justify-center"><div className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary"></div></div>
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                  No pending RFCs for approval.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-     
-     <div className="p-4">
-       <DataTablePagination 
-         currentPage={page} 
-         pageSize={pageSize} 
-         totalItems={rfcs.length} 
-         onPageChange={setPage} 
-         onPageSizeChange={setPageSize} 
-       />
-     </div>
+              ) : rfcs.length > 0 ? (
+                rfcs.slice((page - 1) * pageSize, page * pageSize).map((rfc) => (
+                  <TableRow key={rfc.id} className="hover:bg-muted/30">
+                    <TableCell className="font-medium text-primary">
+                      <Link href={`/rfc/${rfc.id}`} className="hover:underline">
+                        {rfc.rfcNumber}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">{rfc.projectName}</div>
+                    </TableCell>
+                    <TableCell>{rfc.warehouseName || '-'}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">{rfc.requestorName || 'Unknown'}</span>
+                        <span className="text-xs text-muted-foreground">{rfc.requestorRole || ''}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-300/40">
+                            {rfc.currentStepName || `Level ${rfc.currentStepOrder || 1}`}
+                          </span>
+                          {rfc.totalSteps ? (
+                            <span className="text-[11px] text-muted-foreground">
+                              ({rfc.currentStepOrder || 1}/{rfc.totalSteps})
+                            </span>
+                          ) : null}
+                        </div>
+                        {rfc.currentApproverName && (
+                          <span className="text-xs text-muted-foreground">
+                            Assignee: <span className="font-medium text-foreground">{rfc.currentApproverName}</span>
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="text-sm">{formatDate(rfc.createdAt)}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link href={`/rfc/${rfc.id}`}>
+                          <Button variant="outline" size="sm">
+                            View Details
+                          </Button>
+                        </Link>
+                        <Button 
+                          variant="destructive" 
+                          size="icon" 
+                          className="h-8 w-8"
+                          title="Reject"
+                          onClick={() => setRejectingRfcId(rfc.id)}
+                          disabled={processingId === rfc.id}
+                        >
+                          <XCircle className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="default" 
+                          size="icon" 
+                          className="h-8 w-8 bg-green-600 hover:bg-green-700 text-white"
+                          title="Approve"
+                          onClick={() => setApprovingRfc(rfc)}
+                          disabled={processingId === rfc.id}
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                    No pending RFCs for approval.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Mobile Card List View (width <= 390px / < sm) */}
+        <div className="block sm:hidden divide-y divide-border/60">
+          {loading ? (
+            <div className="p-8 text-center">
+              <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary mx-auto"></div>
+            </div>
+          ) : rfcs.length > 0 ? (
+            rfcs.slice((page - 1) * pageSize, page * pageSize).map((rfc) => (
+              <div key={`mobile-${rfc.id}`} className="p-4 space-y-3 bg-card hover:bg-muted/30 transition-colors">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <Link href={`/rfc/${rfc.id}`} className="font-semibold text-sm text-primary hover:underline block leading-snug">
+                      {rfc.rfcNumber}
+                    </Link>
+                    <div className="font-medium text-xs text-foreground mt-0.5">
+                      {rfc.projectName}
+                    </div>
+                  </div>
+                  <div className="shrink-0">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-300/40">
+                      {rfc.currentStepName || `Level ${rfc.currentStepOrder || 1}`}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground bg-muted/40 p-2.5 rounded-lg border border-border/40">
+                  <div>
+                    <span className="text-[10px] block text-muted-foreground/80 uppercase font-semibold">Warehouse</span>
+                    <span className="font-medium text-foreground truncate block">{rfc.warehouseName || '-'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] block text-muted-foreground/80 uppercase font-semibold">Requestor</span>
+                    <span className="font-medium text-foreground truncate block">{rfc.requestorName || 'Unknown'}</span>
+                  </div>
+                  <div className="col-span-2 flex items-center justify-between pt-1 border-t border-border/30 text-[11px]">
+                    <span className="text-muted-foreground">Date: {formatDate(rfc.createdAt)}</span>
+                    {rfc.currentApproverName && (
+                      <span className="truncate max-w-[150px]">PIC: <b className="text-foreground">{rfc.currentApproverName}</b></span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  <Link href={`/rfc/${rfc.id}`} className="flex-1">
+                    <Button variant="outline" size="sm" className="w-full text-xs h-8">
+                      View Details
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    className="h-8 text-xs gap-1 px-3"
+                    onClick={() => setRejectingRfcId(rfc.id)}
+                    disabled={processingId === rfc.id}
+                  >
+                    <XCircle className="h-3.5 w-3.5" /> Reject
+                  </Button>
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    className="h-8 text-xs gap-1 px-3 bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => setApprovingRfc(rfc)}
+                    disabled={processingId === rfc.id}
+                  >
+                    <CheckCircle className="h-3.5 w-3.5" /> Approve
+                  </Button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              No pending RFCs for approval.
+            </div>
+          )}
+        </div>
+
+        <div className="p-4 border-t">
+          <DataTablePagination 
+            currentPage={page} 
+            pageSize={pageSize} 
+            totalItems={rfcs.length} 
+            onPageChange={setPage} 
+            onPageSizeChange={setPageSize} 
+          />
+        </div>
+      </div>
 
       {/* Dialog Approve */}
       <Dialog open={!!approvingRfc} onOpenChange={(open) => !open && setApprovingRfc(null)}>
