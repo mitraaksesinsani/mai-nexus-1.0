@@ -168,9 +168,21 @@ export default function MaterialReceivePage() {
                       <Loader2 className="w-4 h-4 animate-spin" /> Loading DOs...
                     </div>
                   ) : (
-                    <Select value={selectedDoId} onValueChange={(val) => handleDoChange(val || "")}>
+                    <Select 
+                      value={selectedDoId} 
+                      onValueChange={(val) => handleDoChange(val || "")}
+                      items={dos.map(d => ({
+                        value: d.id,
+                        label: `${d.doNumber} - ${d.project?.projectName}`
+                      }))}
+                    >
                       <SelectTrigger id="do-select" className="w-full">
-                        <SelectValue placeholder="Select a delivered DO..." />
+                        <SelectValue placeholder="Select a delivered DO...">
+                          {(() => {
+                            const d = dos.find(item => item.id === selectedDoId);
+                            return d ? `${d.doNumber} - ${d.project?.projectName}` : undefined;
+                          })()}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {dos.length === 0 ? (
@@ -193,9 +205,18 @@ export default function MaterialReceivePage() {
                     value={selectedWarehouseId} 
                     onValueChange={(val) => setSelectedWarehouseId(val || "")}
                     disabled={!selectedDoId || isFetchingDo || isSubmitting}
+                    items={warehouses.map(w => ({
+                      value: w.id,
+                      label: `${w.name} (${w.code})`
+                    }))}
                   >
                     <SelectTrigger id="warehouse-select" className="w-full">
-                      <SelectValue placeholder="Select warehouse..." />
+                      <SelectValue placeholder="Select warehouse...">
+                        {(() => {
+                          const w = warehouses.find(item => item.id === selectedWarehouseId);
+                          return w ? `${w.name} (${w.code})` : undefined;
+                        })()}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {warehouses.map(w => (

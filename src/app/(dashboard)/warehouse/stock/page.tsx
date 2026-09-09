@@ -87,9 +87,22 @@ export default function StockMonitoringPage() {
           />
         </div>
         <div className="w-full sm:w-[250px]">
-          <Select value={selectedWarehouse} onValueChange={(val) => setSelectedWarehouse(val || "")}>
+          <Select 
+            value={selectedWarehouse} 
+            onValueChange={(val) => setSelectedWarehouse(val || "")}
+            items={[
+              { value: 'ALL', label: 'All Warehouses' },
+              ...warehouses.map(w => ({ value: w.id, label: w.name }))
+            ]}
+          >
             <SelectTrigger>
-              <SelectValue placeholder="Filter by Warehouse" />
+              <SelectValue placeholder="Filter by Warehouse">
+                {(() => {
+                  if (selectedWarehouse === 'ALL') return 'All Warehouses';
+                  const w = warehouses.find(item => item.id === selectedWarehouse);
+                  return w ? w.name : undefined;
+                })()}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">All Warehouses</SelectItem>

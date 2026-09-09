@@ -303,9 +303,21 @@ export default function WarehouseOperationsPage() {
               <form onSubmit={handleReceiptSubmit} className="space-y-6 max-w-xl">
                 <div className="space-y-2">
                   <Label>Source Purchase Order</Label>
-                  <Select value={receiptForm.poId} onValueChange={(val) => setReceiptForm({ ...receiptForm, poId: val || "" })}>
+                  <Select 
+                    value={receiptForm.poId} 
+                    onValueChange={(val) => setReceiptForm({ ...receiptForm, poId: val || "" })}
+                    items={pos.map(po => ({
+                      value: po.id,
+                      label: `${po.poNumber} - ${po.vendor} (${po.itemsCount} items)`
+                    }))}
+                  >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select an incoming PO" />
+                      <SelectValue placeholder="Select an incoming PO">
+                        {(() => {
+                          const po = pos.find(p => p.id === receiptForm.poId);
+                          return po ? `${po.poNumber} - ${po.vendor} (${po.itemsCount} items)` : undefined;
+                        })()}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {pos.length === 0 && <SelectItem value="none" disabled>No pending POs found</SelectItem>}
@@ -320,9 +332,21 @@ export default function WarehouseOperationsPage() {
 
                 <div className="space-y-2">
                   <Label>Destination Warehouse</Label>
-                  <Select value={receiptForm.warehouseId} onValueChange={(val) => setReceiptForm({ ...receiptForm, warehouseId: val || "" })}>
+                  <Select 
+                    value={receiptForm.warehouseId} 
+                    onValueChange={(val) => setReceiptForm({ ...receiptForm, warehouseId: val || "" })}
+                    items={warehouses.map(wh => ({
+                      value: wh.id,
+                      label: `${wh.name} (${wh.code})`
+                    }))}
+                  >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select receiving warehouse" />
+                      <SelectValue placeholder="Select receiving warehouse">
+                        {(() => {
+                          const wh = warehouses.find(w => w.id === receiptForm.warehouseId);
+                          return wh ? `${wh.name} (${wh.code})` : undefined;
+                        })()}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {warehouses.length === 0 && <SelectItem value="none" disabled>No warehouses configured</SelectItem>}

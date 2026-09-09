@@ -147,9 +147,22 @@ export default function MaterialIssuePage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="rfcSelect">Approved RFC</Label>
-                <Select value={selectedRfcId} onValueChange={(val) => handleRfcChange(val || "")} disabled={loadingRFCs}>
+                <Select 
+                  value={selectedRfcId} 
+                  onValueChange={(val) => handleRfcChange(val || "")} 
+                  disabled={loadingRFCs}
+                  items={[
+                    { value: 'none', label: '-- Select RFC --' },
+                    ...rfcs.map(rfc => ({ value: rfc.id, label: rfc.rfcNumber }))
+                  ]}
+                >
                   <SelectTrigger id="rfcSelect">
-                    <SelectValue placeholder={loadingRFCs ? 'Loading...' : 'Select RFC'} />
+                    <SelectValue placeholder={loadingRFCs ? 'Loading...' : 'Select RFC'}>
+                      {(() => {
+                        const rfc = rfcs.find(r => r.id === selectedRfcId);
+                        return rfc ? rfc.rfcNumber : (selectedRfcId === 'none' ? '-- Select RFC --' : undefined);
+                      })()}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">-- Select RFC --</SelectItem>
@@ -187,9 +200,19 @@ export default function MaterialIssuePage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="warehouseSelect">Source Warehouse *</Label>
-                      <Select value={selectedWarehouseId} onValueChange={(val) => setSelectedWarehouseId(val || "")} required>
+                      <Select 
+                        value={selectedWarehouseId} 
+                        onValueChange={(val) => setSelectedWarehouseId(val || "")} 
+                        required
+                        items={warehouses.map(w => ({ value: w.id, label: w.name }))}
+                      >
                         <SelectTrigger id="warehouseSelect">
-                          <SelectValue placeholder="Select warehouse to issue from" />
+                          <SelectValue placeholder="Select warehouse to issue from">
+                            {(() => {
+                              const w = warehouses.find(item => item.id === selectedWarehouseId);
+                              return w ? w.name : undefined;
+                            })()}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {warehouses.map(w => (
