@@ -911,10 +911,14 @@ export default function WarehousePage() {
             </div>
             <div className="flex items-center gap-2">
               {previewImage && (
-                <Button variant="outline" size="sm">
-                  <a href={previewImage} target="_blank" rel="noreferrer" className="flex items-center gap-2">
-                    <ExternalLink className="w-4 h-4" /> Open in new tab
-                  </a>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  render={<a href={previewImage} target="_blank" rel="noreferrer" />} 
+                  nativeButton={false}
+                  className="flex items-center gap-2"
+                >
+                  <ExternalLink className="w-4 h-4" /> Open in new tab
                 </Button>
               )}
             </div>

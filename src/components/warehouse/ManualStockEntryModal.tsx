@@ -146,6 +146,8 @@ export function ManualStockEntryModal({ isOpen, onClose, warehouseId, onSuccess 
 
   const selectedMaterial = materials.find((m) => m.id === selectedMaterialId);
 
+  if (!isOpen) return null;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[900px] max-h-[90vh] flex flex-col">
