@@ -71,17 +71,10 @@ export default function RfcHistoryLogPage() {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10 text-primary">
-              <FileCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">RFC History Log</h1>
-              <p className="text-muted-foreground text-sm mt-0.5">
-                Arsip dan riwayat pemrosesan dokumen Request for Consumption (RFC) yang telah selesai atau ditolak.
-              </p>
-            </div>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">RFC History Log</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">
+            Arsip dan riwayat pemrosesan dokumen Request for Consumption (RFC) yang telah selesai atau ditolak.
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
