@@ -376,11 +376,11 @@ export default function WarehouseOperationsPage() {
                             {wh.totalMaterials || 0} unique
                           </span>
                         </div>
-                        <div className="flex justify-between items-center">
+                        <div className="hidden sm:flex justify-between items-center">
                           <span className="text-muted-foreground">Capacity</span>
                           <span className="font-medium">{wh.capacity ? `${wh.capacity} CBM` : 'Unspecified'}</span>
                         </div>
-                        <div className="flex justify-between items-center">
+                        <div className="hidden sm:flex justify-between items-center">
                           <span className="text-muted-foreground">Status</span>
                           <span className={`font-medium ${wh.status === 'ACTIVE' ? 'text-green-600' : 'text-red-600'}`}>
                             {wh.status || 'ACTIVE'}
