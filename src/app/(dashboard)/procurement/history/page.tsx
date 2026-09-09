@@ -225,7 +225,7 @@ export default function ProcurementHistoryPage() {
             {selectedPo.rfcId && (
               <div className="col-span-1 sm:col-span-2">
                 <p className="text-muted-foreground mb-1">Reference RFC ID</p>
-                <p className="font-mono text-xs break-all bg-muted/30 p-2 rounded">{selectedPo.rfcId}</p>
+                <p className="text-xs break-all bg-muted/30 p-2 rounded">{selectedPo.rfcId}</p>
               </div>
             )}
             {selectedPo.notes && (

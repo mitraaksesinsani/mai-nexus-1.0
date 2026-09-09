@@ -193,7 +193,7 @@ export default function DriverTrackingPage() {
                   <div className="w-3 h-3 bg-blue-500 rounded-full animate-ping" />
                   <div className="text-left flex-1">
                     <p className="font-bold text-blue-700">Tracking Active</p>
-                    <p className="text-xs text-blue-600 font-mono">
+                    <p className="text-xs text-blue-600">
                       {coords ? `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}` : 'Waiting for GPS...'}
                     </p>
                   </div>

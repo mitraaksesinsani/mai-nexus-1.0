@@ -94,7 +94,7 @@ export default function MasterDataPage() {
  )) : data.map((item) => (
  <tr key={item.id} className="border-b border-border hover:bg-secondary/20 transition-colors">
  {activeTab === 'materials' && (<>
- <td className="px-4 py-3 text-sm font-mono text-primary">{item.materialCode}</td>
+ <td className="px-4 py-3 text-sm text-primary">{item.materialCode}</td>
  <td className="px-4 py-3 text-sm font-medium">{item.materialName}</td>
  <td className="px-4 py-3 text-sm text-muted-foreground">{item.category}</td>
  <td className="px-4 py-3 text-sm text-muted-foreground">{item.unit}</td>

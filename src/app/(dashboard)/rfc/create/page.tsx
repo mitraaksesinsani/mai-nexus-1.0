@@ -517,11 +517,11 @@ export default function CreateRfcPage() {
                       </TableCell>
                       <TableCell className="py-2.5 px-3 align-middle">
                         {item.materialId ? (
-                          <div className="font-mono text-sm bg-muted/80 border border-border/60 px-3 h-[52px] rounded-lg flex items-center justify-center w-full font-semibold">
+                          <div className="text-sm bg-muted/80 border border-border/60 px-3 h-[52px] rounded-lg flex items-center justify-center w-full font-semibold">
                             {getAvailableStock(item.materialId)}
                           </div>
                         ) : (
-                          <div className="font-mono text-sm text-muted-foreground/60 h-[52px] rounded-lg border border-dashed border-border/40 flex items-center justify-center w-full">
+                          <div className="text-sm text-muted-foreground/60 h-[52px] rounded-lg border border-dashed border-border/40 flex items-center justify-center w-full">
                             -
                           </div>
                         )}

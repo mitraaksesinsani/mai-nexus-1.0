@@ -187,7 +187,7 @@ export default function PoDetailPage({ params }: { params: Promise<{ id: string 
               {po.rfcId && (
                 <div>
                   <p className="text-muted-foreground text-xs mb-1 uppercase tracking-wider font-semibold">Reference RFC ID</p>
-                  <p className="font-mono text-xs break-all bg-muted/30 p-2 rounded mt-1">{po.rfcId}</p>
+                  <p className="text-xs break-all bg-muted/30 p-2 rounded mt-1">{po.rfcId}</p>
                 </div>
               )}
               {po.notes && (

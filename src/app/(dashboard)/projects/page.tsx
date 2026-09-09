@@ -576,7 +576,7 @@ export default function ProjectsPage() {
             <div className="grid grid-cols-2 gap-4 py-4">
               <div className="space-y-1">
                 <span className="text-xs text-muted-foreground">Project ID</span>
-                <p className="font-medium text-sm text-primary font-mono">{viewProject.projectCode || '-'}</p>
+                <p className="font-medium text-sm text-primary">{viewProject.projectCode || '-'}</p>
               </div>
               <div className="space-y-1">
                 <span className="text-xs text-muted-foreground">Customer</span>

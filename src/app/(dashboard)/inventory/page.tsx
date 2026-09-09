@@ -110,7 +110,7 @@ export default function InventoryPage() {
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">{item.material?.unit}</p>
                   </td>
-                  <td className="px-4 py-3 text-sm font-mono text-muted-foreground">{item.material?.materialCode}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{item.material?.materialCode}</td>
                   <td className="px-4 py-3 text-sm">{item.warehouse?.warehouseName}</td>
                   <td className={cn("px-4 py-3 text-sm font-semibold text-right", isLow ? "text-red-400" : "text-emerald-400")}>{item.availableStock.toLocaleString()}</td>
                   <td className="px-4 py-3 text-sm text-right text-amber-400">{item.reservedStock.toLocaleString()}</td>

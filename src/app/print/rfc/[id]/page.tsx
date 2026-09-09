@@ -151,7 +151,7 @@ export default function PrintRfcPage() {
                 rfc.items.map((item: any, i: number) => (
                   <tr key={i} className="border-b border-gray-300">
                     <td className="p-1.5 border-r border-gray-300 text-center">{i + 1}</td>
-                    <td className="p-1.5 border-r border-gray-300 font-mono text-[10px]">{item.materialCode || '-'}</td>
+                    <td className="p-1.5 border-r border-gray-300 text-[10px]">{item.materialCode || '-'}</td>
                     <td className="p-1.5 border-r border-gray-300 font-medium whitespace-normal break-words leading-tight">{item.materialName}</td>
                     <td className="p-1.5 border-r border-gray-300 text-right font-bold">{item.requestQty}</td>
                     <td className="p-1.5 border-r border-gray-300 text-center">{item.unit || '-'}</td>

@@ -141,7 +141,7 @@ export default function StockMonitoringPage() {
                         {stock.warehouseName}
                       </div>
                     </TableCell>
-                    <TableCell className="w-[170px] min-w-[170px] whitespace-nowrap align-top py-3 font-mono text-xs text-muted-foreground">
+                    <TableCell className="w-[170px] min-w-[170px] whitespace-nowrap align-top py-3 text-xs text-muted-foreground">
                       {stock.materialCode || '-'}
                     </TableCell>
                     <TableCell className="w-[67ch] min-w-[340px] max-w-[67ch] align-top py-3">

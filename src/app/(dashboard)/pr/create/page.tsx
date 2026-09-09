@@ -217,7 +217,7 @@ export default function CreateRfcPage() {
                             )}
                             <div className="flex flex-col">
                               <div className="flex items-center gap-1.5">
-                                <span className="font-semibold text-primary text-xs font-mono">{p.projectCode || '-'}</span>
+                                <span className="font-semibold text-primary text-xs">{p.projectCode || '-'}</span>
                                 <span className="font-medium text-sm">{p.projectName}</span>
                               </div>
                               <span className="text-xs text-muted-foreground">{p.customer} • {p.region}</span>

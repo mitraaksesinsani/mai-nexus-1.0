@@ -175,7 +175,7 @@ export default function MapComponent({ selectedDO }: { selectedDO: any }) {
             </div>
             <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 p-2.5 rounded-lg">
               <span className={`w-2 h-2 rounded-full shrink-0 ${currentPos ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-              <p className="text-[13px] font-mono text-slate-700">
+              <p className="text-[13px] text-slate-700">
                 {currentPos ? `${currentPos[0].toFixed(6)}, ${currentPos[1].toFixed(6)}` : 'Waiting for GPS...'}
               </p>
             </div>

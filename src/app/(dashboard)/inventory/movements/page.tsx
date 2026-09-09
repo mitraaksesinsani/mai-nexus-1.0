@@ -101,7 +101,7 @@ export default function MovementsPage() {
                       >
                         {tx.material?.materialName || '—'}
                       </div>
-                      <p className="text-xs text-muted-foreground font-mono mt-0.5">{tx.material?.materialCode}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{tx.material?.materialCode}</p>
                     </TableCell>
                     <TableCell className="truncate text-sm" title={tx.warehouse?.warehouseName || tx.warehouse?.name || '—'}>
                       {tx.warehouse?.warehouseName || tx.warehouse?.name || '—'}

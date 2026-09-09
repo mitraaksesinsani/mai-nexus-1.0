@@ -153,7 +153,7 @@ export default function RfcApprovalPage() {
                           {rfc.currentStepName || `Level ${rfc.currentStepOrder || 1}`}
                         </span>
                         {rfc.totalSteps ? (
-                          <span className="text-[11px] text-muted-foreground font-mono">
+                          <span className="text-[11px] text-muted-foreground">
                             ({rfc.currentStepOrder || 1}/{rfc.totalSteps})
                           </span>
                         ) : null}

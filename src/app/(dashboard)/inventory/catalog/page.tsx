@@ -116,7 +116,7 @@ export default function CatalogPage() {
                       <span className="text-xs font-semibold text-primary">{priceFormatted} / {m.unit}</span>
                     </div>
                     <h3 className="font-semibold text-lg line-clamp-2 leading-tight mb-1" title={m.materialName}>{m.materialName}</h3>
-                    <p className="font-mono text-sm text-muted-foreground">{m.materialCode}</p>
+                    <p className="text-sm text-muted-foreground">{m.materialCode}</p>
                     
                     {m.specification && (
                       <p className="text-sm text-muted-foreground mt-4 line-clamp-3" title={m.specification}>

@@ -171,7 +171,7 @@ export function ManualStockEntryModal({ isOpen, onClose, warehouseId, onSuccess 
                     </span>
                   ) : selectedMaterial ? (
                     <span className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2 py-0.5 rounded text-xs font-semibold bg-primary/10 text-primary border border-primary/20 font-mono">
+                      <span className="px-2 py-0.5 rounded text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
                         {selectedMaterial.materialCode}
                       </span>
                       <span className="font-medium text-foreground">{selectedMaterial.materialName}</span>
@@ -276,7 +276,7 @@ export function ManualStockEntryModal({ isOpen, onClose, warehouseId, onSuccess 
                             </div>
                             <div className="flex flex-col min-w-0 flex-1">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-mono text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
+                                <span className="text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
                                   {m.materialCode}
                                 </span>
                                 {m.category && (
@@ -285,7 +285,7 @@ export function ManualStockEntryModal({ isOpen, onClose, warehouseId, onSuccess 
                                   </span>
                                 )}
                                 {m.unit && (
-                                  <span className="text-[11px] text-muted-foreground font-mono">
+                                  <span className="text-[11px] text-muted-foreground">
                                     ({m.unit})
                                   </span>
                                 )}
