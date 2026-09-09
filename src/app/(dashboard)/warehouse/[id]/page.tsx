@@ -91,9 +91,17 @@ export default function WarehouseDetailsPage() {
           </Button>
         </div>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
-            {warehouse.name}
-          </h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              {warehouse.name}
+            </h1>
+            <Badge variant="outline" className={`font-semibold text-xs ${warehouse.status === 'ACTIVE' ? 'bg-green-500/10 text-green-600 border-green-200 dark:border-green-800' : 'bg-red-500/10 text-red-600 border-red-200 dark:border-red-800'}`}>
+              {warehouse.status || 'ACTIVE'}
+            </Badge>
+            <Badge variant="secondary" className="text-xs">
+              {warehouse.type || 'MAIN'}
+            </Badge>
+          </div>
           <p className="text-muted-foreground text-sm flex items-center gap-1 mt-1 flex-wrap">
             <WarehouseIcon className="w-3.5 h-3.5 shrink-0" /> {warehouse.code} &bull; <MapPin className="w-3.5 h-3.5 shrink-0 ml-1" /> {warehouse.location}
           </p>
@@ -101,20 +109,7 @@ export default function WarehouseDetailsPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              <span className={warehouse.status === 'ACTIVE' ? 'text-green-600' : 'text-red-600'}>
-                {warehouse.status || 'ACTIVE'}
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Type: {warehouse.type || 'MAIN'}</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Unique Materials</CardTitle>
