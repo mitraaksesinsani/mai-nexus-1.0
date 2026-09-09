@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+import { useAuth } from '@/hooks/useAuth';
+
 const MATERIAL_GROUPS = [
   { value: 'ALL', label: 'All Material Types' },
   { value: 'CABLE', label: 'Cable' },
@@ -21,6 +23,8 @@ const MATERIAL_GROUPS = [
 ];
 
 export default function CatalogPage() {
+  const { user } = useAuth();
+  const isSiteManager = user?.role?.toUpperCase() === 'SITE_MANAGER';
   const [materials, setMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -52,7 +56,11 @@ export default function CatalogPage() {
       <div className="animate-fade-in flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Inventory Catalog</h1>
-          <p className="text-muted-foreground text-sm mt-1">Browse all registered master materials, types, and unit prices.</p>
+          <p className="text-muted-foreground text-sm mt-1">
+            {isSiteManager 
+              ? "Daftar master material dan spesifikasi yang terdaftar di gudang." 
+              : "Browse all registered master materials, types, and unit prices."}
+          </p>
         </div>
         <div className="flex items-center gap-3 bg-card border rounded-xl px-4 py-3 shadow-sm shrink-0">
           <div className="bg-primary/10 p-2.5 rounded-lg">
@@ -65,33 +73,31 @@ export default function CatalogPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 items-end bg-card p-4 rounded-xl border border-border animate-fade-in" style={{ animationDelay: '100ms' }}>
-        <div className="flex-1 min-w-[220px]">
-          <Label className="text-xs mb-1.5 block text-muted-foreground">Search Catalog</Label>
-          <div className="relative">
+      <div className="bg-card border rounded-xl p-4 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="relative md:col-span-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
-              type="search" 
-              placeholder="Search code, name, or spec..." 
-              value={search} 
+              placeholder="Search by code, material name, or specification..." 
+              value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 bg-background"
+              className="pl-9 bg-background h-10 rounded-lg text-sm"
             />
           </div>
-        </div>
-
-        <div className="w-[200px]">
-          <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Material Type</Label>
-          <Select value={filterGroup} onValueChange={(val) => setFilterGroup(val || "ALL")}>
-            <SelectTrigger className="bg-background">
-              <SelectValue placeholder="All Types" />
-            </SelectTrigger>
-            <SelectContent>
-              {MATERIAL_GROUPS.map(g => (
-                <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div>
+            <Select value={filterGroup} onValueChange={(val) => setFilterGroup(val || 'ALL')}>
+              <SelectTrigger className="w-full bg-background h-10 rounded-lg text-sm">
+                <SelectValue placeholder="All Material Types" />
+              </SelectTrigger>
+              <SelectContent>
+                {MATERIAL_GROUPS.map((g) => (
+                  <SelectItem key={g.value} value={g.value}>
+                    {g.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -113,7 +119,13 @@ export default function CatalogPage() {
                       <Badge variant="secondary" className="font-normal text-xs bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                         {m.category}
                       </Badge>
-                      <span className="text-xs font-semibold text-primary">{priceFormatted} / {m.unit}</span>
+                      {!isSiteManager && Number(m.unitPrice) > 0 ? (
+                        <span className="text-xs font-semibold text-primary">{priceFormatted} / {m.unit}</span>
+                      ) : (
+                        <Badge variant="outline" className="text-xs font-normal text-muted-foreground border-border/80">
+                          {m.unit}
+                        </Badge>
+                      )}
                     </div>
                     <h3 className="font-semibold text-lg line-clamp-2 leading-tight mb-1" title={m.materialName}>{m.materialName}</h3>
                     <p className="text-sm text-muted-foreground">{m.materialCode}</p>
@@ -125,7 +137,11 @@ export default function CatalogPage() {
                     )}
                   </div>
                   <div className="mt-4 pt-4 border-t flex justify-between items-center opacity-70 group-hover:opacity-100 transition-opacity">
-                    <span className="text-xs text-muted-foreground">Harga Satuan: {priceFormatted}</span>
+                    {!isSiteManager && Number(m.unitPrice) > 0 ? (
+                      <span className="text-xs text-muted-foreground">Harga Satuan: {priceFormatted}</span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Satuan: {m.unit}</span>
+                    )}
                     <Package className="w-4 h-4 text-primary" />
                   </div>
                 </div>
