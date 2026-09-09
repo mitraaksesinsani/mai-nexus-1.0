@@ -18,14 +18,36 @@ function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
  )
 }
 
-function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
- return (
- <SelectPrimitive.Value
- data-slot="select-value"
- className={cn("flex flex-1 text-left", className)}
- {...props}
- />
- )
+function SelectValue({ className, children, ...props }: SelectPrimitive.Value.Props) {
+  if (typeof children === 'function') {
+    return (
+      <SelectPrimitive.Value
+        data-slot="select-value"
+        className={cn("flex flex-1 text-left items-center truncate", className)}
+        {...props}
+      >
+        {children}
+      </SelectPrimitive.Value>
+    )
+  }
+
+  if (children !== undefined && children !== null && children !== '') {
+    return (
+      <span
+        data-slot="select-value"
+        className={cn("flex flex-1 text-left items-center truncate", className)}
+      >
+        {children as React.ReactNode}
+      </span>
+    )
+  }
+  return (
+    <SelectPrimitive.Value
+      data-slot="select-value"
+      className={cn("flex flex-1 text-left", className)}
+      {...props}
+    />
+  )
 }
 
 function SelectTrigger({

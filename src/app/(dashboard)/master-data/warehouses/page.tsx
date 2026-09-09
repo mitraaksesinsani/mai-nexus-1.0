@@ -689,69 +689,34 @@ export default function WarehousePage() {
                   >
                     <SelectTrigger id="picSelect" className="w-full h-10 bg-background">
                       <SelectValue placeholder="Pilih User sebagai PIC Gudang">
-                        {(() => {
-                          if (formData.picId) {
-                            const u = usersList.find(user => user.id === formData.picId);
-                            if (u) {
-                              return (
-                                <span className="flex items-center gap-2 truncate">
-                                  <User className="w-3.5 h-3.5 text-primary shrink-0" />
-                                  <span className="font-semibold text-foreground">{u.name}</span>
-                                  {u.role && (
-                                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal">
-                                      {u.role.replace(/_/g, ' ')}
-                                    </Badge>
-                                  )}
-                                  <span className="text-xs text-muted-foreground font-normal">({u.email})</span>
-                                </span>
-                              );
-                            }
-                            if (formData.picName) {
-                              return (
-                                <span className="flex items-center gap-1.5 truncate">
-                                  <User className="w-3.5 h-3.5 text-primary shrink-0" />
-                                  <span className="font-semibold text-foreground">{formData.picName}</span>
-                                </span>
-                              );
-                            }
-                          }
-                          if (formData.picName) {
-                            return (
-                              <span className="flex items-center gap-1.5 truncate text-amber-600 dark:text-amber-400 font-medium">
-                                <User className="w-3.5 h-3.5 shrink-0" />
-                                <span>{formData.picName} (Teks Lama - Belum Terhubung Akun)</span>
-                              </span>
-                            );
-                          }
-                          return null;
-                        })()}
+                        {formData.picId
+                          ? (usersList.find(user => user.id === formData.picId)?.name || formData.picName)
+                          : (formData.picName || null)}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px]">
                       <SelectItem value="UNASSIGNED">
-                        <span className="text-muted-foreground italic py-0.5">-- Tanpa PIC (Kosongkan Penugasan) --</span>
+                        <span className="text-muted-foreground italic">-- Tanpa PIC (Kosongkan Penugasan) --</span>
                       </SelectItem>
 
                       {formData.picName && !formData.picId && (
                         <SelectItem value={`LEGACY_${formData.picName}`}>
-                          <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 py-0.5 font-medium">
-                            <User className="w-3.5 h-3.5 shrink-0" />
-                            <span>{formData.picName} (Teks Lama - Belum Terhubung Akun)</span>
-                          </div>
+                          <span>{formData.picName} (Teks Lama)</span>
                         </SelectItem>
                       )}
 
                       {usersList.map((u) => (
                         <SelectItem key={u.id} value={u.id}>
-                          <div className="flex items-center gap-2 py-0.5">
-                            <User className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <span className="font-semibold text-foreground">{u.name}</span>
-                            {u.role && (
-                              <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 font-normal">
-                                {u.role.replace(/_/g, ' ')}
-                              </Badge>
-                            )}
-                            <span className="text-xs text-muted-foreground font-normal">({u.email})</span>
+                          <div className="flex items-center justify-between w-full gap-4">
+                            <span className="font-medium text-foreground">{u.name}</span>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {u.role && (
+                                <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal">
+                                  {u.role.replace(/_/g, ' ')}
+                                </Badge>
+                              )}
+                              <span className="text-xs text-muted-foreground">({u.email})</span>
+                            </div>
                           </div>
                         </SelectItem>
                       ))}
