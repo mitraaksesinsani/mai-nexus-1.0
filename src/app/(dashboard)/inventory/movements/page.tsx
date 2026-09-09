@@ -27,20 +27,44 @@ export default function MovementsPage() {
     setPage(1);
   }, [search]);
 
-  const getTransactionIcon = (type: string) => {
-    switch (type) {
-      case 'IN': return <ArrowDownToLine className="w-4 h-4 text-emerald-500" />;
-      case 'OUT': return <ArrowUpFromLine className="w-4 h-4 text-red-500" />;
-      default: return <ArrowRightLeft className="w-4 h-4 text-blue-500" />;
-    }
+  const isOutflow = (type: string, qty: number) => {
+    return type === 'OUT' || type === 'RFC_ISSUE' || Number(qty) < 0;
   };
 
-  const getTransactionBadge = (type: string) => {
+  const isInflow = (type: string, qty: number) => {
+    return type === 'IN' || type === 'DO_RECEIPT' || (type !== 'TRANSFER' && Number(qty) > 0);
+  };
+
+  const getTransactionIcon = (type: string, qty: number = 0) => {
+    if (isOutflow(type, qty)) {
+      return <ArrowUpFromLine className="w-4 h-4 text-red-500" />;
+    }
+    if (isInflow(type, qty)) {
+      return <ArrowDownToLine className="w-4 h-4 text-emerald-500" />;
+    }
+    return <ArrowRightLeft className="w-4 h-4 text-blue-500" />;
+  };
+
+  const getTransactionBadge = (type: string, qty: number = 0) => {
     switch (type) {
-      case 'IN': return <Badge variant="outline" className="text-emerald-600 bg-emerald-50 border-emerald-200">Goods In</Badge>;
-      case 'OUT': return <Badge variant="outline" className="text-red-600 bg-red-50 border-red-200">Goods Out</Badge>;
-      case 'TRANSFER': return <Badge variant="outline" className="text-blue-600 bg-blue-50 border-blue-200">Transfer</Badge>;
-      default: return <Badge variant="outline">{type}</Badge>;
+      case 'IN':
+        return <Badge variant="outline" className="text-emerald-600 bg-emerald-50 border-emerald-200">Goods In</Badge>;
+      case 'DO_RECEIPT':
+        return <Badge variant="outline" className="text-emerald-600 bg-emerald-50 border-emerald-200">DO Receipt (In)</Badge>;
+      case 'OUT':
+        return <Badge variant="outline" className="text-red-600 bg-red-50 border-red-200">Goods Out</Badge>;
+      case 'RFC_ISSUE':
+        return <Badge variant="outline" className="text-red-600 bg-red-50 border-red-200">RFC Issue (Out)</Badge>;
+      case 'TRANSFER':
+        return <Badge variant="outline" className="text-blue-600 bg-blue-50 border-blue-200">Transfer</Badge>;
+      case 'MANUAL_ENTRY':
+        return <Badge variant="outline" className="text-amber-600 bg-amber-50 border-amber-200">Manual Entry</Badge>;
+      default:
+        return isOutflow(type, qty) ? (
+          <Badge variant="outline" className="text-red-600 bg-red-50 border-red-200">{type}</Badge>
+        ) : (
+          <Badge variant="outline">{type}</Badge>
+        );
     }
   };
 
@@ -89,8 +113,8 @@ export default function MovementsPage() {
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        {getTransactionIcon(tx.transactionType)}
-                        {getTransactionBadge(tx.transactionType)}
+                        {getTransactionIcon(tx.transactionType, tx.quantity)}
+                        {getTransactionBadge(tx.transactionType, tx.quantity)}
                       </div>
                     </TableCell>
                     <TableCell className="whitespace-normal">
@@ -106,9 +130,8 @@ export default function MovementsPage() {
                     <TableCell className="truncate text-sm" title={tx.warehouse?.warehouseName || tx.warehouse?.name || '—'}>
                       {tx.warehouse?.warehouseName || tx.warehouse?.name || '—'}
                     </TableCell>
-                    <TableCell className={`text-right font-semibold whitespace-nowrap ${tx.transactionType === 'IN' ? 'text-emerald-500' : tx.transactionType === 'OUT' ? 'text-red-500' : ''}`}>
-                      {tx.transactionType === 'IN' ? '+' : tx.transactionType === 'OUT' ? '-' : ''}
-                      {Number(tx.quantity || 0).toLocaleString()} {tx.material?.unit}
+                    <TableCell className={`text-right font-semibold whitespace-nowrap ${isOutflow(tx.transactionType, tx.quantity) ? 'text-red-500' : isInflow(tx.transactionType, tx.quantity) ? 'text-emerald-500' : ''}`}>
+                      {isOutflow(tx.transactionType, tx.quantity) ? '-' : '+'}{Math.abs(Number(tx.quantity || 0)).toLocaleString()} {tx.material?.unit}
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm truncate" title={tx.notes || '-'}>
                       {tx.notes || '-'}
