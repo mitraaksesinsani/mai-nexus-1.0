@@ -6,6 +6,7 @@ import api from '@/lib/api';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -241,42 +242,76 @@ export default function WarehouseOperationsPage() {
             if (viewMode === 'list') {
               return (
                 <div className="w-full">
-                  <Table className="whitespace-nowrap">
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[150px]">ID / Code</TableHead>
-                        <TableHead className="w-[250px]">Warehouse Name</TableHead>
-                        <TableHead className="w-[150px]">Type</TableHead>
-                        <TableHead className="w-[200px]">Location</TableHead>
-                        <TableHead className="w-[120px] text-center">Total Materials</TableHead>
-                        <TableHead className="w-[100px] text-right">Capacity</TableHead>
-                        <TableHead className="w-[120px] text-center">Status</TableHead>
-                        <TableHead className="w-[100px] text-right">Action</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filtered.slice((warehousePage - 1) * warehousePageSize, warehousePage * warehousePageSize).map(wh => (
-                        <TableRow key={wh.id}>
-                          <TableCell className="font-medium">{wh.code}</TableCell>
-                          <TableCell>{wh.name}</TableCell>
-                          <TableCell><span className="text-xs px-2 py-0.5 bg-muted rounded-full">{wh.type || 'MAIN'}</span></TableCell>
-                          <TableCell className="whitespace-normal max-w-[300px]" title={wh.location}>{wh.location || '-'}</TableCell>
-                          <TableCell className="text-center font-medium">{wh.totalMaterials || 0}</TableCell>
-                          <TableCell className="text-right">{wh.capacity ? `${wh.capacity} CBM` : '-'}</TableCell>
-                          <TableCell className="text-center">
-                            <span className={`font-medium ${wh.status === 'ACTIVE' ? 'text-green-600' : 'text-red-600'}`}>
-                              {wh.status || 'ACTIVE'}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Link href={`/warehouse/${wh.id}`}>
-                              <Button variant="outline" size="sm">View Details</Button>
-                            </Link>
-                          </TableCell>
+                  <div className="hidden sm:block overflow-x-auto">
+                    <Table className="whitespace-nowrap">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[150px]">ID / Code</TableHead>
+                          <TableHead className="w-[250px]">Warehouse Name</TableHead>
+                          <TableHead className="w-[150px]">Type</TableHead>
+                          <TableHead className="w-[200px]">Location</TableHead>
+                          <TableHead className="w-[120px] text-center">Total Materials</TableHead>
+                          <TableHead className="w-[100px] text-right">Capacity</TableHead>
+                          <TableHead className="w-[120px] text-center">Status</TableHead>
+                          <TableHead className="w-[100px] text-right">Action</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {filtered.slice((warehousePage - 1) * warehousePageSize, warehousePage * warehousePageSize).map(wh => (
+                          <TableRow key={wh.id}>
+                            <TableCell className="font-medium">{wh.code}</TableCell>
+                            <TableCell>{wh.name}</TableCell>
+                            <TableCell><span className="text-xs px-2 py-0.5 bg-muted rounded-full">{wh.type || 'MAIN'}</span></TableCell>
+                            <TableCell className="whitespace-normal max-w-[300px]" title={wh.location}>{wh.location || '-'}</TableCell>
+                            <TableCell className="text-center font-medium">{wh.totalMaterials || 0}</TableCell>
+                            <TableCell className="text-right">{wh.capacity ? `${wh.capacity} CBM` : '-'}</TableCell>
+                            <TableCell className="text-center">
+                              <span className={`font-medium ${wh.status === 'ACTIVE' ? 'text-green-600' : 'text-red-600'}`}>
+                                {wh.status || 'ACTIVE'}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Link href={`/warehouse/${wh.id}`}>
+                                <Button variant="outline" size="sm">View Details</Button>
+                              </Link>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Mobile View for Warehouse List (width <= 390px / < sm) */}
+                  <div className="block sm:hidden divide-y divide-border/60">
+                    {filtered.slice((warehousePage - 1) * warehousePageSize, warehousePage * warehousePageSize).map(wh => (
+                      <div key={`mobile-wh-${wh.id}`} className="p-3.5 space-y-2 bg-card">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h3 className="font-semibold text-sm">{wh.name}</h3>
+                            <p className="text-xs text-muted-foreground font-mono">{wh.code}</p>
+                          </div>
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${wh.status === 'ACTIVE' ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
+                            {wh.status || 'ACTIVE'}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{wh.location || 'No location'}</span>
+                        </div>
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="text-xs text-muted-foreground">
+                            {wh.totalMaterials || 0} materials
+                          </span>
+                          <Link href={`/warehouse/${wh.id}`}>
+                            <Button variant="outline" size="sm" className="h-7 text-xs px-2.5">
+                              View Details
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
                   <DataTablePagination 
                     totalItems={filtered.length} 
                     pageSize={warehousePageSize} 
@@ -464,60 +499,114 @@ export default function WarehouseOperationsPage() {
           </div>
 
           <div className="w-full">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[20ch] min-w-[160px] max-w-[20ch]">Warehouse</TableHead>
-                  <TableHead className="w-[170px] min-w-[170px] whitespace-nowrap">Material Code</TableHead>
-                  <TableHead className="w-[67ch] min-w-[340px] max-w-[67ch]">Material Name</TableHead>
-                  <TableHead className="w-[140px] min-w-[140px] whitespace-nowrap">Category</TableHead>
-                  <TableHead className="w-[110px] min-w-[110px] text-right whitespace-nowrap">Quantity</TableHead>
-                  <TableHead className="w-[160px] min-w-[160px] text-right whitespace-nowrap">Last Updated</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loadingStocks ? (
+            {/* Desktop Table View (sm and above) */}
+            <div className="hidden sm:block overflow-x-auto">
+              <Table className="min-w-[1100px] w-full">
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-12">
-                      <Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" />
-                    </TableCell>
+                    <TableHead className="w-[20ch] min-w-[160px] max-w-[20ch]">Warehouse</TableHead>
+                    <TableHead className="w-[170px] min-w-[170px] whitespace-nowrap">Material Code</TableHead>
+                    <TableHead className="w-[67ch] min-w-[340px] max-w-[67ch]">Material Name</TableHead>
+                    <TableHead className="w-[140px] min-w-[140px] whitespace-nowrap">Category</TableHead>
+                    <TableHead className="w-[110px] min-w-[110px] text-right whitespace-nowrap">Quantity</TableHead>
+                    <TableHead className="w-[160px] min-w-[160px] text-right whitespace-nowrap">Last Updated</TableHead>
                   </TableRow>
-                ) : stocks.length > 0 ? (
-                  stocks.slice((stockPage - 1) * stockPageSize, stockPage * stockPageSize).map((stock) => (
-                    <TableRow key={stock.id}>
-                      <TableCell className="w-[20ch] min-w-[160px] max-w-[20ch] align-top py-3">
-                        <div className="max-w-[20ch] whitespace-normal break-words font-medium leading-snug">
-                          {stock.warehouseName}
-                        </div>
-                      </TableCell>
-                      <TableCell className="w-[170px] min-w-[170px] whitespace-nowrap align-top py-3 text-xs text-muted-foreground">
-                        {stock.materialCode}
-                      </TableCell>
-                      <TableCell className="w-[67ch] min-w-[340px] max-w-[67ch] align-top py-3">
-                        <div className="max-w-[67ch] whitespace-normal break-words leading-relaxed text-sm font-medium">
-                          {stock.materialName}
-                        </div>
-                      </TableCell>
-                      <TableCell className="w-[140px] min-w-[140px] whitespace-nowrap align-top py-3 text-muted-foreground text-sm">
-                        {stock.category}
-                      </TableCell>
-                      <TableCell className="w-[110px] min-w-[110px] text-right font-bold whitespace-nowrap align-top py-3 text-primary">
-                        {stock.quantity?.toLocaleString() ?? stock.quantity}
-                      </TableCell>
-                      <TableCell className="w-[160px] min-w-[160px] text-right text-muted-foreground text-sm whitespace-nowrap align-top py-3">
-                        {formatDate(stock.lastUpdated)}
+                </TableHeader>
+                <TableBody>
+                  {loadingStocks ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-12">
+                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" />
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
-                      No stock data found. Process a Goods Receipt to add stock.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                  ) : stocks.length > 0 ? (
+                    stocks.slice((stockPage - 1) * stockPageSize, stockPage * stockPageSize).map((stock) => (
+                      <TableRow key={stock.id}>
+                        <TableCell className="w-[20ch] min-w-[160px] max-w-[20ch] align-top py-3">
+                          <div className="max-w-[20ch] whitespace-normal break-words font-medium leading-snug">
+                            {stock.warehouseName}
+                          </div>
+                        </TableCell>
+                        <TableCell className="w-[170px] min-w-[170px] whitespace-nowrap align-top py-3 text-xs text-muted-foreground">
+                          {stock.materialCode}
+                        </TableCell>
+                        <TableCell className="w-[67ch] min-w-[340px] max-w-[67ch] align-top py-3">
+                          <div className="max-w-[67ch] whitespace-normal break-words leading-relaxed text-sm font-medium">
+                            {stock.materialName}
+                          </div>
+                        </TableCell>
+                        <TableCell className="w-[140px] min-w-[140px] whitespace-nowrap align-top py-3 text-muted-foreground text-sm">
+                          {stock.category}
+                        </TableCell>
+                        <TableCell className="w-[110px] min-w-[110px] text-right font-bold whitespace-nowrap align-top py-3 text-primary">
+                          {stock.quantity?.toLocaleString() ?? stock.quantity}
+                        </TableCell>
+                        <TableCell className="w-[160px] min-w-[160px] text-right text-muted-foreground text-sm whitespace-nowrap align-top py-3">
+                          {formatDate(stock.lastUpdated)}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
+                        No stock data found. Process a Goods Receipt to add stock.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile List View (width <= 390px / < sm) */}
+            <div className="block sm:hidden divide-y divide-border/60">
+              {loadingStocks ? (
+                <div className="py-12 text-center">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" />
+                </div>
+              ) : stocks.length > 0 ? (
+                stocks.slice((stockPage - 1) * stockPageSize, stockPage * stockPageSize).map((stock, i) => (
+                  <div key={`mobile-stock-${stock.id}-${i}`} className="p-3.5 space-y-2 bg-card hover:bg-muted/30 transition-colors">
+                    <div className="flex items-start justify-between gap-2.5">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-sm leading-snug text-foreground break-words">
+                          {stock.materialName}
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-0.5 font-mono">
+                          {stock.materialCode || '-'}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="text-base font-bold text-primary">
+                          {stock.quantity?.toLocaleString() ?? stock.quantity}
+                        </span>
+                        {stock.category && (
+                          <div>
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal mt-0.5">
+                              {stock.category}
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1.5 text-[11px] text-muted-foreground border-t border-border/40">
+                      <div className="flex items-center gap-1.5 truncate max-w-[200px]">
+                        <WarehouseIcon className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                        <span className="truncate font-medium">{stock.warehouseName}</span>
+                      </div>
+                      <span className="shrink-0">
+                        {formatDate(stock.lastUpdated)}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-12 text-center text-muted-foreground text-sm">
+                  No stock data found. Process a Goods Receipt to add stock.
+                </div>
+              )}
+            </div>
+
             <DataTablePagination 
               totalItems={stocks.length} 
               pageSize={stockPageSize} 
