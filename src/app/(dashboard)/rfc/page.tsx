@@ -6,7 +6,7 @@ import api from '@/lib/api';
 import StatusBadge from '@/components/shared/StatusBadge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
-import { formatDate } from '@/lib/utils';
+import { formatDate, cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -24,6 +24,7 @@ export default function ConsumptionRfcPage() {
  const [sort, setSort] = useState('desc');
  const [page, setPage] = useState(1);
  const [pageSize, setPageSize] = useState(10);
+ const [showFilters, setShowFilters] = useState(false);
 
  useEffect(() => {
    fetchRfcs();
@@ -67,52 +68,68 @@ export default function ConsumptionRfcPage() {
        </div>
      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-            <div className="md:col-span-4 relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search RFC number, project..."
-                className="pl-8 w-full"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            
-            <div className="md:col-span-3">
-              <Select value={status} onValueChange={(val) => setStatus(val || 'ALL')}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All Status</SelectItem>
-                  <SelectItem value="WAITING_APPROVAL">Waiting Approval</SelectItem>
-                  <SelectItem value="APPROVED">Approved</SelectItem>
-                  <SelectItem value="COMPLETED">Completed</SelectItem>
-                  <SelectItem value="REJECTED">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="md:col-span-5 flex flex-wrap sm:flex-nowrap gap-2 w-full">
-              <div className="flex-1 w-full min-w-[120px]">
-                <DatePicker
-                  value={startDate || undefined}
-                  onChange={(d: any) => setStartDate(d ? new Date(d).toISOString() : '')}
-                />
-              </div>
-              <div className="flex-1 w-full min-w-[120px]">
-                <DatePicker
-                  value={endDate || undefined}
-                  onChange={(d: any) => setEndDate(d ? new Date(d).toISOString() : '')}
-                />
-              </div>
-              <Button variant="outline" onClick={resetFilters} className="shrink-0 gap-2 w-full sm:w-auto">
-                <Filter className="h-4 w-4" />
-                <span className="sm:hidden">Reset Filter</span>
-              </Button>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-end">
+        <div className="md:col-span-4 flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search RFC number, project..."
+              className="pl-8 w-full"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
+          <Button
+            type="button"
+            variant={showFilters ? "secondary" : "outline"}
+            onClick={() => setShowFilters((prev) => !prev)}
+            className="md:hidden shrink-0 gap-1.5 h-10 px-3 text-sm"
+          >
+            <Filter className="h-4 w-4" />
+            <span>Filter by</span>
+            {(status !== 'ALL' || Boolean(startDate) || Boolean(endDate)) && (
+              <span className="rounded-full bg-primary text-primary-foreground text-[10px] w-4 h-4 flex items-center justify-center font-bold">
+                {[status !== 'ALL', Boolean(startDate), Boolean(endDate)].filter(Boolean).length}
+              </span>
+            )}
+          </Button>
+        </div>
+        
+        <div className={cn("md:col-span-3", !showFilters && "hidden md:block")}>
+          <Select value={status} onValueChange={(val) => setStatus(val || 'ALL')}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Status</SelectItem>
+              <SelectItem value="WAITING_APPROVAL">Waiting Approval</SelectItem>
+              <SelectItem value="APPROVED">Approved</SelectItem>
+              <SelectItem value="COMPLETED">Completed</SelectItem>
+              <SelectItem value="REJECTED">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className={cn("md:col-span-5 flex-wrap sm:flex-nowrap gap-2 w-full", showFilters ? "flex" : "hidden md:flex")}>
+          <div className="flex-1 w-full min-w-[120px]">
+            <DatePicker
+              value={startDate || undefined}
+              onChange={(d: any) => setStartDate(d ? new Date(d).toISOString() : '')}
+            />
+          </div>
+          <div className="flex-1 w-full min-w-[120px]">
+            <DatePicker
+              value={endDate || undefined}
+              onChange={(d: any) => setEndDate(d ? new Date(d).toISOString() : '')}
+            />
+          </div>
+          <Button variant="outline" onClick={resetFilters} className="shrink-0 gap-2 w-full sm:w-auto">
+            <Filter className="h-4 w-4" />
+            <span className="sm:hidden">Reset Filter</span>
+          </Button>
+        </div>
+      </div>
 
 
          <Table>
