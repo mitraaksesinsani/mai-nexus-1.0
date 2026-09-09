@@ -277,38 +277,33 @@ export default function PicDashboardPage() {
       {activeWh && activeWh.id !== 'ALL' && (
         <div className="rounded-xl border bg-card p-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div className="flex items-start gap-3">
-              <div className="p-2.5 rounded-lg bg-primary/10 text-primary mt-0.5">
-                <WarehouseIcon className="h-5 w-5" />
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-base text-foreground">{activeWh.name}</span>
+                <Badge variant="outline" className="font-normal text-xs uppercase">
+                  {activeWh.code}
+                </Badge>
+                <Badge 
+                  variant={activeWh.status === 'ACTIVE' ? 'default' : 'secondary'}
+                  className="text-[10px] px-1.5 py-0 h-4"
+                >
+                  {activeWh.status || 'ACTIVE'}
+                </Badge>
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-base text-foreground">{activeWh.name}</span>
-                  <Badge variant="outline" className="font-normal text-xs uppercase">
-                    {activeWh.code}
-                  </Badge>
-                  <Badge 
-                    variant={activeWh.status === 'ACTIVE' ? 'default' : 'secondary'}
-                    className="text-[10px] px-1.5 py-0 h-4"
-                  >
-                    {activeWh.status || 'ACTIVE'}
-                  </Badge>
-                </div>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-1">
-                  {activeWh.location && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5 text-muted-foreground/70" />
-                      {activeWh.location}
-                    </span>
-                  )}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-1">
+                {activeWh.location && (
                   <span className="flex items-center gap-1">
-                    <User className="h-3.5 w-3.5 text-muted-foreground/70" />
-                    PIC: <span className="font-medium text-foreground">{activeWh.picName || 'Unassigned'}</span>
+                    <MapPin className="h-3.5 w-3.5 text-muted-foreground/70" />
+                    {activeWh.location}
                   </span>
-                  {activeWh.type && (
-                    <span>Tipe: <span className="font-medium text-foreground">{activeWh.type}</span></span>
-                  )}
-                </div>
+                )}
+                <span className="flex items-center gap-1">
+                  <User className="h-3.5 w-3.5 text-muted-foreground/70" />
+                  PIC: <span className="font-medium text-foreground">{activeWh.picName || 'Unassigned'}</span>
+                </span>
+                {activeWh.type && (
+                  <span>Tipe: <span className="font-medium text-foreground">{activeWh.type}</span></span>
+                )}
               </div>
             </div>
 
