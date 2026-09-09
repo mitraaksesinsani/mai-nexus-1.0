@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader2, Plus, Trash2, Search, ChevronsUpDown, Check, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ManualStockEntryModalProps {
   isOpen: boolean;
@@ -159,47 +160,50 @@ export function ManualStockEntryModal({ isOpen, onClose, warehouseId, onSuccess 
           <div className="flex-1 grid gap-2">
             <Label htmlFor="material-select">Cari & Pilih Material</Label>
             <Popover open={materialPopoverOpen} onOpenChange={setMaterialPopoverOpen}>
-              <PopoverTrigger
-                id="material-select"
-                disabled={loadingMaterials}
-                className="flex min-h-10 h-auto w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 hover:bg-accent hover:text-accent-foreground text-left transition-colors"
-              >
-                <span className="flex-1 pr-2 break-words whitespace-normal">
-                  {loadingMaterials ? (
-                    <span className="text-muted-foreground flex items-center gap-2">
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" /> Memuat daftar master material...
-                    </span>
-                  ) : selectedMaterial ? (
-                    <span className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2 py-0.5 rounded text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
-                        {selectedMaterial.materialCode}
+              <div className="relative flex items-center">
+                <PopoverTrigger
+                  id="material-select"
+                  disabled={loadingMaterials}
+                  className={cn(
+                    "flex min-h-10 h-auto w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 hover:bg-accent hover:text-accent-foreground text-left transition-colors",
+                    selectedMaterialId ? "pr-14" : "pr-8"
+                  )}
+                >
+                  <span className="flex-1 pr-2 break-words whitespace-normal">
+                    {loadingMaterials ? (
+                      <span className="text-muted-foreground flex items-center gap-2">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" /> Memuat daftar master material...
                       </span>
-                      <span className="font-medium text-foreground">{selectedMaterial.materialName}</span>
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground flex items-center gap-2">
-                      <Search className="w-4 h-4 opacity-50" />
-                      Ketik atau klik untuk cari & pilih material...
-                    </span>
-                  )}
-                </span>
-                <div className="flex items-center gap-1 shrink-0">
-                  {selectedMaterialId && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedMaterialId('');
-                      }}
-                      className="p-1 rounded-sm text-muted-foreground hover:text-foreground hover:bg-muted"
-                      title="Hapus pilihan"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                  <ChevronsUpDown className="h-4 w-4 opacity-50" />
-                </div>
-              </PopoverTrigger>
+                    ) : selectedMaterial ? (
+                      <span className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2 py-0.5 rounded text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+                          {selectedMaterial.materialCode}
+                        </span>
+                        <span className="font-medium text-foreground">{selectedMaterial.materialName}</span>
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground flex items-center gap-2">
+                        <Search className="w-4 h-4 opacity-50" />
+                        Ketik atau klik untuk cari & pilih material...
+                      </span>
+                    )}
+                  </span>
+                  <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0" />
+                </PopoverTrigger>
+                {selectedMaterialId && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedMaterialId('');
+                    }}
+                    className="absolute right-8 p-1 rounded-sm text-muted-foreground hover:text-foreground hover:bg-muted z-10"
+                    title="Hapus pilihan"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
               <PopoverContent 
                 className="w-(--anchor-width) min-w-[340px] sm:min-w-[460px] max-w-[90vw] p-0 shadow-lg border rounded-lg bg-popover" 
                 align="start"
