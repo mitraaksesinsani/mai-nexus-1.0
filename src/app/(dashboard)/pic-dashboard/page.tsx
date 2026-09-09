@@ -435,7 +435,7 @@ export default function PicDashboardPage() {
                 }
               }}
             >
-              <SelectTrigger className="h-8 w-[160px] text-xs bg-background">
+              <SelectTrigger className="h-9 w-[160px] text-[12px] bg-background">
                 <SelectValue placeholder="Filter Status">
                   {stockFilter === 'ALL' && 'Semua Status'}
                   {stockFilter === 'LOW' && 'Stok Menipis (≤ 10)'}
@@ -443,14 +443,14 @@ export default function PicDashboardPage() {
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Semua Status</SelectItem>
-                <SelectItem value="LOW">Stok Menipis (≤ 10)</SelectItem>
-                <SelectItem value="AVAILABLE">Stok Aman (&gt; 10)</SelectItem>
+                <SelectItem value="ALL" className="text-[12px]">Semua Status</SelectItem>
+                <SelectItem value="LOW" className="text-[12px]">Stok Menipis (≤ 10)</SelectItem>
+                <SelectItem value="AVAILABLE" className="text-[12px]">Stok Aman (&gt; 10)</SelectItem>
               </SelectContent>
             </Select>
 
             <div className="relative w-full sm:w-[240px]">
-              <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
               <Input
                 placeholder="Cari kode, nama material..."
                 value={search}
@@ -458,7 +458,7 @@ export default function PicDashboardPage() {
                   setSearch(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="h-8 pl-8 text-xs bg-background"
+                className="h-9 pl-8 text-[12px] placeholder:text-[12px] bg-background"
               />
             </div>
           </div>
