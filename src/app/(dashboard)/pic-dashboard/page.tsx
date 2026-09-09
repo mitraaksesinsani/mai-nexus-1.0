@@ -275,11 +275,6 @@ export default function PicDashboardPage() {
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
-
-          <Button render={<Link href="/rfc" />} nativeButton={false} className="gap-2">
-            <Package className="h-4 w-4" />
-            <span>Kelola RFC</span>
-          </Button>
         </div>
       </div>
 
