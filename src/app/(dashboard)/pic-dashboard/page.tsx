@@ -35,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DataTablePagination } from '@/components/shared/DataTablePagination';
 import { useAuth } from '@/hooks/useAuth';
 
 interface WarehouseItem {
@@ -110,6 +111,8 @@ export default function PicDashboardPage() {
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>('');
   const [search, setSearch] = useState('');
   const [stockFilter, setStockFilter] = useState<'ALL' | 'LOW' | 'AVAILABLE'>('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const fetchData = async (warehouseId?: string) => {
     try {
@@ -135,6 +138,7 @@ export default function PicDashboardPage() {
 
   const handleWarehouseChange = (val: string) => {
     setSelectedWarehouseId(val);
+    setCurrentPage(1);
   };
 
   // Filter stocks by search and stock filter
@@ -153,6 +157,12 @@ export default function PicDashboardPage() {
       return true;
     });
   }, [data?.stocks, search, stockFilter]);
+
+  // Paginate stocks
+  const paginatedStocks = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredStocks.slice(start, start + pageSize);
+  }, [filteredStocks, currentPage, pageSize]);
 
   const activeWh = useMemo(() => {
     if (!data) return null;
@@ -414,14 +424,40 @@ export default function PicDashboardPage() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Quick Filter for stock */}
-          <div className="flex items-center gap-2">
-            <div className="relative w-full sm:w-[260px]">
+          {/* Quick Filter & Search for stock */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <Select 
+              value={stockFilter} 
+              onValueChange={(val) => { 
+                if (val) {
+                  setStockFilter(val as 'ALL' | 'LOW' | 'AVAILABLE'); 
+                  setCurrentPage(1); 
+                }
+              }}
+            >
+              <SelectTrigger className="h-8 w-[160px] text-xs bg-background">
+                <SelectValue placeholder="Filter Status">
+                  {stockFilter === 'ALL' && 'Semua Status'}
+                  {stockFilter === 'LOW' && 'Stok Menipis (≤ 10)'}
+                  {stockFilter === 'AVAILABLE' && 'Stok Aman (> 10)'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">Semua Status</SelectItem>
+                <SelectItem value="LOW">Stok Menipis (≤ 10)</SelectItem>
+                <SelectItem value="AVAILABLE">Stok Aman (&gt; 10)</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <div className="relative w-full sm:w-[240px]">
               <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
               <Input
                 placeholder="Cari kode, nama material..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="h-8 pl-8 text-xs bg-background"
               />
             </div>
@@ -430,40 +466,6 @@ export default function PicDashboardPage() {
 
         {/* Tab 1: Inventory Table */}
         <TabsContent value="inventory" className="space-y-3">
-          <div className="flex items-center justify-between gap-2 flex-wrap text-xs text-muted-foreground pb-1">
-            <div className="flex items-center gap-1.5">
-              <span>Filter Status:</span>
-              <Button
-                variant={stockFilter === 'ALL' ? 'secondary' : 'ghost'}
-                size="sm"
-                className="h-7 text-xs px-2.5"
-                onClick={() => setStockFilter('ALL')}
-              >
-                Semua
-              </Button>
-              <Button
-                variant={stockFilter === 'LOW' ? 'secondary' : 'ghost'}
-                size="sm"
-                className="h-7 text-xs px-2.5 text-amber-600 dark:text-amber-400"
-                onClick={() => setStockFilter('LOW')}
-              >
-                Stok Menipis (≤ 10)
-              </Button>
-              <Button
-                variant={stockFilter === 'AVAILABLE' ? 'secondary' : 'ghost'}
-                size="sm"
-                className="h-7 text-xs px-2.5 text-emerald-600 dark:text-emerald-400"
-                onClick={() => setStockFilter('AVAILABLE')}
-              >
-                Stok Aman (&gt; 10)
-              </Button>
-            </div>
-
-            <div className="text-xs">
-              Menampilkan <span className="font-semibold text-foreground">{filteredStocks.length}</span> SKU
-            </div>
-          </div>
-
           <div className="rounded-xl border bg-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
@@ -492,7 +494,7 @@ export default function PicDashboardPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredStocks.map((stock) => {
+                    paginatedStocks.map((stock) => {
                       const isLow = stock.quantity <= 10;
                       const isZero = stock.quantity === 0;
 
@@ -565,6 +567,15 @@ export default function PicDashboardPage() {
               </table>
             </div>
           </div>
+
+          <DataTablePagination
+            totalItems={filteredStocks.length}
+            pageSize={pageSize}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            pageSizeOptions={[5, 10, 20, 50, 100]}
+          />
         </TabsContent>
 
         {/* Tab 2: Movements / Activity Log */}
