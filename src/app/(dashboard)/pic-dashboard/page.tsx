@@ -290,7 +290,7 @@ export default function PicDashboardPage() {
                   {activeWh.status || 'ACTIVE'}
                 </Badge>
               </div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-1">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-muted-foreground mt-1">
                 {activeWh.location && (
                   <span className="flex items-center gap-1">
                     <MapPin className="h-3.5 w-3.5 text-muted-foreground/70" />
@@ -333,7 +333,7 @@ export default function PicDashboardPage() {
             <div className="text-xl font-bold tracking-tight">
               {data?.metrics.totalStock?.toLocaleString('id-ID') || 0}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
+            <p className="text-[12px] text-muted-foreground mt-0.5">
               Unit fisik material tersedia
             </p>
           </CardContent>
@@ -353,7 +353,7 @@ export default function PicDashboardPage() {
             <div className="text-xl font-bold tracking-tight">
               {data?.metrics.totalSkus?.toLocaleString('id-ID') || 0}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
+            <p className="text-[12px] text-muted-foreground mt-0.5">
               Item barang terdaftar di gudang
             </p>
           </CardContent>
@@ -373,7 +373,7 @@ export default function PicDashboardPage() {
             <div className="text-xl font-bold tracking-tight text-amber-600 dark:text-amber-500">
               {data?.metrics.lowStockCount || 0}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
+            <p className="text-[12px] text-muted-foreground mt-0.5">
               Memerlukan pengadaan / restock
             </p>
           </CardContent>
@@ -393,7 +393,7 @@ export default function PicDashboardPage() {
             <div className="text-xl font-bold tracking-tight">
               {data?.metrics.totalWarehouses || 0}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
+            <p className="text-[12px] text-muted-foreground mt-0.5">
               Gudang di bawah penugasan Anda
             </p>
           </CardContent>
@@ -404,11 +404,11 @@ export default function PicDashboardPage() {
       <Tabs defaultValue="inventory" className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <TabsList className="h-9">
-            <TabsTrigger value="inventory" className="text-xs gap-1.5">
+            <TabsTrigger value="inventory" className="text-[12px] gap-1.5">
               <Package className="h-3.5 w-3.5" />
               <span>Daftar Stok Material ({filteredStocks.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="movements" className="text-xs gap-1.5">
+            <TabsTrigger value="movements" className="text-[12px] gap-1.5">
               <Clock className="h-3.5 w-3.5" />
               <span>Riwayat Transaksi Terkini ({data?.recentTransactions?.length || 0})</span>
             </TabsTrigger>
@@ -467,7 +467,7 @@ export default function PicDashboardPage() {
           <div className="rounded-xl border bg-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b bg-muted/40 text-xs font-semibold text-muted-foreground">
+                <thead className="border-b bg-muted/40 text-[12px] font-semibold text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3">Kode Material</th>
                     <th className="px-4 py-3">Nama Material & Kategori</th>
@@ -589,7 +589,7 @@ export default function PicDashboardPage() {
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b bg-muted/40 text-xs font-semibold text-muted-foreground">
+                <thead className="border-b bg-muted/40 text-[12px] font-semibold text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3">Waktu</th>
                     <th className="px-4 py-3">Tipe Mutasi</th>
