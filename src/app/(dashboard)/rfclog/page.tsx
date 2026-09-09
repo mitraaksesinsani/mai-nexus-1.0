@@ -14,7 +14,6 @@ import { formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DataTablePagination } from '@/components/shared/DataTablePagination';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -151,7 +150,7 @@ export default function RfcHistoryLogPage() {
       </div>
 
       {/* Table Content */}
-      <Card className="border shadow-xs overflow-hidden">
+      <div className="border border-border/40 rounded-xl bg-card shadow-xs overflow-hidden">
         {loading ? (
           <div className="p-12 text-center flex flex-col items-center">
             <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin mb-4" />
@@ -404,7 +403,7 @@ export default function RfcHistoryLogPage() {
             </div>
           </div>
         )}
-      </Card>
+      </div>
 
       {/* Evidence Document Preview Dialog */}
       <Dialog open={!!previewEvidenceUrl} onOpenChange={(open) => !open && setPreviewEvidenceUrl(null)}>
