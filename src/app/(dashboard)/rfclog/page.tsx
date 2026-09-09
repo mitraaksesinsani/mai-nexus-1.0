@@ -176,7 +176,8 @@ export default function RfcHistoryLogPage() {
           </div>
         ) : (
           <div>
-            <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <div className="hidden sm:block overflow-x-auto">
               <Table className="min-w-[1100px] w-full">
                 <TableHeader>
                   <TableRow className="bg-muted/40 hover:bg-muted/40">
@@ -290,6 +291,113 @@ export default function RfcHistoryLogPage() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+
+            {/* Mobile Card List View (width <= 390px / < sm) */}
+            <div className="block sm:hidden divide-y divide-border/60">
+              {rfcs.slice((page - 1) * pageSize, page * pageSize).map((rfc) => (
+                <div key={`mobile-${rfc.id}`} className="p-4 space-y-3 bg-card hover:bg-muted/30 transition-colors">
+                  {/* Top: RFC Number & Status */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <Link href={`/rfc/${rfc.id}`} className="font-semibold text-sm text-primary hover:underline flex items-center gap-1.5 leading-snug">
+                        <FileText className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                        <span>{rfc.rfcNumber}</span>
+                      </Link>
+                      <span className="text-[11px] text-muted-foreground">
+                        {rfc.itemsCount || 0} item(s) requested
+                      </span>
+                    </div>
+                    <div className="shrink-0">
+                      <StatusBadge status={rfc.status} />
+                    </div>
+                  </div>
+
+                  {/* Middle: Details Grid */}
+                  <div className="grid grid-cols-2 gap-2 text-xs bg-muted/40 p-2.5 rounded-lg border border-border/40">
+                    <div className="col-span-2">
+                      <span className="text-[10px] block text-muted-foreground/80 uppercase font-semibold">Project</span>
+                      <span className="font-medium text-foreground truncate block" title={rfc.projectName}>
+                        {rfc.projectName || '-'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] block text-muted-foreground/80 uppercase font-semibold">Warehouse</span>
+                      <div className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5 truncate" title={rfc.warehouseName}>
+                        <Warehouse className="w-3 h-3 shrink-0" />
+                        <span className="truncate">{rfc.warehouseName || '-'}</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] block text-muted-foreground/80 uppercase font-semibold">Requestor</span>
+                      <div className="text-xs flex items-center gap-1 mt-0.5 truncate">
+                        <User className="w-3 h-3 text-muted-foreground shrink-0" />
+                        <span className="truncate">{rfc.requestorName || '-'}</span>
+                      </div>
+                    </div>
+
+                    <div className="col-span-2 pt-1.5 border-t border-border/30 space-y-1 text-[11px]">
+                      <div className="flex items-center justify-between text-muted-foreground">
+                        <span>Created:</span>
+                        <span className="font-medium text-foreground">{formatDate(rfc.createdAt)}</span>
+                      </div>
+                      {rfc.completedAt && (
+                        <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400">
+                          <span>Concluded:</span>
+                          <span className="font-medium">{formatDate(rfc.completedAt)}</span>
+                        </div>
+                      )}
+                      {rfc.takerName && (
+                        <div className="flex items-center justify-between text-muted-foreground pt-1 border-t border-border/20">
+                          <span>Handover To:</span>
+                          <span className="font-medium text-foreground truncate max-w-[170px]" title={rfc.takerName}>
+                            {rfc.takerName} {rfc.takerDate ? `(${formatDate(rfc.takerDate)})` : ''}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Bottom: Evidence & Actions */}
+                  <div className="flex items-center justify-between pt-1 gap-2">
+                    <div>
+                      {rfc.evidenceDocument ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-2.5 text-xs gap-1.5 hover:bg-primary/10 hover:text-primary"
+                          onClick={() => {
+                            setPreviewEvidenceUrl(rfc.evidenceDocument);
+                            setPreviewRfcNumber(rfc.rfcNumber);
+                          }}
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          Bukti
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/60 italic pl-1">No Evidence</span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <Link href={`/print/rfc/${rfc.id}`} target="_blank">
+                        <Button variant="outline" size="sm" className="h-8 px-2.5 text-xs gap-1" title="Print Document">
+                          <Printer className="h-3.5 w-3.5" />
+                          Print
+                        </Button>
+                      </Link>
+                      <Link href={`/rfc/${rfc.id}`}>
+                        <Button variant="default" size="sm" className="h-8 px-2.5 text-xs gap-1" title="View RFC Details">
+                          <Eye className="h-3.5 w-3.5" />
+                          Details
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div className="p-3 border-t">
