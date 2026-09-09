@@ -318,82 +318,82 @@ export default function PicDashboardPage() {
       )}
 
       {/* Metrics Section */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Stock */}
-        <Card className="relative overflow-hidden shadow-none border">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <Card size="sm" className="relative overflow-hidden shadow-none py-2.5 px-3.5 gap-1.5">
+          <CardHeader className="flex flex-row items-center justify-between p-0 space-y-0">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
               Total Stok Barang
             </CardTitle>
-            <div className="rounded-lg bg-blue-500/10 p-2 text-blue-600 dark:text-blue-400">
-              <Package className="h-4 w-4" />
+            <div className="rounded-md bg-blue-500/10 p-1.5 text-blue-600 dark:text-blue-400">
+              <Package className="h-3.5 w-3.5" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold tracking-tight">
+          <CardContent className="p-0">
+            <div className="text-xl font-bold tracking-tight">
               {data?.metrics.totalStock?.toLocaleString('id-ID') || 0}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-[11px] text-muted-foreground mt-0.5">
               Unit fisik material tersedia
             </p>
           </CardContent>
         </Card>
 
         {/* Total SKUs */}
-        <Card className="relative overflow-hidden shadow-none border">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <Card size="sm" className="relative overflow-hidden shadow-none py-2.5 px-3.5 gap-1.5">
+          <CardHeader className="flex flex-row items-center justify-between p-0 space-y-0">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
               Varian Material (SKU)
             </CardTitle>
-            <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-600 dark:text-emerald-400">
-              <Layers className="h-4 w-4" />
+            <div className="rounded-md bg-emerald-500/10 p-1.5 text-emerald-600 dark:text-emerald-400">
+              <Layers className="h-3.5 w-3.5" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold tracking-tight">
+          <CardContent className="p-0">
+            <div className="text-xl font-bold tracking-tight">
               {data?.metrics.totalSkus?.toLocaleString('id-ID') || 0}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-[11px] text-muted-foreground mt-0.5">
               Item barang terdaftar di gudang
             </p>
           </CardContent>
         </Card>
 
         {/* Low Stock Warning */}
-        <Card className="relative overflow-hidden shadow-none border">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <Card size="sm" className="relative overflow-hidden shadow-none py-2.5 px-3.5 gap-1.5">
+          <CardHeader className="flex flex-row items-center justify-between p-0 space-y-0">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
               Stok Menipis (≤ 10)
             </CardTitle>
-            <div className="rounded-lg bg-amber-500/10 p-2 text-amber-600 dark:text-amber-400">
-              <AlertTriangle className="h-4 w-4" />
+            <div className="rounded-md bg-amber-500/10 p-1.5 text-amber-600 dark:text-amber-400">
+              <AlertTriangle className="h-3.5 w-3.5" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-500">
+          <CardContent className="p-0">
+            <div className="text-xl font-bold tracking-tight text-amber-600 dark:text-amber-500">
               {data?.metrics.lowStockCount || 0}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-[11px] text-muted-foreground mt-0.5">
               Memerlukan pengadaan / restock
             </p>
           </CardContent>
         </Card>
 
         {/* Managed Warehouses */}
-        <Card className="relative overflow-hidden shadow-none border">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <Card size="sm" className="relative overflow-hidden shadow-none py-2.5 px-3.5 gap-1.5">
+          <CardHeader className="flex flex-row items-center justify-between p-0 space-y-0">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
               Gudang Dikelola
             </CardTitle>
-            <div className="rounded-lg bg-purple-500/10 p-2 text-purple-600 dark:text-purple-400">
-              <WarehouseIcon className="h-4 w-4" />
+            <div className="rounded-md bg-purple-500/10 p-1.5 text-purple-600 dark:text-purple-400">
+              <WarehouseIcon className="h-3.5 w-3.5" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold tracking-tight">
+          <CardContent className="p-0">
+            <div className="text-xl font-bold tracking-tight">
               {data?.metrics.totalWarehouses || 0}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-[11px] text-muted-foreground mt-0.5">
               Gudang di bawah penugasan Anda
             </p>
           </CardContent>
