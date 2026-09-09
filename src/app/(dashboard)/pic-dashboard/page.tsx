@@ -20,7 +20,9 @@ import {
   Filter,
   FileSpreadsheet,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import api from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -112,6 +114,7 @@ export default function PicDashboardPage() {
   const [search, setSearch] = useState('');
   const [stockFilter, setStockFilter] = useState<'ALL' | 'LOW' | 'AVAILABLE'>('ALL');
   const [activeTab, setActiveTab] = useState<'inventory' | 'movements'>('inventory');
+  const [showMetrics, setShowMetrics] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -323,8 +326,34 @@ export default function PicDashboardPage() {
         </div>
       )}
 
+      {/* Metrics Section Header & Toggle */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-muted-foreground">
+          Ringkasan Gudang
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowMetrics((prev) => !prev)}
+          className="h-7 px-2.5 text-[12px] gap-1.5 bg-background border-border text-foreground/80 hover:text-foreground"
+        >
+          {showMetrics ? (
+            <>
+              <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+              <span>Sembunyikan Info</span>
+            </>
+          ) : (
+            <>
+              <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+              <span>Tampilkan Info</span>
+            </>
+          )}
+        </Button>
+      </div>
+
       {/* Metrics Section */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {showMetrics && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Stock */}
         <Card size="sm" className="relative overflow-hidden shadow-none py-2.5 px-3.5 gap-1.5">
           <CardHeader className="flex flex-row items-center justify-between p-0 space-y-0">
@@ -405,6 +434,7 @@ export default function PicDashboardPage() {
           </CardContent>
         </Card>
       </div>
+      )}
 
       {/* Main Content Tabs */}
       <Tabs 
@@ -511,10 +541,102 @@ export default function PicDashboardPage() {
           </div>
         </div>
 
-        {/* Tab 1: Inventory Table */}
+        {/* Tab 1: Inventory Table & Mobile List */}
         <TabsContent value="inventory" className="space-y-3">
           <div className="rounded-xl border bg-card overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Mobile List View (screen <= 640px / 390px) */}
+            <div className="block sm:hidden divide-y divide-border/60">
+              {filteredStocks.length === 0 ? (
+                <div className="py-12 text-center text-muted-foreground">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Package className="h-8 w-8 text-muted-foreground/50" />
+                    <p className="text-sm font-medium">Tidak ada data stok material yang sesuai</p>
+                    <p className="text-xs text-muted-foreground">Coba ubah kata kunci pencarian atau filter status stok.</p>
+                  </div>
+                </div>
+              ) : (
+                paginatedStocks.map((stock) => {
+                  const isLow = stock.quantity <= 10;
+                  const isZero = stock.quantity === 0;
+
+                  return (
+                    <div key={stock.id} className="p-3.5 flex flex-col gap-2 hover:bg-muted/20 transition-colors">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium text-sm text-foreground truncate">
+                            {stock.materialName}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-0.5">
+                            <span className="font-mono font-medium text-foreground/80">{stock.materialCode}</span>
+                            {stock.category && (
+                              <>
+                                <span>•</span>
+                                <span className="uppercase tracking-wide">{stock.category}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="shrink-0">
+                          {isZero ? (
+                            <Badge variant="destructive" className="text-[10px] px-2 py-0.5">
+                              Habis
+                            </Badge>
+                          ) : isLow ? (
+                            <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-500/10">
+                              Menipis
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10">
+                              Aman
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+
+                      {selectedWarehouseId === 'ALL' && (
+                        <div className="text-[11px] text-muted-foreground flex items-center gap-1">
+                          <MapPin className="h-3 w-3 text-muted-foreground/70" />
+                          <span>{stock.warehouseName}</span>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between pt-2 border-t border-border/40 mt-1">
+                        <div>
+                          <span className="text-[11px] text-muted-foreground">Stok Fisik: </span>
+                          <span className="font-bold text-foreground text-sm">
+                            {stock.quantity.toLocaleString('id-ID')}
+                          </span>{' '}
+                          <span className="text-xs text-muted-foreground">{stock.unit || 'pcs'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            render={<Link href={`/inventory/movements?materialId=${stock.materialId}&warehouseId=${stock.warehouseId}`} />} 
+                            nativeButton={false}
+                            className="h-7 text-[12px] px-2"
+                          >
+                            Riwayat
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            render={<Link href="/rfc" />} 
+                            nativeButton={false}
+                            className="h-7 text-[12px] px-2"
+                          >
+                            RFC
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Desktop Table View (screen > 640px) */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="border-b bg-muted/40 text-[12px] font-semibold text-muted-foreground">
                   <tr>
@@ -645,7 +767,74 @@ export default function PicDashboardPage() {
               </Button>
             </div>
 
-            <div className="overflow-x-auto">
+            {/* Mobile List View for Movements (screen <= 640px / 390px) */}
+            <div className="block sm:hidden divide-y divide-border/60">
+              {(!data?.recentTransactions || data.recentTransactions.length === 0) ? (
+                <div className="py-12 text-center text-muted-foreground">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Clock className="h-8 w-8 text-muted-foreground/50" />
+                    <p className="text-sm font-medium">Belum ada aktivitas transaksi di gudang ini</p>
+                  </div>
+                </div>
+              ) : (
+                data.recentTransactions.map((tx) => {
+                  const isReceive = ['RECEIPT', 'IN', 'PURCHASE'].some((t) => tx.transactionType?.toUpperCase().includes(t));
+                  const isIssue = ['ISSUE', 'OUT', 'RFC'].some((t) => tx.transactionType?.toUpperCase().includes(t));
+
+                  return (
+                    <div key={tx.id} className="p-3.5 flex flex-col gap-2 hover:bg-muted/20 transition-colors">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium text-sm text-foreground truncate">
+                            {tx.materialName}
+                          </div>
+                          <div className="text-[11px] font-mono text-muted-foreground mt-0.5">
+                            {tx.materialCode}
+                          </div>
+                        </div>
+                        <div className="shrink-0">
+                          <Badge 
+                            variant={isReceive ? 'default' : isIssue ? 'destructive' : 'secondary'}
+                            className="text-[10px] uppercase font-semibold"
+                          >
+                            {tx.transactionType}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs pt-1">
+                        <span className="text-muted-foreground text-[11px]">
+                          {new Date(tx.createdAt).toLocaleString('id-ID', {
+                            dateStyle: 'medium',
+                            timeStyle: 'short'
+                          })}
+                        </span>
+                        <div>
+                          <span className={`font-bold text-sm ${isReceive ? 'text-emerald-600 dark:text-emerald-400' : isIssue ? 'text-foreground' : ''}`}>
+                            {isReceive ? `+${tx.quantity}` : `-${tx.quantity}`}
+                          </span>{' '}
+                          <span className="text-[11px] text-muted-foreground">{tx.unit || 'pcs'}</span>
+                        </div>
+                      </div>
+
+                      {(tx.createdByName || tx.referenceId || tx.notes || tx.warehouseName) && (
+                        <div className="text-[11px] text-muted-foreground pt-1.5 border-t border-border/40 flex flex-wrap items-center justify-between gap-2">
+                          <span>{tx.warehouseName} • {tx.createdByName || 'System'}</span>
+                          {tx.referenceId && (
+                            <span className="font-mono bg-muted px-1.5 py-0.5 rounded text-[10px]">
+                              {tx.referenceId}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Desktop Table View for Movements (screen > 640px) */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="border-b bg-muted/40 text-[12px] font-semibold text-muted-foreground">
                   <tr>
