@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { 
   FileText, Search, Calendar, Filter, Eye, Printer, 
-  CheckCircle2, XCircle, User, Warehouse, Clock, FileCheck,
+  User, Warehouse, Clock, FileCheck,
   ExternalLink, Download, ShieldCheck, UserCheck
 } from 'lucide-react';
 import api from '@/lib/api';
@@ -14,7 +14,7 @@ import { formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DataTablePagination } from '@/components/shared/DataTablePagination';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -66,11 +66,6 @@ export default function RfcHistoryLogPage() {
     setEndDate('');
   };
 
-  // Stats calculation
-  const totalCount = rfcs.length;
-  const completedCount = rfcs.filter(r => r.status === 'COMPLETED').length;
-  const rejectedCount = rfcs.filter(r => r.status === 'REJECTED').length;
-
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -102,45 +97,6 @@ export default function RfcHistoryLogPage() {
             </Badge>
           )}
         </div>
-      </div>
-
-      {/* Quick Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="bg-card/70 backdrop-blur-xs border shadow-xs">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Total Concluded</p>
-              <p className="text-2xl font-bold mt-0.5">{totalCount}</p>
-            </div>
-            <div className="p-2.5 rounded-full bg-muted">
-              <FileText className="w-5 h-5 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card/70 backdrop-blur-xs border border-emerald-500/20 shadow-xs">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium uppercase tracking-wider">Completed / Handed Over</p>
-              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">{completedCount}</p>
-            </div>
-            <div className="p-2.5 rounded-full bg-emerald-500/10 text-emerald-600">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card/70 backdrop-blur-xs border border-red-500/20 shadow-xs">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs text-red-600 dark:text-red-400 font-medium uppercase tracking-wider">Rejected</p>
-              <p className="text-2xl font-bold text-red-600 dark:text-red-400 mt-0.5">{rejectedCount}</p>
-            </div>
-            <div className="p-2.5 rounded-full bg-red-500/10 text-red-600">
-              <XCircle className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Filter Bar */}
