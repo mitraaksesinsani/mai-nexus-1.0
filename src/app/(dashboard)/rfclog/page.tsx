@@ -144,7 +144,7 @@ export default function RfcHistoryLogPage() {
       </div>
 
       {/* Filter Bar */}
-      <Card className="p-4 border bg-card/60 shadow-xs">
+      <div className="p-4 bg-card/60 rounded-xl">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
           <div className="md:col-span-4 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -199,7 +199,7 @@ export default function RfcHistoryLogPage() {
             </Button>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Table Content */}
       <Card className="border shadow-xs overflow-hidden">
