@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { pool, generateId } from '@/lib/db';
+import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -8,6 +9,12 @@ export async function GET(request: Request) {
   const limit = parseInt(searchParams.get('limit') || '100');
 
   try {
+    const user = getUserFromRequest(request as any);
+    const userRole = user?.role?.toUpperCase();
+    const userId = user?.sub;
+
+    const isGodEye = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
+
     let queryStr = `
       SELECT 
         cr.id, 
@@ -33,6 +40,26 @@ export async function GET(request: Request) {
       WHERE 1=1
     `;
     const queryParams: any[] = [];
+
+    // Filter by assigned user if not Admin / Super Admin (God Eye)
+    if (!isGodEye) {
+      if (userId) {
+        queryParams.push(userId);
+        const uIdx = queryParams.length;
+        queryStr += ` AND (
+          cr.requestor_id = $${uIdx}
+          OR EXISTS (
+            SELECT 1 FROM consumption_request_approvals cra 
+            WHERE cra.consumption_request_id = cr.id AND cra.approver_id = $${uIdx}
+          )
+          OR cr.completed_by = $${uIdx}
+          OR cr.approver_id = $${uIdx}
+        )`;
+      } else {
+        // Unauthenticated non-admin cannot view RFCs
+        queryStr += ` AND 1=0`;
+      }
+    }
 
     if (status !== 'ALL') {
       queryParams.push(status);

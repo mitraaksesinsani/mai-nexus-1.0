@@ -110,6 +110,7 @@ const groupedNavigation = [
         children: [
           { label: 'RFC List', href: '/rfc' },
           { label: 'Approval Queue', href: '/rfc/approval' },
+          { label: 'RFC History Log', href: '/rfclog' },
         ],
       },
     ]
@@ -294,7 +295,21 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
 
     return {
       ...group,
-      items: filteredItems
+      items: filteredItems.map(item => {
+        if (item.children) {
+          return {
+            ...item,
+            children: item.children.filter((child: any) => {
+              if (child.href === '/rfclog') {
+                const allowedRoles = ['ADMIN', 'SUPER_ADMIN', 'PROCUREMENT', 'DIREKTUR', 'OWNER', 'PROJECT_MANAGER', 'SITE_MANAGER'];
+                return allowedRoles.includes(userRole);
+              }
+              return true;
+            })
+          };
+        }
+        return item;
+      })
     };
   }).filter(group => group.items.length > 0);
 

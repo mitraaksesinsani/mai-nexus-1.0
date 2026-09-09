@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
 import { pool, generateId } from '@/lib/db';
+import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   try {
+    const user = getUserFromRequest(request as any);
+    const userRole = user?.role?.toUpperCase();
+    const userId = user?.sub;
+    const isPrivileged = ['ADMIN', 'SUPER_ADMIN', 'PROCUREMENT', 'DIREKTUR', 'OWNER'].includes(userRole);
+
     const rfcQuery = `
       SELECT 
         cr.id, 
@@ -17,6 +23,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         cr.taker_date as "takerDate",
         cr.evidence_document as "evidenceDocument",
         cr.current_step_order as "currentStepOrder",
+        cr.requestor_id as "requestorId",
+        cr.approver_id as "approverId",
+        cr.completed_by as "completedBy",
         u.name as "requestorName",
         u.role as "requestorRole",
         a.name as "approverName",
@@ -40,6 +49,29 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     const rfc = rfcRes.rows[0];
+
+    // Check authorization for non-privileged users
+    if (!isPrivileged) {
+      if (!userId) {
+        return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+      }
+
+      const isParticipant = 
+        rfc.requestorId === userId || 
+        rfc.approverId === userId || 
+        rfc.completedBy === userId;
+
+      if (!isParticipant) {
+        // Check if user is in approvals list
+        const appCheck = await pool.query(
+          'SELECT 1 FROM consumption_request_approvals WHERE consumption_request_id = $1 AND approver_id = $2',
+          [id, userId]
+        );
+        if (appCheck.rows.length === 0) {
+          return NextResponse.json({ message: 'You are not assigned to this RFC process' }, { status: 403 });
+        }
+      }
+    }
 
     const itemsQuery = `
       SELECT 
