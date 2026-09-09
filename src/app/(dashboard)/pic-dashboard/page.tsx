@@ -413,12 +413,12 @@ export default function PicDashboardPage() {
       {/* Main Content Tabs */}
       <Tabs defaultValue="inventory" className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <TabsList className="h-9">
-            <TabsTrigger value="inventory" className="text-[12px] gap-1.5">
+          <TabsList className="h-8 p-0.5">
+            <TabsTrigger value="inventory" className="text-[12px] gap-1.5 h-7 px-3">
               <Package className="h-3.5 w-3.5" />
               <span>Daftar Stok Material ({filteredStocks.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="movements" className="text-[12px] gap-1.5">
+            <TabsTrigger value="movements" className="text-[12px] gap-1.5 h-7 px-3">
               <Clock className="h-3.5 w-3.5" />
               <span>Riwayat Transaksi Terkini ({data?.recentTransactions?.length || 0})</span>
             </TabsTrigger>
@@ -435,7 +435,7 @@ export default function PicDashboardPage() {
                 }
               }}
             >
-              <SelectTrigger className="h-9 w-[160px] text-[12px] bg-background">
+              <SelectTrigger className="!h-8 data-[size=default]:!h-8 w-[160px] text-[12px] bg-background">
                 <SelectValue placeholder="Filter Status">
                   {stockFilter === 'ALL' && 'Semua Status'}
                   {stockFilter === 'LOW' && 'Stok Menipis (≤ 10)'}
@@ -458,7 +458,7 @@ export default function PicDashboardPage() {
                   setSearch(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="h-9 pl-8 text-[12px] placeholder:text-[12px] bg-background"
+                className="h-8 !h-8 pl-8 text-[12px] placeholder:text-[12px] bg-background"
               />
             </div>
           </div>
