@@ -233,17 +233,22 @@ export default function PicDashboardPage() {
               <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">Gudang:</span>
               <Select value={selectedWarehouseId} onValueChange={(val) => { if (val) handleWarehouseChange(val); }}>
                 <SelectTrigger className="w-[240px] bg-background">
-                  <SelectValue placeholder="Pilih Gudang" />
+                  <SelectValue placeholder="Pilih Gudang">
+                    {selectedWarehouseId === 'ALL'
+                      ? `Semua Gudang Terkait (${data.assignedWarehouses.length})`
+                      : (data.assignedWarehouses.find((wh) => wh.id === selectedWarehouseId)?.name ||
+                         (data.selectedWarehouse?.id === selectedWarehouseId ? data.selectedWarehouse.name : null))}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {data.assignedWarehouses.length > 1 && (
                     <SelectItem value="ALL">
-                      <span className="font-semibold text-primary">Semua Gudang Terkait ({data.assignedWarehouses.length})</span>
+                      Semua Gudang Terkait ({data.assignedWarehouses.length})
                     </SelectItem>
                   )}
                   {data.assignedWarehouses.map((wh) => (
                     <SelectItem key={wh.id} value={wh.id}>
-                      <span className="truncate">{wh.name} ({wh.code})</span>
+                      {wh.name} {wh.code ? `(${wh.code})` : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
