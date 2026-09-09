@@ -318,7 +318,7 @@ export default function PicDashboardPage() {
             </div>
 
             <div className="flex items-center gap-2 self-end md:self-auto">
-              <Button variant="outline" size="sm" render={<Link href="/warehouse" />} nativeButton={false} className="h-8 text-xs gap-1.5">
+              <Button variant="outline" size="sm" render={<Link href="/warehouse" />} nativeButton={false} className="h-8 text-[12px] gap-1.5">
                 <span>Detail Master Gudang</span>
                 <ArrowRight className="h-3 w-3" />
               </Button>
@@ -544,7 +544,7 @@ export default function PicDashboardPage() {
                                 size="sm" 
                                 render={<Link href={`/inventory/movements?materialId=${stock.materialId}&warehouseId=${stock.warehouseId}`} />} 
                                 nativeButton={false}
-                                className="h-7 text-xs px-2"
+                                className="h-7 text-[12px] px-2"
                               >
                                 Riwayat
                               </Button>
@@ -553,7 +553,7 @@ export default function PicDashboardPage() {
                                 size="sm" 
                                 render={<Link href="/rfc" />} 
                                 nativeButton={false}
-                                className="h-7 text-xs px-2"
+                                className="h-7 text-[12px] px-2"
                               >
                                 RFC
                               </Button>
@@ -591,7 +591,7 @@ export default function PicDashboardPage() {
                 size="sm" 
                 render={<Link href="/inventory/movements" />} 
                 nativeButton={false}
-                className="text-xs h-7 gap-1"
+                className="text-[12px] h-7 gap-1"
               >
                 <span>Lihat Seluruh Mutasi</span>
                 <ExternalLink className="h-3 w-3" />
