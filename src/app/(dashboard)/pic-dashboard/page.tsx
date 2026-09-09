@@ -479,31 +479,31 @@ export default function PicDashboardPage() {
                 { value: 'movements', label: `Riwayat Transaksi Terkini (${data?.recentTransactions?.length || 0})` },
               ]}
             >
-              <SelectTrigger className="!h-8 data-[size=default]:!h-8 w-full text-[12px] bg-background">
+              <SelectTrigger className="h-10 w-full text-sm bg-background">
                 <SelectValue placeholder="Pilih Tab">
                   {activeTab === 'inventory' ? (
-                    <span className="flex items-center gap-1.5">
-                      <Package className="h-3.5 w-3.5" />
+                    <span className="flex items-center gap-2">
+                      <Package className="h-4 w-4" />
                       <span>Daftar Stok Material ({filteredStocks.length})</span>
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5" />
+                    <span className="flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
                       <span>Riwayat Transaksi Terkini ({data?.recentTransactions?.length || 0})</span>
                     </span>
                   )}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="inventory" className="text-[12px]">
-                  <div className="flex items-center gap-1.5">
-                    <Package className="h-3.5 w-3.5" />
+                <SelectItem value="inventory" className="text-sm">
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4" />
                     <span>Daftar Stok Material ({filteredStocks.length})</span>
                   </div>
                 </SelectItem>
-                <SelectItem value="movements" className="text-[12px]">
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5" />
+                <SelectItem value="movements" className="text-sm">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
                     <span>Riwayat Transaksi Terkini ({data?.recentTransactions?.length || 0})</span>
                   </div>
                 </SelectItem>
@@ -512,20 +512,20 @@ export default function PicDashboardPage() {
           </div>
 
           {/* Desktop / Tablet View (> 640px): Tab Bar */}
-          <TabsList className="hidden sm:inline-flex h-8 p-0.5">
-            <TabsTrigger value="inventory" className="text-[12px] gap-1.5 h-7 px-3">
-              <Package className="h-3.5 w-3.5" />
+          <TabsList className="hidden sm:inline-flex h-10 p-1">
+            <TabsTrigger value="inventory" className="text-sm gap-2 h-8 px-3.5">
+              <Package className="h-4 w-4" />
               <span>Daftar Stok Material ({filteredStocks.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="movements" className="text-[12px] gap-1.5 h-7 px-3">
-              <Clock className="h-3.5 w-3.5" />
+            <TabsTrigger value="movements" className="text-sm gap-2 h-8 px-3.5">
+              <Clock className="h-4 w-4" />
               <span>Riwayat Transaksi Terkini ({data?.recentTransactions?.length || 0})</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Quick Filter & Search for stock */}
           <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-            <div className="w-full sm:w-[160px]">
+            <div className="w-full sm:w-[170px]">
               <Select 
                 value={stockFilter} 
                 onValueChange={(val) => { 
@@ -535,7 +535,7 @@ export default function PicDashboardPage() {
                   }
                 }}
               >
-                <SelectTrigger className="!h-8 data-[size=default]:!h-8 w-full text-[12px] bg-background">
+                <SelectTrigger className="h-10 w-full text-sm bg-background">
                   <SelectValue placeholder="Filter Status">
                     {stockFilter === 'ALL' && 'Semua Status'}
                     {stockFilter === 'LOW' && 'Stok Menipis (≤ 10)'}
@@ -543,15 +543,15 @@ export default function PicDashboardPage() {
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL" className="text-[12px]">Semua Status</SelectItem>
-                  <SelectItem value="LOW" className="text-[12px]">Stok Menipis (≤ 10)</SelectItem>
-                  <SelectItem value="AVAILABLE" className="text-[12px]">Stok Aman (&gt; 10)</SelectItem>
+                  <SelectItem value="ALL" className="text-sm">Semua Status</SelectItem>
+                  <SelectItem value="LOW" className="text-sm">Stok Menipis (≤ 10)</SelectItem>
+                  <SelectItem value="AVAILABLE" className="text-sm">Stok Aman (&gt; 10)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="relative w-full sm:w-[240px]">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               <Input
                 placeholder="Cari kode, nama material..."
                 value={search}
@@ -559,7 +559,7 @@ export default function PicDashboardPage() {
                   setSearch(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="h-8 !h-8 pl-8 text-[12px] placeholder:text-[12px] bg-background"
+                className="h-10 pl-9 text-sm placeholder:text-sm bg-background"
               />
             </div>
           </div>
