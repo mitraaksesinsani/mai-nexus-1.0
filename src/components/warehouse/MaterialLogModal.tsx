@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, User } from 'lucide-react';
 import { format } from 'date-fns';
@@ -41,13 +40,11 @@ export function MaterialLogModal({ isOpen, onClose, warehouseId, materialId, mat
 
   const formatTransactionType = (type: string) => {
     if (!type) return '-';
-    // Contoh: "IN_MANUAL_ENTRY" -> "In Manual Entry" -> "Manual Entry" (atau sesuai keinginan)
     const formatted = type
       .split('_')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
       
-    // Jika ingin lebih rapi:
     if (type === 'IN_MANUAL_ENTRY') return 'Manual Entry (IN)';
     if (type === 'OUT_MANUAL_ENTRY') return 'Manual Entry (OUT)';
     if (type === 'IN_RECEIPT') return 'Goods Receipt';
@@ -66,7 +63,7 @@ export function MaterialLogModal({ isOpen, onClose, warehouseId, materialId, mat
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[1050px] max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-[850px] max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Riwayat Transaksi Material</DialogTitle>
           <DialogDescription>
@@ -74,57 +71,61 @@ export function MaterialLogModal({ isOpen, onClose, warehouseId, materialId, mat
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto mt-4">
+        <div className="flex-1 overflow-auto mt-4 pr-1">
           {loading ? (
             <div className="flex items-center justify-center p-8">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
           ) : logs.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-muted-foreground border rounded-xl">
               Belum ada riwayat transaksi untuk material ini.
             </div>
           ) : (
-            <Table>
-              <TableHeader className="bg-muted/50 sticky top-0 z-10">
-                <TableRow>
-                  <TableHead className="w-[160px]">Tanggal</TableHead>
-                  <TableHead className="w-[140px]">Diinput Oleh</TableHead>
-                  <TableHead className="w-[130px]">Tipe</TableHead>
-                  <TableHead className="text-right w-[110px]">Jumlah</TableHead>
-                  <TableHead className="w-[140px]">Referensi</TableHead>
-                  <TableHead className="min-w-[160px]">Catatan</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {logs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                      {format(new Date(log.createdAt), 'dd MMM yyyy, HH:mm', { locale: id })}
-                    </TableCell>
-                    <TableCell className="text-xs font-medium">
-                      <div className="flex items-center gap-1.5 text-foreground">
-                        <User className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                        <span>{log.createdByName || 'Admin'}</span>
+            <div className="divide-y divide-border/60 border rounded-xl bg-card overflow-hidden">
+              {logs.map((log) => {
+                const isPositive = log.quantity > 0;
+                return (
+                  <div key={log.id} className="p-3.5 sm:p-4 hover:bg-muted/30 transition-colors space-y-2">
+                    {/* Header item: Type badge, Date, and Quantity */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="outline" className={`font-medium ${getTransactionTypeColor(log.transactionType)}`}>
+                          {formatTransactionType(log.transactionType)}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(log.createdAt), 'dd MMM yyyy, HH:mm', { locale: id })}
+                        </span>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={`font-medium ${getTransactionTypeColor(log.transactionType)}`}>
-                        {formatTransactionType(log.transactionType)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className={`text-right font-semibold ${log.quantity > 0 ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
-                      {log.quantity > 0 ? '+' : ''}{log.quantity}
-                    </TableCell>
-                    <TableCell className="text-xs max-w-[150px] truncate" title={log.referenceId || '-'}>
-                      {log.referenceId || '-'}
-                    </TableCell>
-                    <TableCell className="text-xs max-w-[200px] truncate" title={log.notes || '-'}>
-                      {log.notes || '-'}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                      <span className={`text-base font-bold shrink-0 ${isPositive ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
+                        {isPositive ? `+${log.quantity}` : log.quantity}
+                      </span>
+                    </div>
+
+                    {/* Meta info: Diinput oleh, Referensi, dan Catatan */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-1.5 border-t border-border/30">
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <User className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                        <span className="text-foreground font-medium">{log.createdByName || 'Admin'}</span>
+                      </div>
+                      
+                      <div className="truncate">
+                        <span className="text-muted-foreground">Ref: </span>
+                        <span className="text-foreground font-medium" title={log.referenceId || '-'}>
+                          {log.referenceId || '-'}
+                        </span>
+                      </div>
+
+                      <div className="truncate sm:text-right">
+                        <span className="text-muted-foreground">Catatan: </span>
+                        <span className="text-foreground font-medium" title={log.notes || '-'}>
+                          {log.notes || '-'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
       </DialogContent>
