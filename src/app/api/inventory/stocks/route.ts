@@ -48,7 +48,7 @@ export async function GET(request: Request) {
     if (user?.role === 'SITE_MANAGER') {
       const userId = user.sub || user.id;
       const userName = user.name || '';
-      queryStr += ` AND (w.pic_id = $${paramIndex} OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${paramIndex + 1})))`;
+      queryStr += ` AND (w.pic_id::text = $${paramIndex}::text OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${paramIndex + 1})))`;
       queryParams.push(userId, userName);
       paramIndex += 2;
     }

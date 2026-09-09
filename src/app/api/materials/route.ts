@@ -43,13 +43,13 @@ export async function GET(request: Request) {
           SELECT DISTINCT s.material_id 
           FROM inventory_stocks s 
           JOIN warehouses w ON s.warehouse_id = w.id 
-          WHERE (w.pic_id = $${paramIndex} OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${paramIndex + 1})))
+          WHERE (w.pic_id::text = $${paramIndex}::text OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${paramIndex + 1})))
         )
         OR id IN (
           SELECT DISTINCT t.material_id
           FROM inventory_transactions t
-          JOIN warehouses w ON t.warehouse_id = w.id
-          WHERE (w.pic_id = $${paramIndex} OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${paramIndex + 1})))
+          JOIN warehouses w ON t.warehouse_id = w.id 
+          WHERE (w.pic_id::text = $${paramIndex}::text OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${paramIndex + 1})))
         )
       )`;
       queryParams.push(userId, userName);

@@ -58,11 +58,11 @@ export async function GET(request: Request) {
       const userName = user.name || '';
       conditions.push(`(
         LOWER(COALESCE(pic, '')) = LOWER($${queryParams.length + 1})
-        OR origin_pic_id = $${queryParams.length + 2}
+        OR origin_pic_id::text = $${queryParams.length + 2}::text
         OR LOWER(COALESCE(destination_pic, '')) = LOWER($${queryParams.length + 1})
-        OR destination_pic_id = $${queryParams.length + 2}
-        OR from_location IN (SELECT name FROM warehouses WHERE pic_id = $${queryParams.length + 2} OR LOWER(pic_name) = LOWER($${queryParams.length + 1}))
-        OR to_location IN (SELECT name FROM warehouses WHERE pic_id = $${queryParams.length + 2} OR LOWER(pic_name) = LOWER($${queryParams.length + 1}))
+        OR destination_pic_id::text = $${queryParams.length + 2}::text
+        OR from_location IN (SELECT name FROM warehouses WHERE pic_id::text = $${queryParams.length + 2}::text OR LOWER(pic_name) = LOWER($${queryParams.length + 1}))
+        OR to_location IN (SELECT name FROM warehouses WHERE pic_id::text = $${queryParams.length + 2}::text OR LOWER(pic_name) = LOWER($${queryParams.length + 1}))
       )`);
       queryParams.push(userName, userId);
     }

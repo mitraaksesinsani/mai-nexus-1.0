@@ -43,7 +43,7 @@ export async function GET(request: Request) {
       const userId = user.sub || user.id;
       const userName = user.name || '';
       queryParams.push(userId, userName);
-      queryStr += ` AND (w.pic_id = $${queryParams.length - 1} OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${queryParams.length})))`;
+      queryStr += ` AND (w.pic_id::text = $${queryParams.length - 1}::text OR (w.pic_id IS NULL AND LOWER(w.pic_name) = LOWER($${queryParams.length})))`;
     }
 
     queryStr += ` ORDER BY t.created_at DESC LIMIT $${queryParams.length + 1}`;
