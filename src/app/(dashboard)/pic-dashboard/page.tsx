@@ -304,7 +304,7 @@ export default function PicDashboardPage() {
 
       {/* Selected Warehouse Banner (if single warehouse selected) */}
       {activeWh && activeWh.id !== 'ALL' && (
-        <div className="rounded-xl border bg-card p-4">
+        <div className="rounded-xl border bg-[#a1a1a1] p-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
               <span className="font-bold text-base text-foreground block">
