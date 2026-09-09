@@ -92,60 +92,58 @@ export default function RfcHistoryLogPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="p-4 bg-card/60 rounded-xl">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-          <div className="md:col-span-4 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search RFC No, Project, Warehouse, Receiver..."
-              className="pl-9 bg-card w-full"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end w-full">
+        <div className="md:col-span-4 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search RFC No, Project, Warehouse, Receiver..."
+            className="pl-9 bg-card w-full"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        <div className="md:col-span-3">
+          <Select 
+            value={status} 
+            onValueChange={(val) => setStatus(val || 'ALL')}
+            items={[
+              { value: 'ALL', label: 'All Concluded Status' },
+              { value: 'COMPLETED', label: 'Completed (Handed Over)' },
+              { value: 'REJECTED', label: 'Rejected' },
+            ]}
+          >
+            <SelectTrigger className="w-full bg-card">
+              <SelectValue placeholder="Filter Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Concluded Status</SelectItem>
+              <SelectItem value="COMPLETED">Completed (Handed Over)</SelectItem>
+              <SelectItem value="REJECTED">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="md:col-span-4 flex gap-2">
+          <div className="flex-1 min-w-[120px]">
+            <DatePicker
+              value={startDate || undefined}
+              onChange={(val) => setStartDate(val || '')}
             />
           </div>
-
-          <div className="md:col-span-3">
-            <Select 
-              value={status} 
-              onValueChange={(val) => setStatus(val || 'ALL')}
-              items={[
-                { value: 'ALL', label: 'All Concluded Status' },
-                { value: 'COMPLETED', label: 'Completed (Handed Over)' },
-                { value: 'REJECTED', label: 'Rejected' },
-              ]}
-            >
-              <SelectTrigger className="w-full bg-card">
-                <SelectValue placeholder="Filter Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Concluded Status</SelectItem>
-                <SelectItem value="COMPLETED">Completed (Handed Over)</SelectItem>
-                <SelectItem value="REJECTED">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex-1 min-w-[120px]">
+            <DatePicker
+              value={endDate || undefined}
+              onChange={(val) => setEndDate(val || '')}
+            />
           </div>
+        </div>
 
-          <div className="md:col-span-4 flex gap-2">
-            <div className="flex-1 min-w-[120px]">
-              <DatePicker
-                value={startDate || undefined}
-                onChange={(val) => setStartDate(val || '')}
-              />
-            </div>
-            <div className="flex-1 min-w-[120px]">
-              <DatePicker
-                value={endDate || undefined}
-                onChange={(val) => setEndDate(val || '')}
-              />
-            </div>
-          </div>
-
-          <div className="md:col-span-1">
-            <Button variant="ghost" size="sm" onClick={resetFilters} className="w-full text-muted-foreground">
-              Reset
-            </Button>
-          </div>
+        <div className="md:col-span-1">
+          <Button variant="ghost" size="sm" onClick={resetFilters} className="w-full text-muted-foreground">
+            Reset
+          </Button>
         </div>
       </div>
 
