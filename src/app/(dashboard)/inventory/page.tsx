@@ -85,15 +85,15 @@ export default function InventoryPage() {
 
       <div className="bg-card border border-border rounded-xl overflow-x-auto animate-fade-in" style={{ animationDelay: '200ms' }}>
         <table className="w-full whitespace-nowrap">
-          <thead><tr className="border-b border-border bg-secondary/30">
-            <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3 min-w-[280px]">Material</th>
-            <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Code</th>
-            <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Warehouse</th>
-            <th className="text-right text-xs font-medium text-muted-foreground px-4 py-3">Available</th>
-            <th className="text-right text-xs font-medium text-muted-foreground px-4 py-3">Reserved</th>
-            <th className="text-right text-xs font-medium text-muted-foreground px-4 py-3">Minimum</th>
-            <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Status</th>
-            <th className="text-right text-xs font-medium text-muted-foreground px-4 py-3">Action</th>
+          <thead><tr className="border-b border-border bg-secondary/30 text-[12px]">
+            <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3 min-w-[280px]">Material</th>
+            <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3">Code</th>
+            <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3">Warehouse</th>
+            <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-3">Available</th>
+            <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-3">Reserved</th>
+            <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-3">Minimum</th>
+            <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3">Status</th>
+            <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-3">Action</th>
           </tr></thead>
           <tbody>
             {loading ? [...Array(8)].map((_, i) => (
