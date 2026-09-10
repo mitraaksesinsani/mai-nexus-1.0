@@ -453,7 +453,134 @@ export default function CreateRfcPage() {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
+            {/* Mobile Card List View (screen <= 640px / ~390px) */}
+            <div className="block sm:hidden space-y-3">
+              {items.map((item, index) => {
+                const available = getAvailableStock(item.materialId);
+                const unit = getMaterialUnit(item.materialId);
+                return (
+                  <div 
+                    key={index}
+                    className="p-3.5 bg-card rounded-xl border border-border/70 space-y-3 shadow-2xs relative"
+                  >
+                    {/* Header Card: Item Number & Delete button */}
+                    <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                      <span className="text-[12px] font-semibold text-foreground flex items-center gap-1.5">
+                        <span className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold">
+                          {index + 1}
+                        </span>
+                        Item #{index + 1}
+                      </span>
+                      {items.length > 1 && (
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-destructive hover:bg-destructive/10 h-7 px-2 text-[12px] gap-1"
+                          onClick={() => removeItem(index)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          <span>Hapus</span>
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Material Selector */}
+                    <div className="space-y-1.5">
+                      <label className="text-[12px] font-medium text-foreground block">
+                        Material <span className="text-destructive">*</span>
+                      </label>
+                      <Select 
+                        value={item.materialId} 
+                        onValueChange={(val) => handleItemChange(index, 'materialId', val || '')}
+                        items={inventory.map((inv) => ({
+                          value: inv.materialId,
+                          label: `${inv.material?.materialCode || ''} - ${inv.material?.materialName || ''}`
+                        }))}
+                      >
+                        <SelectTrigger 
+                          className={cn(
+                            "h-auto min-h-[44px] py-2 px-3 text-left whitespace-normal leading-snug text-[12px]",
+                            !item.materialId ? "text-muted-foreground" : ""
+                          )}
+                        >
+                          <SelectValue 
+                            placeholder="Select Material"
+                            className="!line-clamp-2 !whitespace-normal !block leading-snug text-left text-[12px]"
+                          >
+                            {(() => {
+                              const selected = inventory.find((i) => i.materialId === item.materialId);
+                              return selected?.material
+                                ? `${selected.material.materialCode} - ${selected.material.materialName}`
+                                : undefined;
+                            })()}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent className="max-w-[340px]">
+                          {inventory.map((inv) => (
+                            <SelectItem 
+                              key={inv.materialId} 
+                              value={inv.materialId}
+                              className="py-2 text-[12px] whitespace-normal"
+                            >
+                              {inv.material?.materialCode} - {inv.material?.materialName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Stock Info & Request Qty Grid */}
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-medium text-muted-foreground block">
+                          Available Stock
+                        </label>
+                        <div className="h-10 px-3 rounded-lg bg-muted/40 border border-border/50 flex items-center justify-between text-[12px]">
+                          <span className={item.materialId ? "font-semibold text-emerald-500" : "text-muted-foreground"}>
+                            {item.materialId ? available.toLocaleString() : '-'}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">{unit || ''}</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-medium text-foreground block">
+                          Req. Qty <span className="text-destructive">*</span>
+                        </label>
+                        <Input 
+                          type="number" 
+                          min="0"
+                          step="0.01"
+                          max={available}
+                          placeholder="Qty" 
+                          value={item.requestQty}
+                          onChange={(e) => handleItemChange(index, 'requestQty', e.target.value)}
+                          disabled={!item.materialId}
+                          className="h-10 text-[12px] font-medium"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Notes */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-medium text-muted-foreground block">
+                        Notes (Optional)
+                      </label>
+                      <Input 
+                        placeholder="Catatan material (opsional)" 
+                        value={item.notes}
+                        onChange={(e) => handleItemChange(index, 'notes', e.target.value)}
+                        className="h-9 text-[12px]"
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table View (> 640px) */}
+            <div className="hidden sm:block overflow-x-auto">
               <Table className="min-w-[1200px]">
                 <TableHeader>
                   <TableRow>
