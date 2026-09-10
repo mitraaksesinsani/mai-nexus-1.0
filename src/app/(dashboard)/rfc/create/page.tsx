@@ -224,7 +224,7 @@ export default function CreateRfcPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader className="pb-2.5">
-            <CardTitle className="text-lg">General Information</CardTitle>
+            <CardTitle className="text-lg">Informasi Umum</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
