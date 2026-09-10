@@ -232,8 +232,15 @@ function MovementsContent() {
                 <TableBody>
                   {paginatedMovements.map((tx) => (
                     <TableRow key={tx.id} className="hover:bg-muted/30">
-                      <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
-                        {new Date(tx.createdAt).toLocaleString()}
+                      <TableCell className="text-[12px] whitespace-nowrap">
+                        <div className="flex flex-col leading-tight">
+                          <span className="font-medium text-foreground">
+                            {new Date(tx.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </span>
+                          <span className="text-muted-foreground text-[12px] mt-0.5">
+                            {new Date(tx.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell className="whitespace-nowrap">
                         <div className="flex items-center gap-2">
