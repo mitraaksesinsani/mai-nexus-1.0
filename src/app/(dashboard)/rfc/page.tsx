@@ -70,9 +70,9 @@ export default function ConsumptionRfcPage() {
         </div>
 
         {/* Mobile Interactive Banner (<= 640px / ~390px) */}
-        <div className="sm:hidden w-full max-w-[340px]">
+        <div className="sm:hidden w-full">
           <Link href="/rfc/create" className="block w-full">
-            <div className="h-9 pl-3.5 pr-1 bg-neutral-900 rounded-lg flex justify-between items-center transition-all hover:bg-neutral-800 active:scale-[0.99] border border-neutral-800/80 shadow-xs">
+            <div className="h-[39px] pl-3.5 pr-1 bg-neutral-900 rounded-lg flex justify-between items-center transition-all hover:bg-neutral-800 active:scale-[0.99] border border-neutral-800/80 shadow-xs">
               <div className="text-neutral-50 text-xs font-medium leading-4">
                 Ingin Mengambil Barang?
               </div>
