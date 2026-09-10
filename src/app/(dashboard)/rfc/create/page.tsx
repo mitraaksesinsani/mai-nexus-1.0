@@ -447,8 +447,14 @@ export default function CreateRfcPage() {
         <Card className={!formData.warehouseId || isLoadingInventory || inventory.length === 0 ? 'opacity-50 pointer-events-none' : ''}>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Requested Materials</CardTitle>
-            <Button type="button" variant="outline" size="sm" onClick={addItem}>
-              <Plus className="h-4 w-4 mr-2" />
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              onClick={addItem}
+              className="hidden sm:inline-flex text-[12px] h-8 gap-1"
+            >
+              <Plus className="h-4 w-4 mr-1" />
               Add Item
             </Button>
           </CardHeader>
@@ -577,6 +583,17 @@ export default function CreateRfcPage() {
                   </div>
                 );
               })}
+
+              {/* Add Item Button for Mobile (below the latest added material) */}
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full h-10 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 text-[12px] font-medium gap-1.5 rounded-xl shadow-2xs"
+                onClick={addItem}
+              >
+                <Plus className="h-4 w-4 text-primary" />
+                Add Item
+              </Button>
             </div>
 
             {/* Desktop Table View (> 640px) */}
