@@ -217,7 +217,7 @@ function MovementsContent() {
             </div>
 
             {/* Desktop Table View (screen > 640px) */}
-            <div className="hidden sm:block border rounded-xl overflow-x-auto bg-card">
+            <div className="hidden sm:block">
               <Table className="table-fixed min-w-[1240px] w-full">
                 <TableHeader>
                   <TableRow className="bg-secondary/30">
