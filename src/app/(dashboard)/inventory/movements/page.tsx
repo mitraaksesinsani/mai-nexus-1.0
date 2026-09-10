@@ -218,12 +218,12 @@ function MovementsContent() {
 
             {/* Desktop Table View (screen > 640px) */}
             <div className="hidden sm:block border rounded-xl overflow-x-auto bg-card">
-              <Table className="table-fixed min-w-[1280px] w-full">
+              <Table className="table-fixed min-w-[1240px] w-full">
                 <TableHeader>
                   <TableRow className="bg-secondary/30">
-                    <TableHead className="w-[170px]">Date</TableHead>
+                    <TableHead className="w-[140px]">Date</TableHead>
                     <TableHead className="w-[180px]">Type</TableHead>
-                    <TableHead className="w-[450px]">Material</TableHead>
+                    <TableHead className="w-[460px]">Material</TableHead>
                     <TableHead className="w-[180px]">Warehouse</TableHead>
                     <TableHead className="w-[120px] text-right">Quantity</TableHead>
                     <TableHead className="w-[180px]">Notes</TableHead>
@@ -232,7 +232,7 @@ function MovementsContent() {
                 <TableBody>
                   {paginatedMovements.map((tx) => (
                     <TableRow key={tx.id} className="hover:bg-muted/30">
-                      <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
+                      <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
                         {new Date(tx.createdAt).toLocaleString()}
                       </TableCell>
                       <TableCell className="whitespace-nowrap">

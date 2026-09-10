@@ -158,7 +158,7 @@ export default function InventoryPage() {
               <Table className="whitespace-nowrap">
                 <TableHeader>
                   <TableRow className="bg-secondary/30">
-                    <TableHead className="w-[170px]">Date</TableHead>
+                    <TableHead className="w-[140px]">Date</TableHead>
                     <TableHead className="w-[150px]">Diinput Oleh</TableHead>
                     <TableHead className="w-[180px]">Type</TableHead>
                     <TableHead className="w-[120px] text-right">Quantity</TableHead>
