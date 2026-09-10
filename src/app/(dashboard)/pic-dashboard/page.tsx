@@ -481,11 +481,11 @@ export default function PicDashboardPage() {
             >
               <TabsTrigger value="inventory" className="text-sm gap-2 h-9 px-3 shrink-0 border-0">
                 <Package className="h-4 w-4" />
-                <span>Daftar Stok Material ({filteredStocks.length})</span>
+                <span>Stok Material ({filteredStocks.length})</span>
               </TabsTrigger>
               <TabsTrigger value="movements" className="text-sm gap-2 h-9 px-3 shrink-0 border-0">
                 <Clock className="h-4 w-4" />
-                <span>Riwayat Transaksi Terkini ({data?.recentTransactions?.length || 0})</span>
+                <span>Log Gudang ({data?.recentTransactions?.length || 0})</span>
               </TabsTrigger>
             </TabsList>
           </div>
