@@ -137,28 +137,28 @@ export default function WarehouseOperationsPage() {
               { value: 'stocks', label: 'Stock Overview' },
             ]}
           >
-            <SelectTrigger className="w-full bg-card h-10 border border-input shadow-xs">
+            <SelectTrigger className="w-full bg-white dark:bg-card h-9 px-2.5 py-2 rounded-xl shadow-xs border border-neutral-200 dark:border-border text-sm">
               <SelectValue placeholder="Select Section">
                 {(() => {
                   if (activeTab === 'receipt') {
                     return (
-                      <span className="flex items-center gap-2">
-                        <PackageOpen className="w-4 h-4 text-primary" />
+                      <span className="flex items-center gap-2 text-neutral-950 dark:text-neutral-50 text-sm font-normal">
+                        <PackageOpen className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
                         <span>Goods Receipt</span>
                       </span>
                     );
                   }
                   if (activeTab === 'stocks') {
                     return (
-                      <span className="flex items-center gap-2">
-                        <Boxes className="w-4 h-4 text-primary" />
+                      <span className="flex items-center gap-2 text-neutral-950 dark:text-neutral-50 text-sm font-normal">
+                        <Boxes className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
                         <span>Stock Overview</span>
                       </span>
                     );
                   }
                   return (
-                    <span className="flex items-center gap-2">
-                      <WarehouseIcon className="w-4 h-4 text-primary" />
+                    <span className="flex items-center gap-2 text-neutral-950 dark:text-neutral-50 text-sm font-normal">
+                      <WarehouseIcon className="w-3.5 h-3.5 text-neutral-900 dark:text-neutral-100" />
                       <span>Warehouses Info</span>
                     </span>
                   );
@@ -199,7 +199,7 @@ export default function WarehouseOperationsPage() {
                 placeholder="Search by Name, Location, or ID..." 
                 value={warehouseSearch}
                 onChange={(e) => setWarehouseSearch(e.target.value)}
-                className="pl-9"
+                className="pl-9 h-9 sm:h-10 rounded-xl border-neutral-200 dark:border-input text-sm"
               />
             </div>
             <div className="hidden sm:flex items-center gap-1 border rounded-md p-1 bg-muted/50 sm:w-auto">
@@ -240,35 +240,45 @@ export default function WarehouseOperationsPage() {
             }
 
             const mobileListView = (
-              <div className="block sm:hidden divide-y divide-border/60 border rounded-xl overflow-hidden bg-card">
+              <div className="block sm:hidden w-full space-y-[5px]">
                 {filtered.slice((warehousePage - 1) * warehousePageSize, warehousePage * warehousePageSize).map(wh => (
-                  <div key={`mobile-wh-${wh.id}`} className="p-3.5 space-y-2 bg-card">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="font-semibold text-sm">{wh.name}</h3>
-                        <p className="text-xs text-muted-foreground font-mono">{wh.code}</p>
+                  <div 
+                    key={`mobile-wh-${wh.id}`} 
+                    className="w-full p-3 bg-white dark:bg-card rounded-xl border border-neutral-200/60 dark:border-border/60 shadow-xs flex flex-col justify-start items-start"
+                  >
+                    <div className="w-full flex justify-between items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-neutral-950 dark:text-foreground text-sm font-semibold leading-snug truncate">
+                          {wh.name}
+                        </div>
+                        <div className="text-neutral-500 dark:text-muted-foreground text-xs font-normal leading-4 truncate mt-0.5">
+                          {wh.code}
+                        </div>
                       </div>
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${wh.status === 'ACTIVE' ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
+                      <div className={`px-2 py-0.5 rounded-full shrink-0 text-xs font-semibold leading-4 ${wh.status === 'ACTIVE' ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
                         {wh.status || 'ACTIVE'}
-                      </span>
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 shrink-0" />
+                    <div className="w-full pt-2 flex items-center gap-1.5 text-neutral-500 dark:text-muted-foreground text-xs leading-4">
+                      <MapPin className="size-3 shrink-0" />
                       <span className="truncate">{wh.location || 'No location'}</span>
                     </div>
-                    <div className="flex items-center justify-between pt-1">
-                      <span className="text-xs text-muted-foreground">
+                    <div className="w-full pt-2.5 flex justify-between items-center">
+                      <span className="text-neutral-500 dark:text-muted-foreground text-xs font-normal leading-4">
                         {wh.totalMaterials || 0} materials
                       </span>
                       <Link href={`/warehouse/${wh.id}`}>
-                        <Button variant="outline" size="sm" className="h-7 text-xs px-2.5">
+                        <button
+                          type="button"
+                          className="h-6 px-2 bg-white dark:bg-muted/40 hover:bg-neutral-100 dark:hover:bg-muted text-neutral-950 dark:text-foreground text-xs font-medium rounded-lg border border-neutral-200 dark:border-border inline-flex justify-center items-center gap-1 transition-colors shadow-xs"
+                        >
                           View Details
-                        </Button>
+                        </button>
                       </Link>
                     </div>
                   </div>
                 ))}
-                <div className="p-3 border-t">
+                <div className="pt-2">
                   <DataTablePagination 
                     totalItems={filtered.length} 
                     pageSize={warehousePageSize} 
