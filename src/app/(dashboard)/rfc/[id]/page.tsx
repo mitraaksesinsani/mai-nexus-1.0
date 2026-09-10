@@ -180,44 +180,45 @@ export default function RfcDetailPage() {
   return (
     <div className="space-y-6 w-full max-w-[1700px] mx-auto pb-10">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => router.back()}>
+        <div className="flex items-start sm:items-center gap-3.5 w-full flex-1 min-w-0">
+          <Button variant="outline" size="icon" onClick={() => router.back()} className="shrink-0 mt-0.5 sm:mt-0">
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight">{rfc.rfcNumber}</h1>
+          <div className="w-full flex-1 min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight w-full break-all sm:break-normal">{rfc.rfcNumber}</h1>
+            <div className="flex flex-wrap items-center gap-2 mt-1.5">
               <StatusBadge status={rfc.status} />
+              <span className="text-xs text-muted-foreground">•</span>
+              <p className="text-xs text-muted-foreground">
+                Created on {new Date(rfc.createdAt).toLocaleDateString()}
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Created on {new Date(rfc.createdAt).toLocaleDateString()}
-            </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           {canApprove && (
-            <>
+            <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
               <Button
                 variant="destructive"
-                className="gap-2 shadow-sm"
+                className="gap-2 shadow-sm w-full sm:w-auto"
                 onClick={() => setIsRejectOpen(true)}
               >
                 <XCircle className="h-4 w-4" />
                 Reject
               </Button>
               <Button
-                className="gap-2 shadow-sm bg-green-600 hover:bg-green-700 text-white"
+                className="gap-2 shadow-sm bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
                 onClick={() => setIsApproveOpen(true)}
               >
                 <CheckCircle className="h-4 w-4" />
                 Approve
               </Button>
-            </>
+            </div>
           )}
           <Button
             variant="outline"
-            className="gap-2 shadow-sm"
+            className="gap-2 shadow-sm w-full sm:w-auto"
             onClick={() => window.open(`/print/rfc/${rfc.id}`, '_blank')}
           >
             <Printer className="h-4 w-4" />
