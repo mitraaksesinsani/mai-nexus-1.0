@@ -413,7 +413,7 @@ export default function ProjectsPage() {
           </Button>
         </div>
 
-        <div className="flex flex-wrap gap-4 items-end bg-card p-4 rounded-xl w-full">
+        <div className="flex flex-wrap gap-4 items-end w-full">
           <div className="flex-1 min-w-[200px]">
             <Label className="text-xs mb-1.5 block text-muted-foreground">Search</Label>
             <div className="relative">
