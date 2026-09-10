@@ -229,7 +229,7 @@ export default function CreateRfcPage() {
           <CardContent className="space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="project">Project <span className="text-destructive">*</span></Label>
+                <Label htmlFor="project" className="text-[12px]">Project <span className="text-destructive">*</span></Label>
                 <Select 
                   value={formData.projectId} 
                   onValueChange={(val) => setFormData({...formData, projectId: val || ''})}
@@ -238,7 +238,7 @@ export default function CreateRfcPage() {
                     label: `${p.projectCode} - ${p.projectName}`
                   }))}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="text-[12px]">
                     <SelectValue placeholder="Select Project">
                       {(() => {
                         const selected = projects.find((p) => p.id === formData.projectId);
@@ -248,7 +248,7 @@ export default function CreateRfcPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {projects.map((project) => (
-                      <SelectItem key={project.id} value={project.id}>
+                      <SelectItem key={project.id} value={project.id} className="text-[12px]">
                         {project.projectCode} - {project.projectName}
                       </SelectItem>
                     ))}
@@ -257,7 +257,7 @@ export default function CreateRfcPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="warehouse">Source Warehouse <span className="text-destructive">*</span></Label>
+                <Label htmlFor="warehouse" className="text-[12px]">Source Warehouse <span className="text-destructive">*</span></Label>
                 <Select 
                   value={formData.warehouseId} 
                   onValueChange={(val) => setFormData({...formData, warehouseId: val || ''})}
@@ -266,7 +266,7 @@ export default function CreateRfcPage() {
                     label: wh.name
                   }))}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="text-[12px]">
                     <SelectValue placeholder="Select Warehouse">
                       {(() => {
                         const selected = warehouses.find((w) => w.id === formData.warehouseId);
@@ -276,7 +276,7 @@ export default function CreateRfcPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {warehouses.map((wh) => (
-                      <SelectItem key={wh.id} value={wh.id}>
+                      <SelectItem key={wh.id} value={wh.id} className="text-[12px]">
                         {wh.name}
                       </SelectItem>
                     ))}
@@ -286,13 +286,14 @@ export default function CreateRfcPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="notes">Notes / Purpose</Label>
+              <Label htmlFor="notes" className="text-[12px]">Notes / Purpose</Label>
               <Textarea 
                 id="notes" 
                 placeholder="Briefly explain the purpose of this request..." 
                 rows={3}
                 value={formData.notes}
                 onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                className="text-[12px]"
               />
             </div>
           </CardContent>
@@ -318,15 +319,15 @@ export default function CreateRfcPage() {
               {/* Level 1: Site Verification */}
               <div className="space-y-2.5 p-4 rounded-xl border bg-muted/20 border-border/70">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="approver-l1" className="font-semibold flex items-center gap-2 text-sm">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold">1</span>
+                  <Label htmlFor="approver-l1" className="font-semibold flex items-center gap-2 text-[12px]">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">1</span>
                     Level 1: Site Verification <span className="text-destructive">*</span>
                   </Label>
                   <span className="text-[11px] text-muted-foreground bg-background px-2 py-0.5 rounded border border-border/60">
                     Review Lapangan
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[12px] text-muted-foreground">
                   Verifikasi fisik & kebutuhan teknis material proyek di lapangan
                 </p>
                 <Select 
@@ -337,7 +338,7 @@ export default function CreateRfcPage() {
                     label: `${u.name} (${u.role})`
                   }))}
                 >
-                  <SelectTrigger id="approver-l1" className="h-11 bg-background">
+                  <SelectTrigger id="approver-l1" className="h-11 bg-background text-[12px]">
                     <SelectValue placeholder="Pilih Site Manager / Reviewer">
                       {(() => {
                         const selected = users.find((u) => u.id === approverLevel1);
@@ -347,9 +348,9 @@ export default function CreateRfcPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {users.map((u) => (
-                      <SelectItem key={u.id} value={u.id}>
+                      <SelectItem key={u.id} value={u.id} className="text-[12px]">
                         <div className="flex items-center justify-between w-full gap-2">
-                          <span className="font-medium">{u.name}</span>
+                          <span className="font-medium text-[12px]">{u.name}</span>
                           <span className="text-[11px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded border border-border/40">{u.role}</span>
                         </div>
                       </SelectItem>
@@ -361,15 +362,15 @@ export default function CreateRfcPage() {
               {/* Level 2: Final Authorization */}
               <div className="space-y-2.5 p-4 rounded-xl border bg-muted/20 border-border/70">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="approver-l2" className="font-semibold flex items-center gap-2 text-sm">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold">2</span>
+                  <Label htmlFor="approver-l2" className="font-semibold flex items-center gap-2 text-[12px]">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">2</span>
                     Level 2: Final Authorization <span className="text-destructive">*</span>
                   </Label>
                   <span className="text-[11px] text-muted-foreground bg-background px-2 py-0.5 rounded border border-border/60">
                     Persetujuan Akhir
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[12px] text-muted-foreground">
                   Otorisasi pengeluaran barang sebelum material dapat diambil di gudang
                 </p>
                 <Select 
@@ -380,7 +381,7 @@ export default function CreateRfcPage() {
                     label: `${u.name} (${u.role})`
                   }))}
                 >
-                  <SelectTrigger id="approver-l2" className="h-11 bg-background">
+                  <SelectTrigger id="approver-l2" className="h-11 bg-background text-[12px]">
                     <SelectValue placeholder="Pilih Direktur / Management Approver">
                       {(() => {
                         const selected = users.find((u) => u.id === approverLevel2);
@@ -390,9 +391,9 @@ export default function CreateRfcPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {users.map((u) => (
-                      <SelectItem key={u.id} value={u.id}>
+                      <SelectItem key={u.id} value={u.id} className="text-[12px]">
                         <div className="flex items-center justify-between w-full gap-2">
-                          <span className="font-medium">{u.name}</span>
+                          <span className="font-medium text-[12px]">{u.name}</span>
                           <span className="text-[11px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded border border-border/40">{u.role}</span>
                         </div>
                       </SelectItem>
@@ -404,26 +405,26 @@ export default function CreateRfcPage() {
 
             {/* Visual Mini Stepper Preview */}
             <div className="pt-3 border-t">
-              <span className="text-xs font-semibold text-muted-foreground block mb-2.5">
+              <span className="text-[12px] font-semibold text-muted-foreground block mb-2.5">
                 Preview Alur Persetujuan Dokumen:
               </span>
-              <div className="flex flex-wrap items-center gap-2 text-xs">
-                <div className="flex items-center gap-1.5 bg-muted/60 px-3 py-1.5 rounded-lg border">
+              <div className="flex flex-wrap items-center gap-2 text-[12px]">
+                <div className="flex items-center gap-1.5 bg-muted/60 px-3 py-1.5 rounded-lg border text-[12px]">
                   <span className="w-4 h-4 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center text-[10px]">0</span>
                   <span className="font-medium">{user?.name || 'Requestor'} (Submit)</span>
                 </div>
                 <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30 font-medium">
+                <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/30 font-medium text-[12px]">
                   <span className="w-4 h-4 rounded-full bg-amber-500/20 font-bold flex items-center justify-center text-[10px]">1</span>
                   <span>{users.find(u => u.id === approverLevel1)?.name || 'Pilih Level 1 Approver'}</span>
                 </div>
                 <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <div className="flex items-center gap-1.5 bg-blue-500/10 text-blue-700 dark:text-blue-400 px-3 py-1.5 rounded-lg border border-blue-500/30 font-medium">
+                <div className="flex items-center gap-1.5 bg-blue-500/10 text-blue-700 dark:text-blue-400 px-3 py-1.5 rounded-lg border border-blue-500/30 font-medium text-[12px]">
                   <span className="w-4 h-4 rounded-full bg-blue-500/20 font-bold flex items-center justify-center text-[10px]">2</span>
                   <span>{users.find(u => u.id === approverLevel2)?.name || 'Pilih Level 2 Approver'}</span>
                 </div>
                 <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <div className="flex items-center gap-1.5 bg-muted/60 px-3 py-1.5 rounded-lg border text-muted-foreground">
+                <div className="flex items-center gap-1.5 bg-muted/60 px-3 py-1.5 rounded-lg border text-muted-foreground text-[12px]">
                   <span className="font-medium">Warehouse Dispatch</span>
                 </div>
               </div>
