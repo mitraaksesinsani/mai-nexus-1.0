@@ -304,47 +304,53 @@ export default function PicDashboardPage() {
 
       {/* Selected Warehouse Banner (if single warehouse selected) */}
       {activeWh && activeWh.id !== 'ALL' && (
-        <div className="rounded-xl border bg-[#eeeeee] dark:bg-muted/30 p-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div>
-              <span className="font-bold text-base text-foreground block">
-                {activeWh.name}
-              </span>
-              <div className="flex items-center gap-2 mt-1.5">
-                <Badge variant="outline" className="font-normal text-xs uppercase">
+        <div className="w-full p-3.5 bg-gradient-to-r from-red-700 to-rose-950 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+          <div className="flex flex-col justify-start items-start">
+            <div className="text-white text-base font-bold leading-5">
+              {activeWh.name}
+            </div>
+            
+            <div className="pt-2 flex items-center gap-2">
+              <div className="px-2 py-0.5 bg-black rounded-[5px] flex justify-center items-center overflow-hidden">
+                <span className="text-white text-xs font-normal uppercase leading-4">
                   {activeWh.code}
-                </Badge>
-                <Badge 
-                  variant={activeWh.status === 'ACTIVE' ? 'default' : 'secondary'}
-                  className="text-[10px] px-1.5 py-0 h-4"
-                >
-                  {activeWh.status || 'ACTIVE'}
-                </Badge>
-              </div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-muted-foreground mt-2">
-                {activeWh.location && (
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3.5 w-3.5 text-muted-foreground/70" />
-                    {activeWh.location}
-                  </span>
-                )}
-                <span className="flex items-center gap-1">
-                  <User className="h-3.5 w-3.5 text-muted-foreground/70" />
-                  PIC: <span className="font-medium text-foreground">{activeWh.picName || 'Unassigned'}</span>
                 </span>
-                {activeWh.type && (
-                  <span>Tipe: <span className="font-medium text-foreground">{activeWh.type}</span></span>
-                )}
+              </div>
+              <div className="px-1.5 py-0.5 bg-green-600 rounded-[5px] flex justify-center items-center overflow-hidden">
+                <span className="text-white text-[10px] font-medium leading-4">
+                  {activeWh.status || 'ACTIVE'}
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 self-start md:self-auto">
-              <Button variant="outline" size="sm" render={<Link href="/warehouse" />} nativeButton={false} className="h-8 text-[12px] gap-1.5">
-                <span>Detail Master Gudang</span>
-                <ArrowRight className="h-3 w-3" />
-              </Button>
+            <div className="pt-2 flex flex-wrap items-center gap-3.5 text-white text-xs">
+              {activeWh.location && (
+                <div className="flex items-center gap-1">
+                  <MapPin className="size-3 text-white shrink-0" />
+                  <span className="leading-4">{activeWh.location}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1">
+                <User className="size-3 text-white shrink-0" />
+                <span className="leading-4">PIC:</span>
+                <span className="font-bold leading-4">{activeWh.picName || 'Unassigned'}</span>
+              </div>
+              {activeWh.type && (
+                <div>
+                  <span className="leading-4">Tipe: </span>
+                  <span className="font-bold leading-4">{activeWh.type}</span>
+                </div>
+              )}
             </div>
           </div>
+
+          <Link
+            href="/warehouse"
+            className="h-7 px-2.5 bg-red-900 hover:bg-red-800 transition-colors rounded-lg border border-white flex items-center gap-1.5 text-white text-xs font-medium self-start md:self-auto shrink-0"
+          >
+            <span>Detail Master Gudang</span>
+            <ArrowRight className="size-3 text-white" />
+          </Link>
         </div>
       )}
 
