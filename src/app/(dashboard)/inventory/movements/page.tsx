@@ -218,12 +218,12 @@ function MovementsContent() {
 
             {/* Desktop Table View (screen > 640px) */}
             <div className="hidden sm:block border rounded-xl overflow-x-auto bg-card">
-              <Table className="table-fixed min-w-[1240px] w-full">
+              <Table className="table-fixed min-w-[1280px] w-full">
                 <TableHeader>
                   <TableRow className="bg-secondary/30">
                     <TableHead className="w-[170px]">Date</TableHead>
-                    <TableHead className="w-[130px]">Type</TableHead>
-                    <TableHead className="w-[460px]">Material</TableHead>
+                    <TableHead className="w-[180px]">Type</TableHead>
+                    <TableHead className="w-[450px]">Material</TableHead>
                     <TableHead className="w-[180px]">Warehouse</TableHead>
                     <TableHead className="w-[120px] text-right">Quantity</TableHead>
                     <TableHead className="w-[180px]">Notes</TableHead>
