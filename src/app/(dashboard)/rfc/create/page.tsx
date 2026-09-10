@@ -449,12 +449,11 @@ export default function CreateRfcPage() {
             <CardTitle className="text-lg">Requested Materials</CardTitle>
             <Button 
               type="button" 
-              variant="outline" 
               size="sm" 
               onClick={addItem}
-              className="hidden sm:inline-flex text-[12px] h-8 gap-1"
+              className="hidden sm:inline-flex bg-black text-white hover:bg-black/85 text-[12px] h-8 gap-1 shadow-2xs"
             >
-              <Plus className="h-4 w-4 mr-1" />
+              <Plus className="h-4 w-4 mr-1 text-white" />
               Add Item
             </Button>
           </CardHeader>
@@ -587,11 +586,10 @@ export default function CreateRfcPage() {
               {/* Add Item Button for Mobile (below the latest added material) */}
               <Button 
                 type="button" 
-                variant="outline" 
-                className="w-full h-10 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 text-[12px] font-medium gap-1.5 rounded-xl shadow-2xs"
+                className="w-full h-10 bg-black text-white hover:bg-black/85 text-[12px] font-medium gap-1.5 rounded-xl shadow-sm"
                 onClick={addItem}
               >
-                <Plus className="h-4 w-4 text-primary" />
+                <Plus className="h-4 w-4 text-white" />
                 Add Item
               </Button>
             </div>
