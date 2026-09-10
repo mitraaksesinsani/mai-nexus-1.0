@@ -83,61 +83,140 @@ export default function InventoryPage() {
           className="w-full h-10 pl-10 pr-4 bg-card border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all" />
       </div>
 
-      <div className="bg-card border border-border rounded-xl overflow-x-auto animate-fade-in" style={{ animationDelay: '200ms' }}>
-        <table className="w-full whitespace-nowrap">
-          <thead><tr className="border-b border-border bg-secondary/30 text-[12px]">
-            <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3 min-w-[280px]">Material</th>
-            <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3">Code</th>
-            <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3">Warehouse</th>
-            <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-3">Available</th>
-            <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-3">Reserved</th>
-            <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-3">Minimum</th>
-            <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3">Status</th>
-            <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-3">Action</th>
-          </tr></thead>
-          <tbody>
-            {loading ? [...Array(8)].map((_, i) => (
-              <tr key={i} className="border-b border-border">{[...Array(8)].map((_, j) => (
-                <td key={j} className="px-4 py-4"><div className="h-4 bg-secondary rounded shimmer" /></td>
-              ))}</tr>
-            )) : inventory.map((item) => {
-              const isLow = item.availableStock <= item.minimumStock;
-              return (
-                <tr key={item.id} className="border-b border-border hover:bg-secondary/20 transition-colors">
-                  <td className="px-4 py-3 whitespace-normal">
-                    <div className="max-w-[53ch] break-words text-sm font-medium leading-snug" style={{ maxWidth: '53ch' }}>
-                      {item.material?.materialName}
+      <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
+        {loading ? (
+          <div className="space-y-3">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="p-4 bg-card border rounded-xl animate-pulse flex flex-col gap-2">
+                <div className="h-4 bg-muted rounded w-1/3" />
+                <div className="h-3 bg-muted rounded w-2/3" />
+                <div className="h-8 bg-muted rounded w-full mt-2" />
+              </div>
+            ))}
+          </div>
+        ) : inventory.length > 0 ? (
+          <>
+            {/* Mobile List View (screen <= 640px / mendekati 390px) */}
+            <div className="block sm:hidden divide-y divide-border/60 border rounded-xl bg-card overflow-hidden">
+              {inventory.map((item) => {
+                const isLow = item.availableStock <= item.minimumStock;
+                return (
+                  <div key={item.id} className="p-3.5 flex flex-col gap-2.5 hover:bg-muted/20 transition-colors">
+                    {/* Header: Status & Code & Action */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {isLow ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-500 border border-red-500/30">
+                            <ArrowDownRight className="w-3 h-3" /> Low Stock
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-500 border border-emerald-500/30">
+                            <ArrowUpRight className="w-3 h-3" /> In Stock
+                          </span>
+                        )}
+                        <span className="text-xs font-mono text-muted-foreground">{item.material?.materialCode}</span>
+                      </div>
+                      <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => handleViewLogs(item)}>
+                        <History className="w-3.5 h-3.5" /> Logs
+                      </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">{item.material?.unit}</p>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{item.material?.materialCode}</td>
-                  <td className="px-4 py-3 text-sm">{item.warehouse?.warehouseName}</td>
-                  <td className={cn("px-4 py-3 text-sm font-semibold text-right", isLow ? "text-red-400" : "text-emerald-400")}>{item.availableStock.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-sm text-right text-amber-400">{item.reservedStock.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-sm text-right text-muted-foreground">{item.minimumStock.toLocaleString()}</td>
-                  <td className="px-4 py-3">
-                    {isLow ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-red-500/20 text-red-400 border border-red-500/30">
-                        <ArrowDownRight className="w-3 h-3" /> Low
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                        <ArrowUpRight className="w-3 h-3" /> OK
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Button variant="ghost" size="sm" onClick={() => handleViewLogs(item)}>
-                      <History className="w-4 h-4 mr-2" /> Logs
-                    </Button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {!loading && inventory.length === 0 && (
-          <div className="text-center py-16"><Package className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" /><p className="text-muted-foreground">No inventory data</p></div>
+
+                    {/* Material Info */}
+                    <div>
+                      <div className="text-sm font-medium leading-snug break-words text-foreground">
+                        {item.material?.materialName}
+                      </div>
+                      {item.warehouse?.warehouseName && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                          <span className="text-muted-foreground/70">Gudang:</span>
+                          <span className="font-medium text-foreground">{item.warehouse?.warehouseName}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Stock Metrics (Available, Reserved, Minimum) */}
+                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/40 text-center bg-muted/20 -mx-3.5 -mb-3.5 px-3.5 py-2">
+                      <div>
+                        <span className="text-[10px] block text-muted-foreground uppercase tracking-wider">Available</span>
+                        <span className={cn("font-bold text-sm", isLow ? "text-red-500" : "text-emerald-500")}>
+                          {item.availableStock.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">{item.material?.unit}</span>
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] block text-muted-foreground uppercase tracking-wider">Reserved</span>
+                        <span className="font-semibold text-sm text-amber-500">
+                          {item.reservedStock.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">{item.material?.unit}</span>
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] block text-muted-foreground uppercase tracking-wider">Minimum</span>
+                        <span className="font-medium text-sm text-muted-foreground">
+                          {item.minimumStock.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">{item.material?.unit}</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table View (screen > 640px) */}
+            <div className="hidden sm:block border rounded-xl overflow-x-auto bg-card">
+              <table className="w-full whitespace-nowrap">
+                <thead><tr className="border-b border-border bg-secondary/30 text-[12px]">
+                  <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3 min-w-[280px]">Material</th>
+                  <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3">Code</th>
+                  <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3">Warehouse</th>
+                  <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-3">Available</th>
+                  <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-3">Reserved</th>
+                  <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-3">Minimum</th>
+                  <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-3">Status</th>
+                  <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-3">Action</th>
+                </tr></thead>
+                <tbody>
+                  {inventory.map((item) => {
+                    const isLow = item.availableStock <= item.minimumStock;
+                    return (
+                      <tr key={item.id} className="border-b border-border hover:bg-secondary/20 transition-colors">
+                        <td className="px-4 py-3 whitespace-normal">
+                          <div className="max-w-[53ch] break-words text-sm font-medium leading-snug" style={{ maxWidth: '53ch' }}>
+                            {item.material?.materialName}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">{item.material?.unit}</p>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{item.material?.materialCode}</td>
+                        <td className="px-4 py-3 text-sm">{item.warehouse?.warehouseName}</td>
+                        <td className={cn("px-4 py-3 text-sm font-semibold text-right", isLow ? "text-red-400" : "text-emerald-400")}>{item.availableStock.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-sm text-right text-amber-400">{item.reservedStock.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-sm text-right text-muted-foreground">{item.minimumStock.toLocaleString()}</td>
+                        <td className="px-4 py-3">
+                          {isLow ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-red-500/20 text-red-400 border border-red-500/30">
+                              <ArrowDownRight className="w-3 h-3" /> Low
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                              <ArrowUpRight className="w-3 h-3" /> OK
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Button variant="ghost" size="sm" onClick={() => handleViewLogs(item)}>
+                            <History className="w-4 h-4 mr-2" /> Logs
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-16 bg-card border rounded-xl">
+            <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
+            <p className="text-muted-foreground">No inventory data</p>
+          </div>
         )}
       </div>
 
