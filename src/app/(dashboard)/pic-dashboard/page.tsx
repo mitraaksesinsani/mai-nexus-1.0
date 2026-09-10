@@ -244,12 +244,12 @@ export default function PicDashboardPage() {
       {/* Header Section */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
               PIC Warehouse Dashboard
             </h1>
             {data?.isAdmin && (
-              <Badge variant="secondary" className="gap-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium">
+              <Badge variant="secondary" className="gap-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium w-fit">
                 <ShieldCheck className="h-3 w-3" />
                 Mode Administrator (God Eye)
               </Badge>
