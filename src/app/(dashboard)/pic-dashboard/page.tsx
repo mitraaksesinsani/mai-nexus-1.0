@@ -473,61 +473,22 @@ export default function PicDashboardPage() {
         className="space-y-4"
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          {/* Mobile View (screen <= 640px / 390px): Dropdown Select */}
-          <div className="block sm:hidden w-full">
-            <Select 
-              value={activeTab} 
-              onValueChange={(val) => {
-                if (val) setActiveTab(val as 'inventory' | 'movements');
-              }}
-              items={[
-                { value: 'inventory', label: `Daftar Stok Material (${filteredStocks.length})` },
-                { value: 'movements', label: `Riwayat Transaksi Terkini (${data?.recentTransactions?.length || 0})` },
-              ]}
+          {/* Tabs Bar (line variant matching user specification) */}
+          <div className="w-full overflow-x-auto sm:overflow-visible sm:w-auto">
+            <TabsList 
+              variant="line" 
+              className="h-fit! w-max min-w-full flex-nowrap justify-start gap-0 rounded-none border-b p-0 sm:w-auto sm:flex-wrap"
             >
-              <SelectTrigger className="h-10 w-full text-sm bg-background">
-                <SelectValue placeholder="Pilih Tab">
-                  {activeTab === 'inventory' ? (
-                    <span className="flex items-center gap-2">
-                      <Package className="h-4 w-4" />
-                      <span>Daftar Stok Material ({filteredStocks.length})</span>
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      <span>Riwayat Transaksi Terkini ({data?.recentTransactions?.length || 0})</span>
-                    </span>
-                  )}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="inventory" className="text-sm">
-                  <div className="flex items-center gap-2">
-                    <Package className="h-4 w-4" />
-                    <span>Daftar Stok Material ({filteredStocks.length})</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="movements" className="text-sm">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    <span>Riwayat Transaksi Terkini ({data?.recentTransactions?.length || 0})</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+              <TabsTrigger value="inventory" className="text-sm gap-2 h-9 px-3 shrink-0 border-0">
+                <Package className="h-4 w-4" />
+                <span>Daftar Stok Material ({filteredStocks.length})</span>
+              </TabsTrigger>
+              <TabsTrigger value="movements" className="text-sm gap-2 h-9 px-3 shrink-0 border-0">
+                <Clock className="h-4 w-4" />
+                <span>Riwayat Transaksi Terkini ({data?.recentTransactions?.length || 0})</span>
+              </TabsTrigger>
+            </TabsList>
           </div>
-
-          {/* Desktop / Tablet View (> 640px): Tab Bar */}
-          <TabsList className="hidden sm:inline-flex h-10 p-1">
-            <TabsTrigger value="inventory" className="text-sm gap-2 h-8 px-3.5">
-              <Package className="h-4 w-4" />
-              <span>Daftar Stok Material ({filteredStocks.length})</span>
-            </TabsTrigger>
-            <TabsTrigger value="movements" className="text-sm gap-2 h-8 px-3.5">
-              <Clock className="h-4 w-4" />
-              <span>Riwayat Transaksi Terkini ({data?.recentTransactions?.length || 0})</span>
-            </TabsTrigger>
-          </TabsList>
 
           {/* Quick Filter & Search for stock */}
           <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
