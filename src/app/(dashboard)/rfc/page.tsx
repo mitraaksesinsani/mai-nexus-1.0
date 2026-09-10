@@ -53,20 +53,39 @@ export default function ConsumptionRfcPage() {
 
  return (
    <div className="space-y-6">
-     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-       <div>
-         <h1 className="text-3xl font-bold tracking-tight">Request for Consumption (RFC)</h1>
-         <p className="text-muted-foreground mt-1">Manage and track material consumption requests.</p>
-       </div>
-       <div className="flex items-center gap-2">
-         <Link href="/rfc/create">
-           <Button className="gap-2">
-             <Plus className="h-4 w-4" />
-             New RFC
-           </Button>
-         </Link>
-       </div>
-     </div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Request for Consumption (RFC)</h1>
+          <p className="text-muted-foreground mt-1">Manage and track material consumption requests.</p>
+        </div>
+
+        {/* Desktop Button (> 640px) */}
+        <div className="hidden sm:flex items-center gap-2">
+          <Link href="/rfc/create">
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              New RFC
+            </Button>
+          </Link>
+        </div>
+
+        {/* Mobile Interactive Banner (<= 640px / ~390px) */}
+        <div className="sm:hidden w-full max-w-[340px]">
+          <Link href="/rfc/create" className="block w-full">
+            <div className="h-9 pl-3.5 pr-1 bg-neutral-900 rounded-lg flex justify-between items-center transition-all hover:bg-neutral-800 active:scale-[0.99] border border-neutral-800/80 shadow-xs">
+              <div className="text-neutral-50 text-xs font-medium leading-4">
+                Ingin Mengambil Barang?
+              </div>
+              <div className="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-[5px] flex items-center gap-1.5 transition-colors">
+                <Plus className="size-3.5 text-neutral-50 shrink-0" />
+                <span className="text-neutral-50 text-xs font-medium leading-4">
+                  Buat RFC
+                </span>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-end">
         <div className="md:col-span-4 flex items-center gap-2">
