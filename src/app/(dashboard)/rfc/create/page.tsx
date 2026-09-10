@@ -223,12 +223,12 @@ export default function CreateRfcPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-2.5">
             <CardTitle className="text-lg">General Information</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+              <div className="space-y-1.5">
                 <Label htmlFor="project">Project <span className="text-destructive">*</span></Label>
                 <Select 
                   value={formData.projectId} 
@@ -256,7 +256,7 @@ export default function CreateRfcPage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="warehouse">Source Warehouse <span className="text-destructive">*</span></Label>
                 <Select 
                   value={formData.warehouseId} 
@@ -285,7 +285,7 @@ export default function CreateRfcPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="notes">Notes / Purpose</Label>
               <Textarea 
                 id="notes" 
