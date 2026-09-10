@@ -51,6 +51,8 @@ export default function ProjectsPage() {
   const [filterEndDate, setFilterEndDate] = useState('');
   const [sortBy, setSortBy] = useState('newest');
   
+  const [usersList, setUsersList] = useState<any[]>([]);
+  
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   
@@ -82,6 +84,19 @@ export default function ProjectsPage() {
   const [activities, setActivities] = useState<any[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(false);
   const [selectedProjectName, setSelectedProjectName] = useState('');
+
+  const fetchUsers = async () => {
+    try {
+      const { data } = await api.get('/api/users');
+      setUsersList((data.data || []).filter((u: any) => u.isActive !== false));
+    } catch (e) {
+      console.error('Failed to fetch users', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     fetchProjects();
@@ -262,13 +277,52 @@ export default function ProjectsPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="pic">PIC (Person in Charge)</Label>
-              <Input
-                id="pic"
-                placeholder="e.g. John Doe"
-                required
-                value={formData.pic}
-                onChange={(e) => setFormData({ ...formData, pic: e.target.value })}
-              />
+              <Select
+                value={
+                  formData.pic
+                    ? (usersList.some(u => u.name === formData.pic)
+                        ? formData.pic
+                        : `LEGACY_${formData.pic}`)
+                    : '__UNASSIGNED__'
+                }
+                onValueChange={(val) => {
+                  if (!val || val === '__UNASSIGNED__') {
+                    setFormData({ ...formData, pic: '' });
+                  } else if (val.startsWith('LEGACY_')) {
+                    // Tetap mempertahankan teks lama
+                  } else {
+                    setFormData({ ...formData, pic: val });
+                  }
+                }}
+              >
+                <SelectTrigger id="pic" className="w-full h-10 bg-background">
+                  <SelectValue placeholder="Pilih User sebagai PIC">
+                    {formData.pic || null}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  <SelectItem value="__UNASSIGNED__">
+                    <span className="text-muted-foreground italic">-- Belum ada PIC (Unassigned) --</span>
+                  </SelectItem>
+                  {formData.pic && !usersList.some(u => u.name === formData.pic) && (
+                    <SelectItem value={`LEGACY_${formData.pic}`}>
+                      <span>{formData.pic} (Manual / Teks Lama)</span>
+                    </SelectItem>
+                  )}
+                  {usersList.map((u) => (
+                    <SelectItem key={u.id} value={u.name}>
+                      <div className="flex items-center justify-between w-full gap-4">
+                        <span className="font-medium text-foreground">{u.name}</span>
+                        {u.role && (
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal">
+                            {u.role.replace(/_/g, ' ')}
+                          </Badge>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
