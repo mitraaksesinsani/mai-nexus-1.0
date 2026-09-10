@@ -320,11 +320,8 @@ export default function CreateRfcPage() {
                 <div className="flex items-center justify-between">
                   <Label htmlFor="approver-l1" className="font-semibold flex items-center gap-2 text-[12px]">
                     <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">1</span>
-                    Level 1: Site Verification <span className="text-destructive">*</span>
+                    Verifikasi Lapangan <span className="text-destructive">*</span>
                   </Label>
-                  <span className="text-[11px] text-muted-foreground bg-background px-2 py-0.5 rounded border border-border/60">
-                    Review Lapangan
-                  </span>
                 </div>
                 <p className="text-[12px] text-muted-foreground">
                   Verifikasi fisik & kebutuhan teknis material proyek di lapangan
