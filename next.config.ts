@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
   },
   // In latest next.js, allowedDevOrigins is top level
   allowedDevOrigins: [
+    '192.168.1.4',
+    '192.168.1.4:3001',
     '192.168.1.7',
     '192.168.1.7:3001',
     '192.168.1.*',
