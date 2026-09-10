@@ -360,11 +360,8 @@ export default function CreateRfcPage() {
                 <div className="flex items-center justify-between">
                   <Label htmlFor="approver-l2" className="font-semibold flex items-center gap-2 text-[12px]">
                     <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">2</span>
-                    Level 2: Final Authorization <span className="text-destructive">*</span>
+                    Persetujuan Akhir <span className="text-destructive">*</span>
                   </Label>
-                  <span className="text-[11px] text-muted-foreground bg-background px-2 py-0.5 rounded border border-border/60">
-                    Persetujuan Akhir
-                  </span>
                 </div>
                 <p className="text-[12px] text-muted-foreground">
                   Otorisasi pengeluaran barang sebelum material dapat diambil di gudang
