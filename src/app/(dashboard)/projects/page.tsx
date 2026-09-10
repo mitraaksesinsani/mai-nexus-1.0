@@ -214,7 +214,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full min-w-0">
       <div className="animate-fade-in">
         <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
         <p className="text-sm text-muted-foreground mt-1">Manage your network infrastructure projects and core Project IDs</p>
@@ -406,14 +406,14 @@ export default function ProjectsPage() {
       </Dialog>
 
       {/* Search and Action */}
-      <div className="flex flex-col gap-4 animate-fade-in" style={{ animationDelay: '100ms' }}>
+      <div className="flex flex-col gap-4 animate-fade-in w-full" style={{ animationDelay: '100ms' }}>
         <div className="flex justify-end items-center">
           <Button className="gap-2 w-full sm:w-auto" onClick={openCreateDialog}>
             <Plus className="w-4 h-4" /> New Project
           </Button>
         </div>
 
-        <div className="flex flex-wrap gap-4 items-end bg-card p-4 rounded-xl">
+        <div className="flex flex-wrap gap-4 items-end bg-card p-4 rounded-xl w-full">
           <div className="flex-1 min-w-[200px]">
             <Label className="text-xs mb-1.5 block text-muted-foreground">Search</Label>
             <div className="relative">
@@ -458,7 +458,7 @@ export default function ProjectsPage() {
         </div>
       </div>
 
-      <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
+      <div className="animate-fade-in w-full min-w-0" style={{ animationDelay: '200ms' }}>
         {loading ? (
           <div className="p-8 text-center flex flex-col items-center bg-card border rounded-xl ">
             <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
