@@ -304,9 +304,8 @@ export default function CreateRfcPage() {
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <UserCheck className="h-5 w-5 text-primary" />
-                  Approval Workflow (Approver Berjenjang)
+                <CardTitle className="text-lg">
+                  Alur Persetujuan
                 </CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">
                   Pilih approver bertingkat yang berwenang memverifikasi dan menyetujui dokumen pengeluaran material ini
