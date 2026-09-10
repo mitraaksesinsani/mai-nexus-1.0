@@ -73,12 +73,12 @@ export default function ConsumptionRfcPage() {
         <div className="sm:hidden w-full">
           <Link href="/rfc/create" className="block w-full">
             <div className="h-[39px] pl-3.5 pr-1 bg-neutral-900 rounded-lg flex justify-between items-center transition-all hover:bg-neutral-800 active:scale-[0.99] border border-neutral-800/80 shadow-xs">
-              <div className="text-neutral-50 text-xs font-medium leading-4">
+              <div className="text-neutral-50 text-[12px] font-medium leading-4">
                 Ingin Mengambil Barang?
               </div>
               <div className="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-[5px] flex items-center gap-1.5 transition-colors">
                 <Plus className="size-3.5 text-neutral-50 shrink-0" />
-                <span className="text-neutral-50 text-xs font-medium leading-4">
+                <span className="text-neutral-50 text-[12px] font-medium leading-4">
                   Buat RFC
                 </span>
               </div>
