@@ -477,13 +477,19 @@ export default function PicDashboardPage() {
           <div className="w-full overflow-x-auto sm:overflow-visible sm:w-auto">
             <TabsList 
               variant="line" 
-              className="h-fit! w-max min-w-full flex-nowrap justify-start gap-0 rounded-none border-b p-0 sm:w-auto sm:flex-wrap"
+              className="h-fit! w-max min-w-full flex-nowrap justify-start gap-0 rounded-none border-b border-border p-0 sm:w-auto sm:flex-wrap"
             >
-              <TabsTrigger value="inventory" className="text-sm gap-2 h-9 px-3 shrink-0 border-0">
+              <TabsTrigger 
+                value="inventory" 
+                className="text-sm gap-2 h-9 px-3 shrink-0 rounded-none border-b-2 border-transparent data-active:border-foreground aria-selected:border-foreground data-active:text-foreground aria-selected:text-foreground data-active:bg-transparent dark:data-active:bg-transparent -mb-px transition-all"
+              >
                 <Package className="h-4 w-4" />
                 <span>Stok Material ({filteredStocks.length})</span>
               </TabsTrigger>
-              <TabsTrigger value="movements" className="text-sm gap-2 h-9 px-3 shrink-0 border-0">
+              <TabsTrigger 
+                value="movements" 
+                className="text-sm gap-2 h-9 px-3 shrink-0 rounded-none border-b-2 border-transparent data-active:border-foreground aria-selected:border-foreground data-active:text-foreground aria-selected:text-foreground data-active:bg-transparent dark:data-active:bg-transparent -mb-px transition-all"
+              >
                 <Clock className="h-4 w-4" />
                 <span>Log Gudang ({data?.recentTransactions?.length || 0})</span>
               </TabsTrigger>
