@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Warehouse, Search, Plus, Loader2, Pencil, Trash2, MapPin, Upload, Image as ImageIcon, X, ExternalLink, Map, Globe, Check, ChevronsUpDown, MoreHorizontal, Eye, PackagePlus, User } from 'lucide-react';
+import { Warehouse, Search, Plus, Loader2, Pencil, Trash2, MapPin, Upload, Image as ImageIcon, X, ExternalLink, Map, Globe, Check, ChevronsUpDown, MoreHorizontal, Eye, PackagePlus, User, SlidersHorizontal } from 'lucide-react';
 import api from '@/lib/api';
 import StatusBadge from '@/components/shared/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -526,7 +526,7 @@ export default function WarehousePage() {
                             <span className="sr-only">Open menu</span>
                             <MoreHorizontal className="h-4 w-4" />
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-56">
+                          <DropdownMenuContent align="end" className="w-auto min-w-[240px] px-1.5 py-1.5 whitespace-nowrap">
                             <DropdownMenuItem onClick={() => router.push(`/warehouse/${w.id}`)} className="cursor-pointer">
                               <Eye className="mr-2 h-4 w-4" />
                               <span>Lihat Detil</span>
@@ -540,8 +540,8 @@ export default function WarehousePage() {
                               <span>Edit Gudang</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => openStockEntryDialog(w)} className="cursor-pointer">
-                              <PackagePlus className="mr-2 h-4 w-4" />
-                              <span>Tambah Stok Manual</span>
+                              <SlidersHorizontal className="mr-2 h-4 w-4 text-primary" />
+                              <span>Penyesuaian Stok (In / Out)</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => { setDeleteId(w.id); setDeleteOpen(true); }} className="cursor-pointer text-destructive focus:text-destructive">
                               <Trash2 className="mr-2 h-4 w-4" />
@@ -945,6 +945,7 @@ export default function WarehousePage() {
         isOpen={stockEntryOpen}
         onClose={() => setStockEntryOpen(false)}
         warehouseId={stockEntryWarehouseId}
+        warehouseName={warehouses.find(w => w.id === stockEntryWarehouseId)?.name}
         onSuccess={() => {
           fetchWarehouses();
         }}

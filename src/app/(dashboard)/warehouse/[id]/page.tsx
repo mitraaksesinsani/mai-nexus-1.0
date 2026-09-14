@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { 
-  ArrowLeft, Warehouse as WarehouseIcon, MapPin, Package, AlertTriangle 
+  ArrowLeft, Warehouse as WarehouseIcon, MapPin, Package, AlertTriangle, SlidersHorizontal 
 } from 'lucide-react';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { DataTablePagination } from '@/components/shared/DataTablePagination';
 
 import { MaterialLogModal } from '@/components/warehouse/MaterialLogModal';
+import { ManualStockEntryModal } from '@/components/warehouse/ManualStockEntryModal';
 
 export default function WarehouseDetailsPage() {
   const { id } = useParams();
@@ -28,6 +29,7 @@ export default function WarehouseDetailsPage() {
   
   const [selectedLogMaterial, setSelectedLogMaterial] = useState<any>(null);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const [isAdjustmentModalOpen, setIsAdjustmentModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -162,13 +164,22 @@ export default function WarehouseDetailsPage() {
             </CardTitle>
             <CardDescription>All materials currently in stock at this warehouse.</CardDescription>
           </div>
-          <Input 
-            type="search" 
-            placeholder="Search material..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full sm:w-[250px]"
-          />
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+            <Input 
+              type="search" 
+              placeholder="Search material..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full sm:w-[220px]"
+            />
+            <Button 
+              onClick={() => setIsAdjustmentModalOpen(true)}
+              className="gap-2 shrink-0 h-9"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              Penyesuaian Stok
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="px-0">
           {filteredMaterials.length === 0 ? (
@@ -280,6 +291,27 @@ export default function WarehouseDetailsPage() {
           materialId={selectedLogMaterial.materialId}
           materialCode={selectedLogMaterial.materialCode}
           materialName={selectedLogMaterial.materialName}
+        />
+      )}
+
+      {warehouse && (
+        <ManualStockEntryModal
+          isOpen={isAdjustmentModalOpen}
+          onClose={() => setIsAdjustmentModalOpen(false)}
+          warehouseId={id as string}
+          warehouseName={warehouse.name}
+          onSuccess={async () => {
+            try {
+              const [whRes, stockRes] = await Promise.all([
+                api.get(`/api/warehouse/${id}`),
+                api.get(`/api/inventory/stocks?warehouseId=${id}`)
+              ]);
+              setWarehouse(whRes.data.data);
+              setMaterials(stockRes.data.data || []);
+            } catch (err) {
+              console.error(err);
+            }
+          }}
         />
       )}
     </div>
