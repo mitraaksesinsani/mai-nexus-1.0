@@ -56,6 +56,11 @@ const groupedNavigation = [
         href: '/pic-dashboard',
         icon: UserCheck,
       },
+      {
+        label: 'Owner Dashboard',
+        href: '/owner-dashboard',
+        icon: BarChart3,
+      },
     ]
   },
   {
@@ -252,9 +257,9 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
       // Admin has access to everything
       if (userRole === 'ADMIN' || userRole === 'SUPER_ADMIN') return true;
 
-      // OWNER has access to overview dashboards, reports, warehouse & inventory
+      // OWNER only has access to Owner Dashboard
       if (userRole === 'OWNER') {
-        return ['Dashboard', 'PIC Dashboard', 'Reports', 'Warehouse', 'Inventory', 'Project Management', 'RFC'].includes(item.label);
+        return item.label === 'Owner Dashboard';
       }
 
       // SITE_MANAGER has access to PIC Dashboard, RFC, and Non-Transactional except Master Data & Reports (no Main Dashboard)
@@ -266,6 +271,8 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
       }
 
       switch (item.label) {
+        case 'Owner Dashboard':
+          return ['DIREKTUR', 'OWNER'].includes(userRole);
         case 'PIC Dashboard':
           return true; // All roles can view PIC Dashboard
         case 'Project Management':

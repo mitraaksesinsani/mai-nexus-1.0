@@ -55,23 +55,61 @@ export async function GET() {
     const totalMaterialStock = Math.round(Number(stockRes.rows[0]?.total_material_stock)) || 0;
     const totalCableLength = Number(stockRes.rows[0]?.total_cable_length) || 0;
 
-    // 4. Recent Warehouses with Activity
+    // 5. Recent Warehouses with Latest Activity Details
     const recentWarehousesRes = await pool.query(`
-      SELECT w.id, w.name, w.code, w.location, MAX(t.created_at) as last_activity
-      FROM inventory_transactions t
-      JOIN warehouses w ON t.warehouse_id = w.id
-      GROUP BY w.id, w.name, w.code, w.location
-      ORDER BY last_activity DESC
+      WITH ranked_tx AS (
+        SELECT 
+          t.warehouse_id,
+          t.created_at as last_activity,
+          t.quantity,
+          t.transaction_type,
+          m.material_name,
+          m.unit,
+          ROW_NUMBER() OVER (PARTITION BY t.warehouse_id ORDER BY t.created_at DESC) as rn
+        FROM inventory_transactions t
+        JOIN material_masters m ON t.material_id = m.id
+      )
+      SELECT 
+        w.id, 
+        w.name, 
+        w.code, 
+        w.location, 
+        r.last_activity,
+        r.quantity,
+        r.transaction_type,
+        r.material_name,
+        r.unit
+      FROM ranked_tx r
+      JOIN warehouses w ON r.warehouse_id = w.id
+      WHERE r.rn = 1
+      ORDER BY r.last_activity DESC
       LIMIT 5
     `);
 
-    // 5. Recent Materials with Activity
+    // 6. Recent Materials with Latest Activity Details
     const recentMaterialsRes = await pool.query(`
-      SELECT m.id, m.material_code, m.material_name, m.category, MAX(t.created_at) as last_activity
-      FROM inventory_transactions t
-      JOIN material_masters m ON t.material_id = m.id
-      GROUP BY m.id, m.material_code, m.material_name, m.category
-      ORDER BY last_activity DESC
+      WITH ranked_mat AS (
+        SELECT 
+          t.material_id,
+          t.created_at as last_activity,
+          t.quantity,
+          t.transaction_type,
+          ROW_NUMBER() OVER (PARTITION BY t.material_id ORDER BY t.created_at DESC) as rn
+        FROM inventory_transactions t
+      )
+      SELECT 
+        m.id, 
+        m.material_code, 
+        m.material_name, 
+        m.category, 
+        m.unit,
+        r.last_activity,
+        r.quantity,
+        r.transaction_type
+      FROM ranked_mat r
+      JOIN material_masters m ON r.material_id = m.id
+      WHERE r.rn = 1
+      ORDER BY r.last_activity DESC
       LIMIT 5
     `);
 
@@ -81,20 +119,44 @@ export async function GET() {
         totalMaterialTypes,
         totalMaterialStock,
         totalCableLength,
-        recentWarehouses: recentWarehousesRes.rows.map(row => ({
-          id: row.id,
-          name: row.name,
-          code: row.code,
-          location: row.location,
-          lastActivity: row.last_activity
-        })),
-        recentMaterials: recentMaterialsRes.rows.map(row => ({
-          id: row.id,
-          code: row.material_code,
-          name: row.material_name,
-          category: row.category,
-          lastActivity: row.last_activity
-        }))
+        recentWarehouses: recentWarehousesRes.rows.map(row => {
+          const isOut = (row.transaction_type || '').toUpperCase().includes('OUT') || 
+                        (row.transaction_type || '').toUpperCase().includes('ISSUE') || 
+                        Number(row.quantity) < 0;
+          const absQty = Math.abs(Number(row.quantity) || 0);
+          const changeQty = isOut ? -absQty : absQty;
+          const changeText = `${changeQty > 0 ? '+' : ''}${changeQty.toLocaleString('id-ID')} ${row.unit || ''}`.trim();
+          return {
+            id: row.id,
+            name: row.name,
+            code: row.code,
+            location: row.location,
+            lastActivity: row.last_activity,
+            changeQty,
+            changeText,
+            materialName: row.material_name,
+            transactionType: row.transaction_type
+          };
+        }),
+        recentMaterials: recentMaterialsRes.rows.map(row => {
+          const isOut = (row.transaction_type || '').toUpperCase().includes('OUT') || 
+                        (row.transaction_type || '').toUpperCase().includes('ISSUE') || 
+                        Number(row.quantity) < 0;
+          const absQty = Math.abs(Number(row.quantity) || 0);
+          const changeQty = isOut ? -absQty : absQty;
+          const changeText = `${changeQty > 0 ? '+' : ''}${changeQty.toLocaleString('id-ID')} ${row.unit || ''}`.trim();
+          return {
+            id: row.id,
+            code: row.material_code,
+            name: row.material_name,
+            category: row.category,
+            unit: row.unit,
+            lastActivity: row.last_activity,
+            changeQty,
+            changeText,
+            transactionType: row.transaction_type
+          };
+        })
       }
     });
   } catch (error: any) {

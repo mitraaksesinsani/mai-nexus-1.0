@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Package, Plus, Search, Loader2, Pencil, Trash2, DollarSign } from 'lucide-react';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -22,16 +22,7 @@ import { ExcelImportExport } from '@/components/ExcelImportExport';
 import { toast } from 'sonner';
 import { DataTablePagination } from '@/components/shared/DataTablePagination';
 
-const MATERIAL_GROUPS = [
-  { value: 'CABLE', label: 'Cable' },
-  { value: 'OSP', label: 'OSP' },
-  { value: 'ACTIVE_DEVICE', label: 'Active Device' },
-  { value: 'PASSIVE_DEVICE', label: 'Passive Device' },
-  { value: 'ACCESSORY', label: 'Accessory' },
-  { value: 'TOOLS', label: 'Tools' },
-  { value: 'CONSUMABLE', label: 'Consumable' },
-  { value: 'OTHER', label: 'Other' },
-];
+const BASE_CATEGORIES = ['Pipa', 'Tiang', 'Kabel', 'Alat', 'Aksesoris'];
 const MATERIAL_UOMS = ['Meter', 'Roll', 'Pcs', 'Unit', 'Set', 'Box', 'Kg', 'Liter', 'Lot'];
 
 const PACKAGING_TYPES = [
@@ -39,6 +30,17 @@ const PACKAGING_TYPES = [
   { value: 'KABEL_UDARA', label: '1 Haspel Kabel Udara (4.000 m)' },
   { value: 'KABEL_TANAH', label: '1 Haspel Kabel Tanah / Duct (3.000 m)' },
   { value: 'HDPE_SUBDUCT', label: '1 Roll Subduct / HDPE (200 m)' },
+];
+
+const SORT_OPTIONS = [
+  { value: 'name-asc', label: 'Material (A-Z)' },
+  { value: 'name-desc', label: 'Material (Z-A)' },
+  { value: 'code-asc', label: 'Code (A-Z)' },
+  { value: 'code-desc', label: 'Code (Z-A)' },
+  { value: 'group-asc', label: 'Kategori (A-Z)' },
+  { value: 'group-desc', label: 'Kategori (Z-A)' },
+  { value: 'uom-asc', label: 'UOM (A-Z)' },
+  { value: 'uom-desc', label: 'UOM (Z-A)' },
 ];
 
 export default function MaterialsPage() {
@@ -74,6 +76,50 @@ export default function MaterialsPage() {
     unitPrice: '',
     description: '',
   });
+
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
+  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
+  const [newCategoryInput, setNewCategoryInput] = useState('');
+
+  const allCategories = useMemo(() => {
+    const LEGACY_MAP: Record<string, string> = {
+      cable: 'Kabel',
+      cables: 'Kabel',
+      accessory: 'Aksesoris',
+      accessories: 'Aksesoris',
+      pole: 'Tiang',
+      poles: 'Tiang',
+      pipe: 'Pipa',
+      pipes: 'Pipa',
+      standard: 'Pipa',
+      tool: 'Alat',
+      tools: 'Alat',
+      equipment: 'Alat',
+    };
+
+    const list = [...BASE_CATEGORIES];
+    materials.forEach(m => {
+      let cat = (m.category || '').trim();
+      if (!cat) return;
+      if (LEGACY_MAP[cat.toLowerCase()]) {
+        cat = LEGACY_MAP[cat.toLowerCase()];
+      }
+      if (!list.some(c => c.toLowerCase() === cat.toLowerCase())) {
+        list.push(cat);
+      }
+    });
+    customCategories.forEach(c => {
+      let cat = c.trim();
+      if (!cat) return;
+      if (LEGACY_MAP[cat.toLowerCase()]) {
+        cat = LEGACY_MAP[cat.toLowerCase()];
+      }
+      if (!list.some(existing => existing.toLowerCase() === cat.toLowerCase())) {
+        list.push(cat);
+      }
+    });
+    return list;
+  }, [materials, customCategories]);
 
   useEffect(() => {
     fetchMaterials();
@@ -119,16 +165,20 @@ export default function MaterialsPage() {
 
   const openCreateDialog = () => {
     setEditId(null);
-    setFormData({ code: '', name: '', group: '', uom: '', packagingType: 'NON_PACKAGING', unitPrice: '', description: '' });
+    setIsAddingNewCategory(false);
+    setNewCategoryInput('');
+    setFormData({ code: '', name: '', group: allCategories[0] || 'Pipa', uom: '', packagingType: 'NON_PACKAGING', unitPrice: '', description: '' });
     setIsOpen(true);
   };
 
   const openEditDialog = (material: any) => {
     setEditId(material.id);
+    setIsAddingNewCategory(false);
+    setNewCategoryInput('');
     setFormData({
       code: material.materialCode,
       name: material.materialName,
-      group: material.category,
+      group: material.category || allCategories[0] || 'Pipa',
       uom: material.unit,
       packagingType: material.packagingType || 'NON_PACKAGING',
       unitPrice: material.unitPrice ? material.unitPrice.toString() : '',
@@ -141,12 +191,17 @@ export default function MaterialsPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      const resolvedCategory = (isAddingNewCategory ? newCategoryInput : formData.group).trim();
+      if (resolvedCategory && !allCategories.some(c => c.toLowerCase() === resolvedCategory.toLowerCase())) {
+        setCustomCategories(prev => [...prev, resolvedCategory]);
+      }
+
       if (editId) {
         await api.put('/api/materials', {
           id: editId,
           materialCode: formData.code,
           materialName: formData.name,
-          category: formData.group,
+          category: resolvedCategory,
           specification: formData.description,
           unit: formData.uom,
           packagingType: formData.packagingType,
@@ -159,7 +214,7 @@ export default function MaterialsPage() {
         await api.post('/api/materials', {
           code: formData.code,
           name: formData.name,
-          group: formData.group,
+          group: resolvedCategory,
           uom: formData.uom,
           packagingType: formData.packagingType,
           description: formData.description,
@@ -308,16 +363,18 @@ export default function MaterialsPage() {
               />
             </div>
           </div>
-          <div className="w-[150px]">
-            <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Group</Label>
+          <div className="w-[160px]">
+            <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Kategori</Label>
             <Select value={filterGroup} onValueChange={(val) => setFilterGroup(val || "")}>
               <SelectTrigger className="bg-background">
-                <SelectValue placeholder="All Groups" />
+                <SelectValue placeholder="Semua Kategori">
+                  {filterGroup === 'ALL' ? 'Semua Kategori' : filterGroup || undefined}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">All Groups</SelectItem>
-                {MATERIAL_GROUPS.map(g => (
-                  <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                <SelectItem value="ALL">Semua Kategori</SelectItem>
+                {allCategories.map(c => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -326,7 +383,9 @@ export default function MaterialsPage() {
             <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by UOM</Label>
             <Select value={filterUom} onValueChange={(val) => setFilterUom(val || "")}>
               <SelectTrigger className="bg-background">
-                <SelectValue placeholder="All UOMs" />
+                <SelectValue placeholder="All UOMs">
+                  {filterUom === 'ALL' ? 'All UOMs' : filterUom || undefined}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All UOMs</SelectItem>
@@ -340,14 +399,14 @@ export default function MaterialsPage() {
             <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
             <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
               <SelectTrigger className="bg-background">
-                <SelectValue placeholder="Sort By" />
+                <SelectValue placeholder="Sort By">
+                  {SORT_OPTIONS.find(o => o.value === sortBy)?.label || undefined}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                <SelectItem value="group-asc">Group (A-Z)</SelectItem>
-                <SelectItem value="group-desc">Group (Z-A)</SelectItem>
-                <SelectItem value="uom-asc">UOM (A-Z)</SelectItem>
-                <SelectItem value="uom-desc">UOM (Z-A)</SelectItem>
+                {SORT_OPTIONS.map(opt => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -406,7 +465,9 @@ export default function MaterialsPage() {
                 <Label htmlFor="uom">Unit of Measure (UOM)</Label>
                 <Select value={formData.uom} onValueChange={(val) => setFormData({ ...formData, uom: val || "" })}>
                   <SelectTrigger id="uom">
-                    <SelectValue placeholder="Select UOM" />
+                    <SelectValue placeholder="Select UOM">
+                      {formData.uom || undefined}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {MATERIAL_UOMS.map(u => (
@@ -428,17 +489,63 @@ export default function MaterialsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="group">Group / Category</Label>
-                <Select value={formData.group} onValueChange={(val) => setFormData({ ...formData, group: val || "" })}>
-                  <SelectTrigger id="group">
-                    <SelectValue placeholder="Select Group" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MATERIAL_GROUPS.map(g => (
-                      <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="group">Kategori</Label>
+                {isAddingNewCategory ? (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <Input
+                        id="newCategory"
+                        placeholder="Nama kategori baru..."
+                        value={newCategoryInput}
+                        onChange={(e) => {
+                          setNewCategoryInput(e.target.value);
+                          setFormData({ ...formData, group: e.target.value });
+                        }}
+                        autoFocus
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setIsAddingNewCategory(false);
+                          setNewCategoryInput('');
+                          setFormData({ ...formData, group: allCategories[0] || 'Pipa' });
+                        }}
+                        className="text-xs text-muted-foreground hover:text-foreground shrink-0 h-9 px-2"
+                      >
+                        Batal
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Select 
+                    value={formData.group} 
+                    onValueChange={(val) => {
+                      if (val === '__NEW__') {
+                        setIsAddingNewCategory(true);
+                        setNewCategoryInput('');
+                        setFormData({ ...formData, group: '' });
+                      } else {
+                        setFormData({ ...formData, group: val || "" });
+                      }
+                    }}
+                  >
+                    <SelectTrigger id="group">
+                      <SelectValue placeholder="Pilih Kategori">
+                        {formData.group || undefined}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allCategories.map(c => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                      <SelectItem value="__NEW__" className="font-semibold text-primary">
+                        + Tambah Kategori Baru...
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="unitPrice">Unit Price (Rp)</Label>
@@ -467,7 +574,9 @@ export default function MaterialsPage() {
                 onValueChange={(val) => setFormData({ ...formData, packagingType: val || 'NON_PACKAGING' })}
               >
                 <SelectTrigger id="packagingType">
-                  <SelectValue placeholder="Pilih Tipe Kemasan" />
+                  <SelectValue placeholder="Pilih Tipe Kemasan">
+                    {PACKAGING_TYPES.find(p => p.value === formData.packagingType)?.label || formData.packagingType || undefined}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {PACKAGING_TYPES.map(p => (
@@ -554,7 +663,7 @@ export default function MaterialsPage() {
                   </TableHead>
                   <TableHead className="w-[150px]">Code</TableHead>
                   <TableHead className="w-[350px]">Name</TableHead>
-                  <TableHead className="w-[120px]">Group</TableHead>
+                  <TableHead className="w-[120px]">Kategori</TableHead>
                   <TableHead className="w-[130px]">Unit Price</TableHead>
                   <TableHead className="w-[250px]">Description</TableHead>
                   <TableHead className="w-[80px]">UOM</TableHead>

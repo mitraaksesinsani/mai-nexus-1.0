@@ -10,6 +10,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const warehouseId = searchParams.get('warehouseId');
     const search = (searchParams.get('search') || '').toLowerCase();
+    const type = searchParams.get('type');
 
     let queryStr = `
       SELECT 
@@ -23,6 +24,7 @@ export async function GET(request: Request) {
         m.material_name as "materialName",
         m.category,
         m.unit,
+        m.packaging_type as "packagingType",
         COALESCE(m.unit_price, 0) as "unitPrice",
         SUM(s.quantity * COALESCE(m.unit_price, 0)) as "totalValue"
       FROM inventory_stocks s
@@ -39,6 +41,10 @@ export async function GET(request: Request) {
       paramIndex++;
     }
 
+    if (type === 'cable') {
+      queryStr += ` AND (LOWER(TRIM(m.unit)) IN ('meter', 'mtr', 'm') OR m.category ILIKE '%kabel%' OR m.packaging_type IN ('KABEL_UDARA', 'KABEL_TANAH'))`;
+    }
+
     if (search) {
       queryStr += ` AND (LOWER(m.material_name) LIKE $${paramIndex} OR LOWER(m.material_code) LIKE $${paramIndex} OR LOWER(w.name) LIKE $${paramIndex})`;
       queryParams.push(`%${search}%`);
@@ -53,7 +59,7 @@ export async function GET(request: Request) {
       paramIndex += 2;
     }
 
-    queryStr += ' GROUP BY m.id, w.name, w.code, m.material_code, m.material_name, m.category, m.unit, m.unit_price';
+    queryStr += ' GROUP BY m.id, w.name, w.code, m.material_code, m.material_name, m.category, m.unit, m.packaging_type, m.unit_price';
     queryStr += ' ORDER BY w.name ASC, m.material_name ASC';
 
     const res = await pool.query(queryStr, queryParams);
@@ -61,6 +67,7 @@ export async function GET(request: Request) {
     const stocks = res.rows.map((row: any) => ({
       ...row,
       quantity: parseInt(row.quantity, 10) || 0,
+      packagingType: row.packagingType || 'NON_PACKAGING',
       unitPrice: parseFloat(row.unitPrice) || 0,
       totalValue: parseFloat(row.totalValue) || 0,
       material: {
@@ -69,6 +76,7 @@ export async function GET(request: Request) {
         materialName: row.materialName,
         category: row.category,
         unit: row.unit,
+        packagingType: row.packagingType || 'NON_PACKAGING',
         unitPrice: parseFloat(row.unitPrice) || 0,
       }
     }));

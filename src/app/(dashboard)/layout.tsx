@@ -18,6 +18,8 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
         router.push('/login');
       } else if (user?.role?.toUpperCase() === 'SITE_MANAGER' && pathname === '/') {
         router.replace('/pic-dashboard');
+      } else if (user?.role?.toUpperCase() === 'OWNER' && !pathname.startsWith('/owner-dashboard')) {
+        router.replace('/owner-dashboard');
       }
     }
   }, [user, isLoading, router, pathname]);

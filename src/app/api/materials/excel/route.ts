@@ -209,7 +209,7 @@ export async function GET(req: NextRequest) {
       wsData = [{
         'Material Code': 'EXAMPLE-001',
         'Material Name': 'Example Item',
-        'Category': 'CABLE',
+        'Category': 'Kabel',
         'UOM': 'Meter',
         'Unit Price': 15000,
         'Description': 'Example description'

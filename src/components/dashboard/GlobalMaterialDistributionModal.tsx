@@ -101,45 +101,91 @@ export function GlobalMaterialDistributionModal({ isOpen, onClose }: GlobalMater
               Tidak ada material yang ditemukan.
             </div>
           ) : (
-            <div className="px-6 pb-6">
-              <Table className="[&_tr]:border-none" containerClassName="border rounded-xl bg-transparent shadow-none overflow-hidden">
-                <TableHeader className="bg-muted/30 sticky top-0 backdrop-blur-sm z-10 border-b">
-                  <TableRow className="border-none hover:bg-transparent">
-                    <TableHead className="w-[120px] pl-4">Kode SKU</TableHead>
-                    <TableHead>Nama Material</TableHead>
-                    <TableHead className="w-[120px]">Kategori</TableHead>
-                    <TableHead className="text-right w-[150px]">Total Stok</TableHead>
-                    <TableHead className="w-[250px] pr-4">Lokasi Gudang</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredMaterials.map((mat, idx) => (
-                    <TableRow key={idx} className="border-none hover:bg-muted/30">
-                      <TableCell className="font-medium text-muted-foreground pl-4">{mat.materialCode}</TableCell>
-                      <TableCell className="font-semibold">{mat.materialName}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-xs font-normal border-border bg-transparent shadow-none rounded-full px-2 py-0.5">{mat.category}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <span className="font-bold text-base">{mat.totalQuantity.toLocaleString()}</span>
-                        <span className="text-xs text-muted-foreground ml-1">{mat.unit}</span>
-                      </TableCell>
-                      <TableCell className="pr-4">
-                        <div className="flex flex-col gap-1.5">
+            <div className="px-4 sm:px-6 pb-6">
+              {/* Desktop / Tablet Table View */}
+              <div className="hidden sm:block">
+                <Table className="[&_tr]:border-none" containerClassName="border rounded-xl bg-transparent shadow-none overflow-hidden">
+                  <TableHeader className="bg-muted/30 sticky top-0 backdrop-blur-sm z-10 border-b">
+                    <TableRow className="border-none hover:bg-transparent">
+                      <TableHead className="w-[120px] pl-4">Kode SKU</TableHead>
+                      <TableHead>Nama Material</TableHead>
+                      <TableHead className="w-[120px]">Kategori</TableHead>
+                      <TableHead className="text-right w-[150px]">Total Stok</TableHead>
+                      <TableHead className="w-[250px] pr-4">Lokasi Gudang</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredMaterials.map((mat, idx) => (
+                      <TableRow key={idx} className="border-none hover:bg-muted/30">
+                        <TableCell className="font-medium text-muted-foreground pl-4">{mat.materialCode}</TableCell>
+                        <TableCell className="font-semibold">{mat.materialName}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-xs font-normal border-border bg-transparent shadow-none rounded-full px-2 py-0.5">{mat.category}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <span className="font-bold text-base">{mat.totalQuantity.toLocaleString()}</span>
+                          <span className="text-xs text-muted-foreground ml-1">{mat.unit}</span>
+                        </TableCell>
+                        <TableCell className="pr-4">
+                          <div className="flex flex-col gap-1.5">
+                            {mat.warehouses.map((wh: any, i: number) => (
+                              <div key={i} className="flex items-center justify-between text-xs bg-muted/20 p-1.5 rounded-md border border-border/60 shadow-none h-[28px]">
+                                <span className="flex items-center gap-1.5 text-muted-foreground">
+                                  <MapPin className="w-3.5 h-3.5" /> {wh.warehouseName}
+                                </span>
+                                <span className="font-bold text-foreground">{wh.quantity.toLocaleString()}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Responsive List View (e.g. 390px screen width) */}
+              <div className="block sm:hidden space-y-3">
+                {filteredMaterials.map((mat, idx) => (
+                  <div key={idx} className="bg-card border border-border/70 rounded-xl p-3.5 flex flex-col gap-2.5 shadow-xs">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-mono text-xs font-semibold text-muted-foreground">{mat.materialCode}</span>
+                        {mat.category && (
+                          <Badge variant="outline" className="text-[10px] font-normal px-2 py-0 h-5 border-border bg-muted/30 rounded-full">
+                            {mat.category}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="font-bold text-sm text-foreground">{mat.totalQuantity.toLocaleString()}</span>
+                        <span className="text-[11px] text-muted-foreground ml-1">{mat.unit}</span>
+                      </div>
+                    </div>
+
+                    <div className="font-semibold text-sm text-foreground leading-snug">
+                      {mat.materialName}
+                    </div>
+
+                    {mat.warehouses && mat.warehouses.length > 0 && (
+                      <div className="flex flex-col gap-1.5 pt-2 border-t border-border/40">
+                        <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Lokasi Gudang:</span>
+                        <div className="flex flex-col gap-1">
                           {mat.warehouses.map((wh: any, i: number) => (
-                            <div key={i} className="flex items-center justify-between text-xs bg-muted/20 p-1.5 rounded-md border border-border/60 shadow-none h-[28px]">
-                              <span className="flex items-center gap-1.5 text-muted-foreground">
-                                <MapPin className="w-3.5 h-3.5" /> {wh.warehouseName}
+                            <div key={i} className="flex items-center justify-between text-xs bg-muted/20 px-2.5 py-1.5 rounded-md border border-border/50">
+                              <span className="flex items-center gap-1.5 text-muted-foreground truncate">
+                                <MapPin className="w-3 h-3 text-primary shrink-0" />
+                                <span className="truncate">{wh.warehouseName}</span>
                               </span>
-                              <span className="font-bold text-foreground">{wh.quantity.toLocaleString()}</span>
+                              <span className="font-semibold text-foreground shrink-0">{wh.quantity.toLocaleString()}</span>
                             </div>
                           ))}
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

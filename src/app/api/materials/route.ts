@@ -64,6 +64,12 @@ export async function GET(request: Request) {
       queryStr += ' ORDER BY unit ASC, material_name ASC';
     } else if (sort === 'uom-desc') {
       queryStr += ' ORDER BY unit DESC, material_name ASC';
+    } else if (sort === 'code-asc') {
+      queryStr += ' ORDER BY material_code ASC';
+    } else if (sort === 'code-desc') {
+      queryStr += ' ORDER BY material_code DESC';
+    } else if (sort === 'name-desc') {
+      queryStr += ' ORDER BY material_name DESC';
     } else {
       queryStr += ' ORDER BY material_name ASC';
     }
@@ -104,7 +110,7 @@ export async function POST(request: Request) {
     const id = generateId();
     const materialCode = code;
     const materialName = name;
-    const resolvedCategory = group || category || 'STANDARD';
+    const resolvedCategory = group || category || 'Pipa';
     const specification = description || '';
     const unit = uom;
     const resolvedPackagingType = packagingType || packaging_type || 'NON_PACKAGING';

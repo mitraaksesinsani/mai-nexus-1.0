@@ -28,6 +28,8 @@ function LoginForm() {
       const savedUser = savedUserStr ? JSON.parse(savedUserStr) : null;
       if (savedUser?.role?.toUpperCase() === 'SITE_MANAGER') {
         router.push('/pic-dashboard');
+      } else if (savedUser?.role?.toUpperCase() === 'OWNER') {
+        router.push('/owner-dashboard');
       } else {
         router.push('/');
       }
