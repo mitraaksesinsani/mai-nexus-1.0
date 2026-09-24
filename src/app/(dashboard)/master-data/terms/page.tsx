@@ -68,29 +68,29 @@ export default function TermsMasterDataPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 w-full">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Terms & Settings Master Data</h1>
+        <h1 className="text-[24px] font-medium tracking-tight">Terms Configuration</h1>
         <p className="text-muted-foreground mt-1 text-sm">
           Atur parameter default sistem untuk dokumen pengadaan (PO) dan rasio konversi satuan material (UOM).
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val || 'financial')} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 max-w-md h-10 p-1 bg-muted rounded-xl">
-          <TabsTrigger value="financial" className="flex items-center gap-2 rounded-lg text-sm font-medium">
+        <TabsList className="w-full !h-auto !p-0 !bg-transparent !rounded-lg shadow-sm outline outline-1 outline-offset-[-1px] outline-border inline-flex justify-start items-stretch overflow-hidden">
+          <TabsTrigger value="financial" className="flex-1 min-h-10 px-4 py-2 !bg-muted hover:!bg-muted/80 data-active:!bg-background border-r border-border flex justify-center items-center gap-2 !rounded-none !shadow-none text-sm font-semibold !text-muted-foreground hover:!text-foreground data-active:!text-foreground transition-colors">
             <Percent className="w-4 h-4" />
-            Ketentuan PO & Finansial
+            Ketentuan
           </TabsTrigger>
-          <TabsTrigger value="uom" className="flex items-center gap-2 rounded-lg text-sm font-medium">
+          <TabsTrigger value="uom" className="flex-1 min-h-10 px-4 py-2 !bg-muted hover:!bg-muted/80 data-active:!bg-background flex justify-center items-center gap-2 !rounded-none !shadow-none text-sm font-semibold !text-muted-foreground hover:!text-foreground data-active:!text-foreground transition-colors">
             <Scale className="w-4 h-4" />
-            Konversi Satuan (UOM)
+            Konversi
           </TabsTrigger>
         </TabsList>
 
         {/* TAB 1: Ketentuan PO & Finansial */}
-        <TabsContent value="financial" className="mt-4 focus-visible:outline-none">
-          <Card className="min-h-[480px] flex flex-col justify-between">
+        <TabsContent value="financial" className="mt-[10px] focus-visible:outline-none">
+          <Card className="min-h-[480px] flex flex-col justify-between border-0 shadow-none ring-0 bg-transparent">
             <div>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -166,8 +166,8 @@ export default function TermsMasterDataPage() {
         </TabsContent>
 
         {/* TAB 2: Konversi Satuan Material (UOM) */}
-        <TabsContent value="uom" className="mt-4 focus-visible:outline-none">
-          <Card className="min-h-[480px] flex flex-col justify-between">
+        <TabsContent value="uom" className="mt-[10px] focus-visible:outline-none">
+          <Card className="min-h-[480px] flex flex-col justify-between border-0 shadow-none ring-0 bg-transparent">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Scale className="w-5 h-5 text-primary" />

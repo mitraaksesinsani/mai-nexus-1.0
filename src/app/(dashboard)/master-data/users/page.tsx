@@ -197,28 +197,28 @@ export default function UsersPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in">
         <div>
-          <h1 className="text-2xl font-bold">User Management</h1>
+          <h1 className="text-[24px] font-medium">User Management</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Manage system access and roles</p>
         </div>
-        <div className="flex items-center gap-3 bg-card border rounded-xl px-4 py-3 shadow-sm shrink-0">
-          <div className="bg-primary/10 p-2.5 rounded-lg">
-            <Users className="w-5 h-5 text-primary" />
+        <div className="self-stretch bg-white dark:bg-card rounded-xl shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] outline outline-1 outline-offset-[-1px] outline-gray-200 dark:outline-gray-800 inline-flex flex-col justify-start items-start overflow-hidden">
+          <div className="self-stretch px-6 pt-6 pb-8 flex flex-col justify-start items-start gap-2.5">
+            <div className="self-stretch justify-start text-slate-600 dark:text-slate-400 text-[14px] font-normal font-['Inter'] leading-5">Total User</div>
+            <div className="justify-start text-gray-900 dark:text-gray-100 text-[18px] font-semibold font-['Inter'] leading-7">{users.length}</div>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground font-medium mb-0.5">Total Users</p>
-            <p className="text-2xl font-bold leading-none">{users.length}</p>
-          </div>
+          <div className="self-stretch h-px bg-gray-200 dark:bg-gray-800" />
         </div>
       </div>
 
       <div className="flex flex-col gap-4 animate-fade-in" style={{ animationDelay: '100ms' }}>
         <div className="flex flex-wrap justify-between items-center gap-3">
-          <ExcelImportExport 
-            onImport={handleImport} 
-            onExport={handleExport} 
-            onDownloadTemplate={handleDownloadTemplate} 
-            isLoading={loading} 
-          />
+          <div className="hidden sm:block">
+            <ExcelImportExport 
+              onImport={handleImport} 
+              onExport={handleExport} 
+              onDownloadTemplate={handleDownloadTemplate} 
+              isLoading={loading} 
+            />
+          </div>
           <div className="flex items-center gap-2">
             {selectedIds.length > 0 && (
               <Button
@@ -231,23 +231,20 @@ export default function UsersPage() {
                 Hapus Terpilih ({selectedIds.length})
               </Button>
             )}
-            <Button onClick={openCreateDialog} className="gap-2 shrink-0 h-9">
-              <Plus className="w-4 h-4" /> Add User
-            </Button>
+            
           </div>
         </div>
         
-        <div className="flex flex-wrap gap-4 items-end bg-card p-4 rounded-xl border border-border">
-          <div className="flex-1 min-w-[200px]">
-            <Label className="text-xs mb-1.5 block text-muted-foreground">Search</Label>
-            <div className="relative">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start sm:items-end w-full">
+          <div className="flex w-full sm:flex-1 gap-2 items-center">
+            <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
                 type="search" 
                 placeholder="Search name or email..." 
                 value={search} 
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 bg-background"
+                className="pl-9 bg-background h-auto py-[10px] text-[16px]"
               />
             </div>
           </div>
@@ -289,8 +286,73 @@ export default function UsersPage() {
           </div>
         ) : users.length > 0 ? (
           <>
-            <Table className="whitespace-nowrap">
-              <TableHeader>
+            {/* MOBILE COMPACT LIST VIEW */}
+            <div className="block sm:hidden w-full space-y-[5px]">
+              {currentPageUsers.map((u) => {
+                const isSelected = selectedIds.includes(u.id);
+                return (
+                  <div 
+                    key={`mobile-u-${u.id}`} 
+                    className={`w-full p-3 bg-white dark:bg-card rounded-xl border ${isSelected ? 'border-primary/50 bg-primary/5' : 'border-neutral-200/60 dark:border-border/60'} shadow-xs flex flex-col justify-start items-start relative transition-colors`}
+                  >
+                    <div className="w-full flex justify-between items-start gap-2">
+                      <div className="flex items-start gap-2 flex-1 min-w-0 pr-6">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={(checked) => handleSelectRow(u.id, !!checked)}
+                          aria-label={`Select ${u.name}`}
+                          className="mt-0.5"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-neutral-950 dark:text-foreground text-[16px] font-semibold leading-snug truncate">
+                            {u.name}
+                          </div>
+                          <div className="text-neutral-500 dark:text-muted-foreground text-[13px] font-normal leading-4 truncate mt-0.5">
+                            {u.email}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="shrink-0 flex flex-col items-end gap-1">
+                        <div className={`px-2 py-0.5 rounded-full text-[10px] font-semibold leading-4 ${u.isActive ? 'bg-green-500/10 text-green-600' : 'bg-gray-500/10 text-gray-600'}`}>
+                          {u.isActive ? 'ACTIVE' : 'INACTIVE'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full pt-2 pl-6 flex flex-col gap-0.5 text-neutral-500 dark:text-muted-foreground text-[13px] leading-4">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-medium text-neutral-700 dark:text-neutral-300">Role:</span> {u.role}
+                      </div>
+                    </div>
+
+                    <div className="w-full pt-2.5 flex justify-end items-center">
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() => openEditDialog(u)}
+                          className="h-7 px-2 bg-white dark:bg-muted/40 hover:bg-neutral-100 dark:hover:bg-muted text-neutral-950 dark:text-foreground text-xs font-medium rounded-lg border border-neutral-200 dark:border-border inline-flex justify-center items-center gap-1 transition-colors shadow-xs"
+                        >
+                          <Pencil className="w-3 h-3" />
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setDeleteId(u.id); setDeleteOpen(true); }}
+                          className="h-7 px-2 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-medium rounded-lg border border-red-200 dark:border-red-900/50 inline-flex justify-center items-center gap-1 transition-colors shadow-xs"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="hidden sm:block">
+            <Table className="whitespace-nowrap sm:whitespace-normal">
+              <TableHeader className="hidden sm:table-header-group">
                 <TableRow>
                   <TableHead className="w-[40px]">
                     <Checkbox
@@ -312,46 +374,44 @@ export default function UsersPage() {
                   return (
                     <TableRow 
                       key={u.id} 
-                      className={`hover:bg-muted/30 ${isSelected ? 'bg-muted/50' : ''}`}
+                      className={`transition-colors ${isSelected ? 'bg-muted/50' : ''}`}
                     >
-                      <TableCell className="w-[40px]">
+                      <TableCell className="w-[40px] px-3 py-2 border-b border-border/50">
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={(checked) => handleSelectRow(u.id, !!checked)}
                           aria-label={`Select ${u.name}`}
                         />
                       </TableCell>
-                      <TableCell className="font-medium whitespace-normal max-w-[350px]">
+                      <TableCell className="hidden sm:table-cell max-w-[350px] font-medium px-3 py-2 border-b border-border/50 whitespace-normal">
                         <span 
-                          className="line-clamp-2 block leading-snug break-words"
-                          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                          className="line-clamp-2 leading-snug break-words"
                           title={u.name}
                         >
                           {u.name}
                         </span>
                       </TableCell>
-                      <TableCell className="whitespace-normal max-w-[280px]">
+                      <TableCell className="hidden sm:table-cell max-w-[280px] px-3 py-2 border-b border-border/50 whitespace-normal">
                         <span 
-                          className="line-clamp-2 block leading-snug break-words text-sm text-muted-foreground"
-                          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                          className="line-clamp-2 leading-snug break-words text-sm text-muted-foreground"
                           title={u.email}
                         >
                           {u.email}
                         </span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50">
                         <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-none text-xs font-normal">
                           {u.role}
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50">
                         {u.isActive ? (
                           <Badge variant="outline" className="text-green-600 bg-green-50 border-green-200 font-normal">Active</Badge>
                         ) : (
                           <Badge variant="outline" className="text-gray-500 bg-gray-50 border-gray-200 font-normal">Inactive</Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50 text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => openEditDialog(u)}>
                             <Pencil className="h-4 w-4" />
@@ -366,6 +426,7 @@ export default function UsersPage() {
                 })}
               </TableBody>
             </Table>
+            </div>
             <DataTablePagination 
               totalItems={users.length} 
               pageSize={pageSize} 
@@ -378,7 +439,7 @@ export default function UsersPage() {
           <div className="text-center py-16 bg-card border rounded-xl ">
             <Users className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
             <p className="text-muted-foreground">No users found</p>
-            <Button variant="link" onClick={openCreateDialog} className="mt-2">
+            <Button variant="link" onClick={openCreateDialog} className="mt-2 text-[13px]">
               Add a new user
             </Button>
           </div>
@@ -386,7 +447,7 @@ export default function UsersPage() {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-xl w-full max-w-full !bottom-0 !top-auto !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 !rounded-t-2xl !rounded-b-none sm:!rounded-xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 mb-0">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>{editId ? 'Edit User' : 'Add New User'}</DialogTitle>

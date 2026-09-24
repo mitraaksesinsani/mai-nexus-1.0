@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ExcelImportExport } from '@/components/ExcelImportExport';
@@ -29,7 +30,7 @@ export default function WarehousePage() {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('ALL');
   const [filterStatus, setFilterStatus] = useState('ALL');
-  const [sortBy, setSortBy] = useState('name-asc');
+  const [sortBy, setSortBy] = useState('none');
   
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -289,101 +290,154 @@ export default function WarehousePage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in">
         <div>
-          <h1 className="text-2xl font-bold">Warehouse Management</h1>
+          <h1 className="text-[24px] font-medium">Warehouse Management</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Manage storage locations and capacity</p>
         </div>
-        <div className="flex items-center gap-3 bg-card border rounded-xl px-4 py-3 shadow-sm shrink-0">
-          <div className="bg-primary/10 p-2.5 rounded-lg">
-            <Warehouse className="w-5 h-5 text-primary" />
+        <div className="self-stretch bg-white dark:bg-card rounded-xl shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] outline outline-1 outline-offset-[-1px] outline-gray-200 dark:outline-gray-800 inline-flex flex-col justify-start items-start overflow-hidden">
+          <div className="self-stretch px-6 pt-6 pb-8 flex flex-col justify-start items-start gap-2.5">
+            <div className="self-stretch justify-start text-slate-600 dark:text-slate-400 text-[14px] font-normal font-['Inter'] leading-5">Total Warehouse</div>
+            <div className="justify-start text-gray-900 dark:text-gray-100 text-[18px] font-semibold font-['Inter'] leading-7">{warehouses.length}</div>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground font-medium mb-0.5">Total Warehouses</p>
-            <p className="text-2xl font-bold leading-none">{warehouses.length}</p>
-          </div>
+          <div className="self-stretch h-px bg-gray-200 dark:bg-gray-800" />
         </div>
       </div>
 
       <div className="flex flex-col gap-4 animate-fade-in" style={{ animationDelay: '100ms' }}>
         <div className="flex flex-wrap justify-between items-center gap-3">
-          <ExcelImportExport 
-            onImport={handleImport} 
-            onExport={handleExport} 
-            onDownloadTemplate={handleDownloadTemplate} 
-            isLoading={loading} 
-          />
-          <div className="flex items-center gap-2">
-            {selectedIds.length > 0 && (
-              <Button
-                variant="destructive"
-                size="sm"
-                className="gap-2 h-9"
-                onClick={() => setBulkDeleteOpen(true)}
-              >
-                <Trash2 className="w-4 h-4" />
-                Hapus Terpilih ({selectedIds.length})
-              </Button>
-            )}
-            <Button onClick={openCreateDialog} className="gap-2 shrink-0 h-9">
-              <Plus className="w-4 h-4" /> New Warehouse
-            </Button>
+          <div className="hidden sm:block">
+            <ExcelImportExport 
+              onImport={handleImport} 
+              onExport={handleExport} 
+              onDownloadTemplate={handleDownloadTemplate} 
+              isLoading={loading} 
+            />
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            
           </div>
         </div>
         
-        <div className="flex flex-wrap gap-4 items-end bg-card p-4 rounded-xl border border-border">
-          <div className="flex-1 min-w-[200px]">
-            <Label className="text-xs mb-1.5 block text-muted-foreground">Search</Label>
-            <div className="relative">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start sm:items-end w-full">
+          <div className="flex w-full sm:flex-1 gap-2 items-center">
+            <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
                 type="search" 
                 placeholder="Search warehouse code or name..." 
                 value={search} 
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 bg-background"
+                className="pl-9 bg-background h-auto py-[10px] text-[16px]"
               />
             </div>
+
+            {/* Mobile Filters Drawer Trigger */}
+            <div className="block sm:hidden shrink-0">
+              <Sheet>
+                <SheetTrigger render={<Button variant="outline" size="icon" className="h-[46px] w-[46px] shrink-0" />}>
+                  <SlidersHorizontal className="w-4 h-4" />
+                </SheetTrigger>
+                <SheetContent side="bottom" className="rounded-t-2xl px-4 pt-6 pb-8">
+                  <SheetHeader className="p-0 pb-0 text-left">
+                    <SheetTitle>Filter & Sort</SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-2">
+                    <div className="w-full">
+                      <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Type</Label>
+                      <Select value={filterType} onValueChange={(val) => setFilterType(val || "")}>
+                        <SelectTrigger className="bg-background">
+                          <SelectValue placeholder="All Types" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ALL">All Types</SelectItem>
+                          <SelectItem value="MAIN">Main Hub</SelectItem>
+                          <SelectItem value="SITE">Site Storage</SelectItem>
+                          <SelectItem value="TRANSIT">Transit Point</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="w-full">
+                      <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Status</Label>
+                      <Select value={filterStatus} onValueChange={(val) => setFilterStatus(val || "")}>
+                        <SelectTrigger className="bg-background">
+                          <SelectValue placeholder="All Statuses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ALL">All Statuses</SelectItem>
+                          <SelectItem value="ACTIVE">Active</SelectItem>
+                          <SelectItem value="INACTIVE">Inactive</SelectItem>
+                          <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="w-full">
+                      <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
+                      <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
+                        <SelectTrigger className="bg-background">
+                          <SelectValue placeholder="Sort By" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">None</SelectItem>
+                          <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                          <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                          <SelectItem value="code-asc">Code (A-Z)</SelectItem>
+                          <SelectItem value="code-desc">Code (Z-A)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+            <Button size="icon" className="shrink-0 h-[46px] w-[46px]" onClick={openCreateDialog}>
+              <Plus className="w-5 h-5" />
+            </Button>
           </div>
-          <div className="w-[150px]">
-            <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Type</Label>
-            <Select value={filterType} onValueChange={(val) => setFilterType(val || "")}>
-              <SelectTrigger className="bg-background">
-                <SelectValue placeholder="All Types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Types</SelectItem>
-                <SelectItem value="MAIN">Main Hub</SelectItem>
-                <SelectItem value="SITE">Site Storage</SelectItem>
-                <SelectItem value="TRANSIT">Transit Point</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="w-[150px]">
-            <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Status</Label>
-            <Select value={filterStatus} onValueChange={(val) => setFilterStatus(val || "")}>
-              <SelectTrigger className="bg-background">
-                <SelectValue placeholder="All Statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Statuses</SelectItem>
-                <SelectItem value="ACTIVE">Active</SelectItem>
-                <SelectItem value="INACTIVE">Inactive</SelectItem>
-                <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="w-[180px]">
-            <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
-            <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
-              <SelectTrigger className="bg-background">
-                <SelectValue placeholder="Sort By" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                <SelectItem value="code-asc">Code (A-Z)</SelectItem>
-                <SelectItem value="code-desc">Code (Z-A)</SelectItem>
-              </SelectContent>
-            </Select>
+
+          {/* Desktop Filters */}
+          <div className="hidden sm:flex gap-4">
+            <div className="w-[150px]">
+              <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Type</Label>
+              <Select value={filterType} onValueChange={(val) => setFilterType(val || "")}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Types</SelectItem>
+                  <SelectItem value="MAIN">Main Hub</SelectItem>
+                  <SelectItem value="SITE">Site Storage</SelectItem>
+                  <SelectItem value="TRANSIT">Transit Point</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-[150px]">
+              <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Status</Label>
+              <Select value={filterStatus} onValueChange={(val) => setFilterStatus(val || "")}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Statuses</SelectItem>
+                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="INACTIVE">Inactive</SelectItem>
+                  <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-[180px]">
+              <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
+              <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Sort By" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                  <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                  <SelectItem value="code-asc">Code (A-Z)</SelectItem>
+                  <SelectItem value="code-desc">Code (Z-A)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </div>
@@ -423,8 +477,92 @@ export default function WarehousePage() {
           </div>
         ) : warehouses.length > 0 ? (
           <>
-            <Table className="whitespace-nowrap">
-              <TableHeader>
+            {/* MOBILE COMPACT LIST VIEW */}
+            <div className="block sm:hidden w-full space-y-[5px]">
+              {currentPageWarehouses.map((w) => {
+                const isSelected = selectedIds.includes(w.id);
+                return (
+                  <div 
+                    key={`mobile-wh-${w.id}`} 
+                    className={`w-full p-3 bg-white dark:bg-card rounded-xl border ${isSelected ? 'border-primary/50 bg-primary/5' : 'border-neutral-200/60 dark:border-border/60'} shadow-xs flex flex-col justify-start items-start relative transition-colors`}
+                  >
+                    <div className="w-full flex justify-between items-start gap-2">
+                      <div className="flex items-start gap-2 flex-1 min-w-0 pr-6">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={(checked) => handleSelectRow(w.id, !!checked)}
+                          aria-label={`Select ${w.name}`}
+                          className="mt-0.5"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-neutral-950 dark:text-foreground text-[16px] font-semibold leading-snug truncate">
+                            {w.name}
+                          </div>
+                          <div className="text-neutral-500 dark:text-muted-foreground text-[13px] font-normal leading-4 truncate mt-0.5">
+                            {w.code}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="shrink-0 flex flex-col items-end gap-1">
+                        <div className={`px-2 py-0.5 rounded-full text-[10px] font-semibold leading-4 ${w.status === 'ACTIVE' ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
+                          {w.status || 'ACTIVE'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full pt-2 pl-6 flex items-center gap-1.5 text-neutral-500 dark:text-muted-foreground text-[13px] leading-4">
+                      <MapPin className="size-3 shrink-0" />
+                      <span className="truncate">{w.location || 'No location'}</span>
+                    </div>
+
+                    <div className="w-full pt-2.5 flex justify-between items-center">
+                      <div className="flex items-center gap-1.5 pl-6">
+                        <User className="size-3 shrink-0 text-muted-foreground" />
+                        <span className="text-[13px] text-muted-foreground truncate max-w-[120px]">
+                          {w.picName || <span className="italic text-[10px]">No PIC</span>}
+                        </span>
+                      </div>
+                      <div className="flex gap-1">
+                         <DropdownMenu>
+                           <DropdownMenuTrigger render={
+                             <button type="button" className="h-7 px-2 bg-white dark:bg-muted/40 hover:bg-neutral-100 dark:hover:bg-muted text-neutral-950 dark:text-foreground text-xs font-medium rounded-lg border border-neutral-200 dark:border-border inline-flex justify-center items-center gap-1 transition-colors shadow-xs">
+                               <MoreHorizontal className="w-3 h-3" />
+                             </button>
+                           } />
+                           <DropdownMenuContent align="end" className="w-auto min-w-[200px]">
+                             <DropdownMenuItem onClick={() => router.push(`/warehouse/${w.id}`)}>
+                               <Eye className="mr-2 h-4 w-4" />
+                               <span>Lihat Detil</span>
+                             </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => openEditDialog(w)}>
+                               <User className="mr-2 h-4 w-4 text-primary" />
+                               <span>Assign / Ubah PIC</span>
+                             </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => openEditDialog(w)}>
+                               <Pencil className="mr-2 h-4 w-4" />
+                               <span>Edit Gudang</span>
+                             </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => openStockEntryDialog(w)}>
+                               <SlidersHorizontal className="mr-2 h-4 w-4 text-primary" />
+                               <span>Penyesuaian Stok (In / Out)</span>
+                             </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => { setDeleteId(w.id); setDeleteOpen(true); }} className="text-destructive">
+                               <Trash2 className="mr-2 h-4 w-4" />
+                               <span>Hapus</span>
+                             </DropdownMenuItem>
+                           </DropdownMenuContent>
+                         </DropdownMenu>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="hidden sm:block">
+            <Table className="whitespace-nowrap sm:whitespace-normal">
+              <TableHeader className="hidden sm:table-header-group">
                 <TableRow>
                   <TableHead className="w-[40px]">
                     <Checkbox
@@ -440,39 +578,38 @@ export default function WarehousePage() {
                   <TableHead className="w-[80px] text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="block sm:table-row-group">
                 {currentPageWarehouses.map((w) => {
                   const isSelected = selectedIds.includes(w.id);
                   return (
                     <TableRow 
                       key={w.id} 
-                      className={`hover:bg-muted/30 ${isSelected ? 'bg-muted/50' : ''}`}
+                      className={`transition-colors ${isSelected ? 'bg-muted/50' : ''}`}
                     >
-                      <TableCell className="w-[40px]">
+                      <TableCell className="w-[40px] px-3 py-2 border-b border-border/50">
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={(checked) => handleSelectRow(w.id, !!checked)}
                           aria-label={`Select ${w.code}`}
                         />
                       </TableCell>
-                      <TableCell className="font-medium text-primary w-[150px] whitespace-normal break-words">
+                      <TableCell className="hidden sm:table-cell w-[150px] font-medium text-primary px-3 py-2 border-b border-border/50 break-words">
                         {w.code}
                       </TableCell>
-                      <TableCell>
-                        <div className="font-medium whitespace-normal max-w-[250px]">
+                      <TableCell className="hidden sm:table-cell max-w-[250px] px-3 py-2 border-b border-border/50">
+                        <div className="font-medium whitespace-normal">
                           <span 
-                            className="line-clamp-2 block leading-snug break-words"
-                            style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                            className="line-clamp-2 leading-snug break-words"
                             title={w.name}
                           >
                             {w.name}
                           </span>
                         </div>
-                        <div className="text-xs text-muted-foreground truncate max-w-[250px] mt-1" title={w.location}>
+                        <div className="text-[13px] text-muted-foreground truncate max-w-[250px] mt-1" title={w.location}>
                           {w.location}
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50">
                         {w.picId ? (
                           <div 
                             className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
@@ -519,8 +656,10 @@ export default function WarehousePage() {
                           </button>
                         )}
                       </TableCell>
-                      <TableCell><StatusBadge status={w.status} /></TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50">
+                        <StatusBadge status={w.status} />
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50 text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger render={<Button variant="ghost" className="h-8 w-8 p-0" />}>
                             <span className="sr-only">Open menu</span>
@@ -555,6 +694,7 @@ export default function WarehousePage() {
                 })}
               </TableBody>
             </Table>
+            </div>
             <DataTablePagination 
               totalItems={warehouses.length} 
               pageSize={pageSize} 
@@ -567,7 +707,7 @@ export default function WarehousePage() {
           <div className="text-center py-16 bg-card border rounded-xl ">
             <Warehouse className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
             <p className="text-muted-foreground">No warehouses found</p>
-            <Button variant="link" onClick={openCreateDialog} className="mt-2">
+            <Button variant="link" onClick={openCreateDialog} className="mt-2 text-[13px]">
               Create your first Warehouse
             </Button>
           </div>
@@ -575,7 +715,7 @@ export default function WarehousePage() {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl w-full max-w-full !bottom-0 !top-auto !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 !rounded-t-2xl !rounded-b-none sm:!rounded-xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 mb-0">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>{editId ? 'Edit Warehouse' : 'New Warehouse'}</DialogTitle>
@@ -771,7 +911,7 @@ export default function WarehousePage() {
                             <img src={formData.evidence} alt="Preview" className="w-full h-full object-cover" />
                           </div>
                           <div className="flex flex-col min-w-0 pr-2">
-                            <span className="text-sm font-medium truncate">{formData.evidence.split('/').pop()?.split('?')[0] || 'evidence_file'}</span>
+                            <span className="text-[16px] font-medium truncate">{formData.evidence.split('/').pop()?.split('?')[0] || 'evidence_file'}</span>
                             <span className="text-xs text-muted-foreground uppercase">{formData.evidence.split('.').pop()?.split('?')[0] || 'IMG'} • File</span>
                           </div>
                         </div>
@@ -824,8 +964,8 @@ export default function WarehousePage() {
                               }}
                             />
                             <div className="grid gap-0.5 min-w-0">
-                              <span className="text-sm font-medium leading-none truncate">{p.projectCode || p.code}</span>
-                              <span className="text-xs text-muted-foreground truncate">{p.projectName || p.name}</span>
+                              <span className="text-[16px] font-medium leading-none truncate">{p.projectCode || p.code}</span>
+                              <span className="text-[13px] text-muted-foreground truncate">{p.projectName || p.name}</span>
                             </div>
                           </label>
                       ))}

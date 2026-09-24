@@ -8,7 +8,7 @@ function Table({ className, containerClassName, ...props }: React.ComponentProps
  return (
  <div
  data-slot="table-container"
- className={cn("relative w-full overflow-x-auto border rounded-xl bg-card", containerClassName)}
+ className={cn("relative w-full overflow-x-auto border-0 sm:border rounded-xl bg-transparent sm:bg-card", containerClassName)}
  >
  <table
  data-slot="table"
@@ -57,7 +57,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
  <tr
  data-slot="table-row"
  className={cn(
- "h-10 border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+ "sm:h-10 border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
  className
  )}
  {...props}

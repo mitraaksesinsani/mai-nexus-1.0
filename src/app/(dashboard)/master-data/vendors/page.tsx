@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Building2, Search, Plus, Loader2, Pencil, Trash2 } from 'lucide-react';
+import { Building2, Search, Plus, Loader2, Pencil, Trash2, SlidersHorizontal } from 'lucide-react';
 import api from '@/lib/api';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
@@ -204,28 +205,28 @@ export default function VendorsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in">
         <div>
-          <h1 className="text-2xl font-bold">Vendor Master Data</h1>
+          <h1 className="text-[24px] font-medium">Vendor Master Data</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Manage your network of suppliers and partners</p>
         </div>
-        <div className="flex items-center gap-3 bg-card border rounded-xl px-4 py-3 shadow-sm shrink-0">
-          <div className="bg-primary/10 p-2.5 rounded-lg">
-            <Building2 className="w-5 h-5 text-primary" />
+        <div className="self-stretch bg-white dark:bg-card rounded-xl shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] outline outline-1 outline-offset-[-1px] outline-gray-200 dark:outline-gray-800 inline-flex flex-col justify-start items-start overflow-hidden">
+          <div className="self-stretch px-6 pt-6 pb-8 flex flex-col justify-start items-start gap-2.5">
+            <div className="self-stretch justify-start text-slate-600 dark:text-slate-400 text-[14px] font-normal font-['Inter'] leading-5">Total Vendor</div>
+            <div className="justify-start text-gray-900 dark:text-gray-100 text-[18px] font-semibold font-['Inter'] leading-7">{vendors.length}</div>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground font-medium mb-0.5">Total Vendors</p>
-            <p className="text-2xl font-bold leading-none">{vendors.length}</p>
-          </div>
+          <div className="self-stretch h-px bg-gray-200 dark:bg-gray-800" />
         </div>
       </div>
 
       <div className="flex flex-col gap-4 animate-fade-in" style={{ animationDelay: '100ms' }}>
         <div className="flex flex-wrap justify-between items-center gap-3">
-          <ExcelImportExport 
-            onImport={handleImport} 
-            onExport={handleExport} 
-            onDownloadTemplate={handleDownloadTemplate} 
-            isLoading={loading} 
-          />
+          <div className="hidden sm:block">
+            <ExcelImportExport 
+              onImport={handleImport} 
+              onExport={handleExport} 
+              onDownloadTemplate={handleDownloadTemplate} 
+              isLoading={loading} 
+            />
+          </div>
           <div className="flex items-center gap-2">
             {selectedIds.length > 0 && (
               <Button
@@ -238,52 +239,98 @@ export default function VendorsPage() {
                 Hapus Terpilih ({selectedIds.length})
               </Button>
             )}
-            <Button onClick={openCreateDialog} className="gap-2 shrink-0 h-9">
-              <Plus className="w-4 h-4" /> Add Vendor
-            </Button>
+            
           </div>
         </div>
         
-        <div className="flex flex-wrap gap-4 items-end bg-card p-4 rounded-xl border border-border">
-          <div className="flex-1 min-w-[200px]">
-            <Label className="text-xs mb-1.5 block text-muted-foreground">Search</Label>
-            <div className="relative">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start sm:items-end w-full">
+          <div className="flex w-full sm:flex-1 gap-2 items-center">
+            <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
                 type="search" 
                 placeholder="Search vendor code or name..." 
                 value={search} 
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 bg-background"
+                className="pl-9 bg-background h-auto py-[10px] text-[16px]"
               />
             </div>
+            
+            {/* Mobile Filters Drawer Trigger */}
+            <div className="block sm:hidden shrink-0">
+              <Sheet>
+                <SheetTrigger render={<Button variant="outline" size="icon" className="h-[46px] w-[46px] shrink-0" />}>
+                  <SlidersHorizontal className="w-4 h-4" />
+                </SheetTrigger>
+                <SheetContent side="bottom" className="rounded-t-2xl px-4 pt-6 pb-8">
+                  <SheetHeader className="p-0 pb-0 text-left">
+                    <SheetTitle>Filter & Sort</SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-2">
+                    <div className="w-full">
+                      <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Status</Label>
+                      <Select value={filterStatus} onValueChange={(val) => setFilterStatus(val || "")}>
+                        <SelectTrigger className="bg-background">
+                          <SelectValue placeholder="All Statuses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ALL">All Statuses</SelectItem>
+                          <SelectItem value="ACTIVE">Active</SelectItem>
+                          <SelectItem value="INACTIVE">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="w-full">
+                      <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
+                      <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
+                        <SelectTrigger className="bg-background">
+                          <SelectValue placeholder="Sort By" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                          <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                          <SelectItem value="code-asc">Code (A-Z)</SelectItem>
+                          <SelectItem value="code-desc">Code (Z-A)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+            <Button size="icon" className="shrink-0 h-[46px] w-[46px]" onClick={openCreateDialog}>
+              <Plus className="w-5 h-5" />
+            </Button>
           </div>
-          <div className="w-[150px]">
-            <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Status</Label>
-            <Select value={filterStatus} onValueChange={(val) => setFilterStatus(val || "")}>
-              <SelectTrigger className="bg-background">
-                <SelectValue placeholder="All Statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Statuses</SelectItem>
-                <SelectItem value="ACTIVE">Active</SelectItem>
-                <SelectItem value="INACTIVE">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="w-[180px]">
-            <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
-            <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
-              <SelectTrigger className="bg-background">
-                <SelectValue placeholder="Sort By" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                <SelectItem value="code-asc">Code (A-Z)</SelectItem>
-                <SelectItem value="code-desc">Code (Z-A)</SelectItem>
-              </SelectContent>
-            </Select>
+
+          <div className="hidden sm:flex gap-4">
+            <div className="w-[150px]">
+              <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Status</Label>
+              <Select value={filterStatus} onValueChange={(val) => setFilterStatus(val || "")}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Statuses</SelectItem>
+                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="INACTIVE">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-[180px]">
+              <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
+              <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Sort By" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                  <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                  <SelectItem value="code-asc">Code (A-Z)</SelectItem>
+                  <SelectItem value="code-desc">Code (Z-A)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </div>
@@ -323,8 +370,72 @@ export default function VendorsPage() {
           </div>
         ) : vendors.length > 0 ? (
           <>
-            <Table className="whitespace-nowrap">
-              <TableHeader>
+            {/* MOBILE COMPACT LIST VIEW */}
+            <div className="block sm:hidden w-full space-y-[5px]">
+              {currentPageVendors.map((v) => {
+                const isSelected = selectedIds.includes(v.id);
+                return (
+                  <div 
+                    key={`mobile-v-${v.id}`} 
+                    className={`w-full p-3 bg-white dark:bg-card rounded-xl border ${isSelected ? 'border-primary/50 bg-primary/5' : 'border-neutral-200/60 dark:border-border/60'} shadow-xs flex flex-col justify-start items-start relative transition-colors`}
+                  >
+                    <div className="w-full flex justify-between items-start gap-2">
+                      <div className="flex items-start gap-2 flex-1 min-w-0 pr-6">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={(checked) => handleSelectRow(v.id, !!checked)}
+                          aria-label={`Select ${v.name}`}
+                          className="mt-0.5"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-neutral-950 dark:text-foreground text-[16px] font-semibold leading-snug truncate">
+                            {v.name}
+                          </div>
+                          <div className="text-neutral-500 dark:text-muted-foreground text-[13px] font-normal leading-4 truncate mt-0.5">
+                            {v.vendorCode} {v.contactPerson ? `• ${v.contactPerson}` : ''}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="shrink-0 flex flex-col items-end gap-1">
+                        <div className={`px-2 py-0.5 rounded-full text-[10px] font-semibold leading-4 ${v.isActive ? 'bg-green-500/10 text-green-600' : 'bg-gray-500/10 text-gray-600'}`}>
+                          {v.isActive ? 'ACTIVE' : 'INACTIVE'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full pt-2 pl-6 flex flex-col gap-0.5 text-neutral-500 dark:text-muted-foreground text-[13px] leading-4">
+                      {v.email && <div className="truncate">{v.email}</div>}
+                      {v.phone && <div className="truncate">{v.phone}</div>}
+                    </div>
+
+                    <div className="w-full pt-2.5 flex justify-end items-center">
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() => openEditDialog(v)}
+                          className="h-7 px-2 bg-white dark:bg-muted/40 hover:bg-neutral-100 dark:hover:bg-muted text-neutral-950 dark:text-foreground text-xs font-medium rounded-lg border border-neutral-200 dark:border-border inline-flex justify-center items-center gap-1 transition-colors shadow-xs"
+                        >
+                          <Pencil className="w-3 h-3" />
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setDeleteId(v.id); setDeleteOpen(true); }}
+                          className="h-7 px-2 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-medium rounded-lg border border-red-200 dark:border-red-900/50 inline-flex justify-center items-center gap-1 transition-colors shadow-xs"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="hidden sm:block">
+            <Table className="whitespace-nowrap sm:whitespace-normal">
+              <TableHeader className="hidden sm:table-header-group">
                 <TableRow>
                   <TableHead className="w-[40px]">
                     <Checkbox
@@ -347,50 +458,48 @@ export default function VendorsPage() {
                   return (
                     <TableRow 
                       key={v.id} 
-                      className={`hover:bg-muted/30 ${isSelected ? 'bg-muted/50' : ''}`}
+                      className={`transition-colors ${isSelected ? 'bg-muted/50' : ''}`}
                     >
-                      <TableCell className="w-[40px]">
+                      <TableCell className="w-[40px] px-3 py-2 border-b border-border/50">
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={(checked) => handleSelectRow(v.id, !!checked)}
                           aria-label={`Select ${v.vendorCode}`}
                         />
                       </TableCell>
-                      <TableCell className="font-medium text-primary w-[150px] whitespace-normal break-words">
+                      <TableCell className="hidden sm:table-cell w-[150px] font-medium text-primary px-3 py-2 border-b border-border/50 break-words">
                         {v.vendorCode}
                       </TableCell>
-                      <TableCell className="font-medium whitespace-normal max-w-[350px]">
+                      <TableCell className="hidden sm:table-cell max-w-[350px] px-3 py-2 border-b border-border/50 font-medium whitespace-normal">
                         <span 
-                          className="line-clamp-2 block leading-snug break-words"
-                          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                          className="line-clamp-2 leading-snug break-words"
                           title={v.name}
                         >
                           {v.name}
                         </span>
                       </TableCell>
-                      <TableCell className="whitespace-normal max-w-[200px]">
+                      <TableCell className="hidden sm:table-cell max-w-[200px] px-3 py-2 border-b border-border/50 whitespace-normal">
                         <span 
-                          className="line-clamp-2 block leading-snug break-words"
-                          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                          className="line-clamp-2 leading-snug break-words"
                           title={v.contactPerson || '-'}
                         >
                           {v.contactPerson || '-'}
                         </span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50">
                         <div className="text-sm">
                           {v.email && <div className="truncate max-w-[200px]" title={v.email}>{v.email}</div>}
                           {v.phone && <div className="text-muted-foreground truncate max-w-[200px]" title={v.phone}>{v.phone}</div>}
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50">
                         {v.isActive ? (
                           <Badge variant="outline" className="text-green-600 bg-green-50 border-green-200 font-normal">Active</Badge>
                         ) : (
                           <Badge variant="outline" className="text-gray-500 bg-gray-50 border-gray-200 font-normal">Inactive</Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50 text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => openEditDialog(v)}>
                             <Pencil className="h-4 w-4" />
@@ -405,6 +514,7 @@ export default function VendorsPage() {
                 })}
               </TableBody>
             </Table>
+            </div>
             <DataTablePagination 
               totalItems={vendors.length} 
               pageSize={pageSize} 
@@ -417,7 +527,7 @@ export default function VendorsPage() {
           <div className="text-center py-16 bg-card border rounded-xl ">
             <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
             <p className="text-muted-foreground">No vendors found</p>
-            <Button variant="link" onClick={openCreateDialog} className="mt-2">
+            <Button variant="link" onClick={openCreateDialog} className="mt-2 text-[13px]">
               Register your first vendor
             </Button>
           </div>
@@ -425,7 +535,7 @@ export default function VendorsPage() {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-2xl w-full max-w-full !bottom-0 !top-auto !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 !rounded-t-2xl !rounded-b-none sm:!rounded-xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 mb-0">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>{editId ? 'Edit Vendor' : 'Add New Vendor'}</DialogTitle>

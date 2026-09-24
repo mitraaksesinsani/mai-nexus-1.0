@@ -1,14 +1,13 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { Package, Plus, Search, Loader2, Pencil, Trash2, DollarSign, SlidersHorizontal } from 'lucide-react';
+import { Package, Plus, Search, Loader2, Pencil, Trash2, DollarSign } from 'lucide-react';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import {
   Dialog,
   DialogContent,
@@ -34,8 +33,8 @@ const PACKAGING_TYPES = [
 ];
 
 const SORT_OPTIONS = [
-  { value: 'name-asc', label: 'Name (A-Z)' },
-  { value: 'name-desc', label: 'Name (Z-A)' },
+  { value: 'name-asc', label: 'Material (A-Z)' },
+  { value: 'name-desc', label: 'Material (Z-A)' },
   { value: 'code-asc', label: 'Code (A-Z)' },
   { value: 'code-desc', label: 'Code (Z-A)' },
   { value: 'group-asc', label: 'Kategori (A-Z)' },
@@ -310,28 +309,28 @@ export default function MaterialsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in">
         <div>
-          <h1 className="text-[24px] font-medium tracking-tight">Material Master Data</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Material Master Data</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage network materials, prices, and inventory catalog</p>
         </div>
-        <div className="self-stretch bg-white dark:bg-card rounded-xl shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] outline outline-1 outline-offset-[-1px] outline-gray-200 dark:outline-gray-800 inline-flex flex-col justify-start items-start overflow-hidden">
-          <div className="self-stretch px-6 pt-6 pb-8 flex flex-col justify-start items-start gap-2.5">
-            <div className="self-stretch justify-start text-slate-600 dark:text-slate-400 text-[14px] font-normal font-['Inter'] leading-5">Total Material</div>
-            <div className="justify-start text-gray-900 dark:text-gray-100 text-[18px] font-semibold font-['Inter'] leading-7">{materials.length}</div>
+        <div className="flex items-center gap-3 bg-card border rounded-xl px-4 py-3 shadow-sm shrink-0">
+          <div className="bg-primary/10 p-2.5 rounded-lg">
+            <Package className="w-5 h-5 text-primary" />
           </div>
-          <div className="self-stretch h-px bg-gray-200 dark:bg-gray-800" />
+          <div>
+            <p className="text-xs text-muted-foreground font-medium mb-0.5">Total Materials</p>
+            <p className="text-2xl font-bold leading-none">{materials.length}</p>
+          </div>
         </div>
       </div>
 
       <div className="flex flex-col gap-4 animate-fade-in" style={{ animationDelay: '100ms' }}>
         <div className="flex flex-wrap justify-between items-center gap-3">
-          <div className="hidden sm:block">
-            <ExcelImportExport 
-              onImport={handleImport} 
-              onExport={handleExport} 
-              onDownloadTemplate={handleDownloadTemplate} 
-              isLoading={loading} 
-            />
-          </div>
+          <ExcelImportExport 
+            onImport={handleImport} 
+            onExport={handleExport} 
+            onDownloadTemplate={handleDownloadTemplate} 
+            isLoading={loading} 
+          />
           <div className="flex items-center gap-2">
             {selectedIds.length > 0 && (
               <Button
@@ -344,126 +343,72 @@ export default function MaterialsPage() {
                 Hapus Terpilih ({selectedIds.length})
               </Button>
             )}
-            
+            <Button className="gap-2 shrink-0 h-9" onClick={openCreateDialog}>
+              <Plus className="w-4 h-4" /> Add Material
+            </Button>
           </div>
         </div>
         
-        <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start sm:items-end w-full">
-          <div className="flex w-full sm:flex-1 gap-2 items-center">
-            <div className="relative flex-1 min-w-[200px]">
+        <div className="flex flex-wrap gap-4 items-end bg-card p-4 rounded-xl border border-border">
+          <div className="flex-1 min-w-[200px]">
+            <Label className="text-xs mb-1.5 block text-muted-foreground">Search</Label>
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search materials..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 bg-background h-auto py-[10px] text-[16px]"
+                className="pl-9 bg-background"
               />
             </div>
-
-            {/* Mobile Filters Drawer Trigger */}
-            <div className="block sm:hidden shrink-0">
-              <Sheet>
-                <SheetTrigger render={<Button variant="outline" size="icon" className="h-[46px] w-[46px] shrink-0" />}>
-                  <SlidersHorizontal className="w-4 h-4" />
-                </SheetTrigger>
-                <SheetContent side="bottom" className="rounded-t-2xl px-4 pt-6 pb-8">
-                  <SheetHeader className="p-0 pb-0 text-left">
-                    <SheetTitle>Filter & Sort</SheetTitle>
-                  </SheetHeader>
-                  <div className="flex flex-col gap-2">
-                    <div className="w-full">
-                      <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Kategori</Label>
-                      <Select value={filterGroup} onValueChange={(val) => setFilterGroup(val || "")}>
-                        <SelectTrigger className="bg-background">
-                          <SelectValue placeholder="Semua Kategori" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ALL">Semua Kategori</SelectItem>
-                          {allCategories.map(c => (
-                            <SelectItem key={c} value={c}>{c}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="w-full">
-                      <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by UOM</Label>
-                      <Select value={filterUom} onValueChange={(val) => setFilterUom(val || "")}>
-                        <SelectTrigger className="bg-background">
-                          <SelectValue placeholder="All UOMs" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ALL">All UOMs</SelectItem>
-                          {MATERIAL_UOMS.map(u => (
-                            <SelectItem key={u} value={u}>{u}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="w-full">
-                      <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
-                      <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
-                        <SelectTrigger className="bg-background">
-                          <SelectValue placeholder="Sort By" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {SORT_OPTIONS.map(opt => (
-                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-            <Button size="icon" className="shrink-0 h-[46px] w-[46px]" onClick={openCreateDialog}>
-              <Plus className="w-5 h-5" />
-            </Button>
           </div>
-
-          <div className="hidden sm:flex gap-4">
-            <div className="w-[160px]">
-              <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Kategori</Label>
-              <Select value={filterGroup} onValueChange={(val) => setFilterGroup(val || "")}>
-                <SelectTrigger className="bg-background">
-                  <SelectValue placeholder="Semua Kategori" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">Semua Kategori</SelectItem>
-                  {allCategories.map(c => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-[120px]">
-              <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by UOM</Label>
-              <Select value={filterUom} onValueChange={(val) => setFilterUom(val || "")}>
-                <SelectTrigger className="bg-background">
-                  <SelectValue placeholder="All UOMs" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All UOMs</SelectItem>
-                  {MATERIAL_UOMS.map(u => (
-                    <SelectItem key={u} value={u}>{u}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-[180px]">
-              <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
-              <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
-                <SelectTrigger className="bg-background">
-                  <SelectValue placeholder="Sort By" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SORT_OPTIONS.map(opt => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="w-[160px]">
+            <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Kategori</Label>
+            <Select value={filterGroup} onValueChange={(val) => setFilterGroup(val || "")}>
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="Semua Kategori">
+                  {filterGroup === 'ALL' ? 'Semua Kategori' : filterGroup || undefined}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">Semua Kategori</SelectItem>
+                {allCategories.map(c => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-[120px]">
+            <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by UOM</Label>
+            <Select value={filterUom} onValueChange={(val) => setFilterUom(val || "")}>
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="All UOMs">
+                  {filterUom === 'ALL' ? 'All UOMs' : filterUom || undefined}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All UOMs</SelectItem>
+                {MATERIAL_UOMS.map(u => (
+                  <SelectItem key={u} value={u}>{u}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-[180px]">
+            <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
+            <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="Sort By">
+                  {SORT_OPTIONS.find(o => o.value === sortBy)?.label || undefined}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map(opt => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
@@ -497,7 +442,7 @@ export default function MaterialsPage() {
 
       {/* Add / Edit Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[500px] w-full max-w-full !bottom-0 !top-auto !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 !rounded-t-2xl !rounded-b-none sm:!rounded-xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 mb-0">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>{editId ? 'Edit Material' : 'Add Material'}</DialogTitle>
             <DialogDescription>
@@ -706,89 +651,8 @@ export default function MaterialsPage() {
           </div>
         ) : materials.length > 0 ? (
           <>
-            {/* MOBILE COMPACT LIST VIEW */}
-            <div className="block sm:hidden w-full space-y-[5px]">
-              {currentPageMaterials.map((material) => {
-                const isSelected = selectedIds.includes(material.id);
-                const priceFormatted = material.unitPrice 
-                  ? `Rp ${Number(material.unitPrice).toLocaleString('id-ID')}` 
-                  : 'Rp 0';
-                  
-                return (
-                  <div 
-                    key={`mobile-mat-${material.id}`} 
-                    className={`w-full p-3 bg-white dark:bg-card rounded-xl border ${isSelected ? 'border-primary/50 bg-primary/5' : 'border-neutral-200/60 dark:border-border/60'} shadow-xs flex flex-col justify-start items-start relative transition-colors`}
-                  >
-                    <div className="w-full flex justify-between items-start gap-2">
-                      <div className="flex items-start gap-2 flex-1 min-w-0 pr-6">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={(checked) => handleSelectRow(material.id, !!checked)}
-                          aria-label={`Select ${material.materialName}`}
-                          className="mt-0.5"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="text-neutral-950 dark:text-foreground text-[16px] font-semibold leading-snug truncate">
-                            {material.materialName}
-                          </div>
-                          <div className="text-neutral-500 dark:text-muted-foreground text-[13px] font-normal leading-4 truncate mt-0.5">
-                            {material.materialCode} {material.brand ? `• ${material.brand}` : ''}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="shrink-0 flex flex-col items-end gap-1">
-                        <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold leading-4 bg-muted text-muted-foreground">
-                          {material.category}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="w-full pt-2 pl-6 flex items-center justify-between gap-1.5 text-neutral-500 dark:text-muted-foreground text-[13px] leading-4">
-                      <div className="flex gap-1 items-center">
-                        {material.packagingType === 'KABEL_UDARA' && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 border border-blue-100">4.000m/Haspel</span>
-                        )}
-                        {material.packagingType === 'KABEL_TANAH' && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-100">3.000m/Haspel</span>
-                        )}
-                        {material.packagingType === 'HDPE_SUBDUCT' && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-100">200m/Roll</span>
-                        )}
-                        {!['KABEL_UDARA', 'KABEL_TANAH', 'HDPE_SUBDUCT'].includes(material.packagingType || '') && (
-                           <span className="text-[11px] font-medium text-foreground">{material.unit}</span>
-                        )}
-                      </div>
-                      <span className="font-semibold text-green-600">{priceFormatted}</span>
-                    </div>
-
-                    <div className="w-full pt-2.5 flex justify-end items-center">
-                      <div className="flex gap-1">
-                        <button
-                          type="button"
-                          onClick={() => openEditDialog(material)}
-                          className="h-7 px-2 bg-white dark:bg-muted/40 hover:bg-neutral-100 dark:hover:bg-muted text-neutral-950 dark:text-foreground text-xs font-medium rounded-lg border border-neutral-200 dark:border-border inline-flex justify-center items-center gap-1 transition-colors shadow-xs"
-                        >
-                          <Pencil className="w-3 h-3" />
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setDeleteId(material.id); setDeleteOpen(true); }}
-                          className="h-7 px-2 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-medium rounded-lg border border-red-200 dark:border-red-900/50 inline-flex justify-center items-center gap-1 transition-colors shadow-xs"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="hidden sm:block">
-              <Table className="whitespace-nowrap sm:whitespace-normal">
-              <TableHeader className="hidden sm:table-header-group">
+            <Table className="whitespace-nowrap">
+              <TableHeader>
                 <TableRow>
                   <TableHead className="w-[40px]">
                     <Checkbox
@@ -815,63 +679,61 @@ export default function MaterialsPage() {
                   return (
                     <TableRow 
                       key={material.id} 
-                      className={`transition-colors ${isSelected ? 'bg-muted/50' : ''}`}
+                      className={`hover:bg-muted/30 ${isSelected ? 'bg-muted/50' : ''}`}
                     >
-                      <TableCell className="w-[40px] px-3 py-2 border-b border-border/50">
+                      <TableCell className="w-[40px]">
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={(checked) => handleSelectRow(material.id, !!checked)}
                           aria-label={`Select ${material.materialCode}`}
                         />
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell w-[150px] font-medium text-primary px-3 py-2 border-b border-border/50 break-words">
+                      <TableCell className="font-medium text-primary w-[150px] whitespace-normal break-words">
                         {material.materialCode}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell max-w-[350px] px-3 py-2 border-b border-border/50 font-medium whitespace-normal">
-                        <div>
-                          <span 
-                            className="line-clamp-2 leading-snug break-words" 
-                            title={material.materialName}
-                          >
-                            {material.materialName}
+                      <TableCell className="font-medium whitespace-normal max-w-[350px]">
+                        <span 
+                          className="line-clamp-2 block leading-snug break-words" 
+                          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                          title={material.materialName}
+                        >
+                          {material.materialName}
+                        </span>
+                        {material.packagingType === 'KABEL_UDARA' && (
+                          <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                            1 Haspel (4.000m)
                           </span>
-                          {material.packagingType === 'KABEL_UDARA' && (
-                            <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                              1 Haspel (4.000m)
-                            </span>
-                          )}
-                          {material.packagingType === 'KABEL_TANAH' && (
-                            <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                              1 Haspel (3.000m)
-                            </span>
-                          )}
-                          {material.packagingType === 'HDPE_SUBDUCT' && (
-                            <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                              1 Roll (200m)
-                            </span>
-                          )}
-                        </div>
+                        )}
+                        {material.packagingType === 'KABEL_TANAH' && (
+                          <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            1 Haspel (3.000m)
+                          </span>
+                        )}
+                        {material.packagingType === 'HDPE_SUBDUCT' && (
+                          <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                            1 Roll (200m)
+                          </span>
+                        )}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50">
+                      <TableCell>
                         <Badge variant="secondary" className="text-xs font-normal bg-muted text-muted-foreground">
                           {material.category}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50 font-medium text-xs text-foreground">
+                      <TableCell className="font-medium text-xs text-foreground">
                         {priceFormatted}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell max-w-[250px] px-3 py-2 border-b border-border/50 whitespace-normal text-xs text-muted-foreground">
+                      <TableCell className="whitespace-normal max-w-[250px] text-xs text-muted-foreground">
                         <span 
-                          className="line-clamp-2 leading-snug break-words" 
+                          className="line-clamp-2 block leading-snug break-words" 
+                          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
                           title={material.specification || '-'}
                         >
                           {material.specification || '-'}
                         </span>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50">
-                        {material.unit}
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50 text-right">
+                      <TableCell>{material.unit}</TableCell>
+                      <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => openEditDialog(material)}>
                             <Pencil className="h-4 w-4" />
@@ -886,7 +748,6 @@ export default function MaterialsPage() {
                 })}
               </TableBody>
             </Table>
-            </div>
             <DataTablePagination 
               totalItems={materials.length} 
               pageSize={pageSize} 
@@ -899,7 +760,7 @@ export default function MaterialsPage() {
           <div className="text-center py-16 bg-card border rounded-xl ">
             <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
             <p className="text-muted-foreground">No materials found</p>
-            <Button variant="link" onClick={openCreateDialog} className="mt-2 text-[13px]">
+            <Button variant="link" onClick={openCreateDialog} className="mt-2">
               Create your first material
             </Button>
           </div>
