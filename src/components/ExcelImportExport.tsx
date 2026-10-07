@@ -51,7 +51,7 @@ export function ExcelImportExport({ onImport, onExport, onDownloadTemplate, isLo
         <Button 
           variant="outline" 
           size="sm" 
-          className="gap-2 h-9" 
+          className="gap-2 h-9 text-[13px]" 
           onClick={() => fileInputRef.current?.click()}
           disabled={isLoading || importing}
         >
@@ -61,7 +61,7 @@ export function ExcelImportExport({ onImport, onExport, onDownloadTemplate, isLo
         <Button 
           variant="outline" 
           size="sm" 
-          className="gap-2 h-9" 
+          className="gap-2 h-9 text-[13px]" 
           onClick={handleExport}
           disabled={isLoading || exporting}
         >
@@ -71,7 +71,7 @@ export function ExcelImportExport({ onImport, onExport, onDownloadTemplate, isLo
         <Button 
           variant="ghost" 
           size="sm" 
-          className="text-muted-foreground text-xs h-9" 
+          className="text-muted-foreground text-[13px] h-9" 
           onClick={onDownloadTemplate}
         >
           Template

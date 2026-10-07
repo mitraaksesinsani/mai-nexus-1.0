@@ -122,9 +122,10 @@ export default function VendorsPage() {
       setIsOpen(false);
       fetchVendors();
       toast.success(`Vendor ${editId ? 'updated' : 'created'} successfully`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving vendor:', error);
-      toast.error('Failed to save Vendor');
+      const errMsg = error.response?.data?.message || 'Failed to save Vendor';
+      toast.error(errMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -232,14 +233,20 @@ export default function VendorsPage() {
               <Button
                 variant="destructive"
                 size="sm"
-                className="gap-2 h-9"
+                className="gap-2 h-9 text-[13px]"
                 onClick={() => setBulkDeleteOpen(true)}
               >
                 <Trash2 className="w-4 h-4" />
                 Hapus Terpilih ({selectedIds.length})
               </Button>
             )}
-            
+            <Button
+              onClick={openCreateDialog}
+              className="gap-2 h-9 text-[13px]"
+            >
+              <Plus className="w-4 h-4" />
+              Add Vendor
+            </Button>
           </div>
         </div>
         
@@ -252,14 +259,14 @@ export default function VendorsPage() {
                 placeholder="Search vendor code or name..." 
                 value={search} 
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 bg-background h-auto py-[10px] text-[16px]"
+                className="pl-9 bg-background h-auto py-[10px] text-[16px] sm:h-10 sm:py-2 sm:text-[13px]"
               />
             </div>
             
             {/* Mobile Filters Drawer Trigger */}
             <div className="block sm:hidden shrink-0">
               <Sheet>
-                <SheetTrigger render={<Button variant="outline" size="icon" className="h-[46px] w-[46px] shrink-0" />}>
+                <SheetTrigger render={<Button variant="outline" size="icon" className="h-[46px] w-[46px] sm:h-10 sm:w-10 shrink-0" />}>
                   <SlidersHorizontal className="w-4 h-4" />
                 </SheetTrigger>
                 <SheetContent side="bottom" className="rounded-t-2xl px-4 pt-6 pb-8">
@@ -268,29 +275,29 @@ export default function VendorsPage() {
                   </SheetHeader>
                   <div className="flex flex-col gap-2">
                     <div className="w-full">
-                      <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Status</Label>
+                      <Label className="text-[13px] mb-1.5 block text-muted-foreground">Filter by Status</Label>
                       <Select value={filterStatus} onValueChange={(val) => setFilterStatus(val || "")}>
-                        <SelectTrigger className="bg-background">
+                        <SelectTrigger className="h-10 bg-background text-[13px]">
                           <SelectValue placeholder="All Statuses" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="ALL">All Statuses</SelectItem>
-                          <SelectItem value="ACTIVE">Active</SelectItem>
-                          <SelectItem value="INACTIVE">Inactive</SelectItem>
+                          <SelectItem value="ALL" className="text-[13px]">All Statuses</SelectItem>
+                          <SelectItem value="ACTIVE" className="text-[13px]">Active</SelectItem>
+                          <SelectItem value="INACTIVE" className="text-[13px]">Inactive</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="w-full">
-                      <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
+                      <Label className="text-[13px] mb-1.5 block text-muted-foreground">Sort By</Label>
                       <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
-                        <SelectTrigger className="bg-background">
+                        <SelectTrigger className="h-10 bg-background text-[13px]">
                           <SelectValue placeholder="Sort By" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                          <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                          <SelectItem value="code-asc">Code (A-Z)</SelectItem>
-                          <SelectItem value="code-desc">Code (Z-A)</SelectItem>
+                          <SelectItem value="name-asc" className="text-[13px]">Name (A-Z)</SelectItem>
+                          <SelectItem value="name-desc" className="text-[13px]">Name (Z-A)</SelectItem>
+                          <SelectItem value="code-asc" className="text-[13px]">Code (A-Z)</SelectItem>
+                          <SelectItem value="code-desc" className="text-[13px]">Code (Z-A)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -298,36 +305,36 @@ export default function VendorsPage() {
                 </SheetContent>
               </Sheet>
             </div>
-            <Button size="icon" className="shrink-0 h-[46px] w-[46px]" onClick={openCreateDialog}>
-              <Plus className="w-5 h-5" />
+            <Button size="icon" className="shrink-0 h-[46px] w-[46px] sm:h-10 sm:w-10" onClick={openCreateDialog}>
+              <Plus className="w-5 h-5 sm:w-4 sm:h-4" />
             </Button>
           </div>
 
           <div className="hidden sm:flex gap-4">
             <div className="w-[150px]">
-              <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Status</Label>
+              <Label className="text-[13px] mb-1.5 block text-muted-foreground">Filter by Status</Label>
               <Select value={filterStatus} onValueChange={(val) => setFilterStatus(val || "")}>
-                <SelectTrigger className="bg-background">
+                <SelectTrigger className="h-10 bg-background text-[13px]">
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All Statuses</SelectItem>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="INACTIVE">Inactive</SelectItem>
+                  <SelectItem value="ALL" className="text-[13px]">All Statuses</SelectItem>
+                  <SelectItem value="ACTIVE" className="text-[13px]">Active</SelectItem>
+                  <SelectItem value="INACTIVE" className="text-[13px]">Inactive</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="w-[180px]">
-              <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
+              <Label className="text-[13px] mb-1.5 block text-muted-foreground">Sort By</Label>
               <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
-                <SelectTrigger className="bg-background">
+                <SelectTrigger className="h-10 bg-background text-[13px]">
                   <SelectValue placeholder="Sort By" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                  <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                  <SelectItem value="code-asc">Code (A-Z)</SelectItem>
-                  <SelectItem value="code-desc">Code (Z-A)</SelectItem>
+                  <SelectItem value="name-asc" className="text-[13px]">Name (A-Z)</SelectItem>
+                  <SelectItem value="name-desc" className="text-[13px]">Name (Z-A)</SelectItem>
+                  <SelectItem value="code-asc" className="text-[13px]">Code (A-Z)</SelectItem>
+                  <SelectItem value="code-desc" className="text-[13px]">Code (Z-A)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -533,97 +540,104 @@ export default function VendorsPage() {
           </div>
         )}
       </div>
-
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-2xl w-full max-w-full !bottom-0 !top-auto !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 !rounded-t-2xl !rounded-b-none sm:!rounded-xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 mb-0">
-          <form onSubmit={handleSubmit}>
-            <DialogHeader>
-              <DialogTitle>{editId ? 'Edit Vendor' : 'Add New Vendor'}</DialogTitle>
-              <DialogDescription>{editId ? 'Update vendor information.' : 'Register a new supplier or partner.'}</DialogDescription>
+        <DialogContent className="w-full sm:max-w-xl md:max-w-2xl max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden rounded-xl border bg-popover shadow-2xl text-[13px]">
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+            <DialogHeader className="px-6 py-4 border-b shrink-0 pr-12 bg-background/50">
+              <DialogTitle className="text-lg font-bold">{editId ? 'Edit Vendor' : 'Add New Vendor'}</DialogTitle>
+              <DialogDescription className="text-[13px] text-muted-foreground mt-0.5">
+                {editId ? 'Update vendor information.' : 'Register a new supplier or partner.'}
+              </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="vendorCode">Vendor Code *</Label>
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 min-h-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="vendorCode" className="text-[13px] font-medium">Vendor Code *</Label>
                   <Input 
                     id="vendorCode" 
                     placeholder="e.g. VND-001" 
                     value={formData.vendorCode}
                     onChange={(e) => setFormData({...formData, vendorCode: e.target.value})}
                     required 
+                    className="h-10 text-[13px]"
                   />
                 </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="name">Vendor Name *</Label>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="name" className="text-[13px] font-medium">Vendor Name *</Label>
                   <Input 
                     id="name" 
                     placeholder="e.g. PT Maju Jaya" 
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                     required 
+                    className="h-10 text-[13px]"
                   />
                 </div>
               </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="contactPerson">Contact Person</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="contactPerson" className="text-[13px] font-medium">Contact Person</Label>
                 <Input 
                   id="contactPerson" 
                   placeholder="e.g. Budi Santoso" 
                   value={formData.contactPerson}
                   onChange={(e) => setFormData({...formData, contactPerson: e.target.value})}
+                  className="h-10 text-[13px]"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="email">Email Address</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="email" className="text-[13px] font-medium">Email Address</Label>
                   <Input 
                     id="email" 
-                    type="email"
+                    type="email" 
                     placeholder="e.g. contact@majujaya.com" 
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="h-10 text-[13px]"
                   />
                 </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="phone" className="text-[13px] font-medium">Phone Number</Label>
                   <Input 
                     id="phone" 
                     placeholder="e.g. 021-1234567" 
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    className="h-10 text-[13px]"
                   />
                 </div>
               </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="address">Address</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="address" className="text-[13px] font-medium">Address</Label>
                 <Textarea 
                   id="address" 
                   placeholder="Vendor's full address..." 
                   value={formData.address}
                   onChange={(e) => setFormData({...formData, address: e.target.value})}
+                  className="text-[13px] min-h-[80px]"
                 />
               </div>
               {editId && (
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="status">Status</Label>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="status" className="text-[13px] font-medium">Status</Label>
                   <Select value={formData.isActive ? "ACTIVE" : "INACTIVE"} onValueChange={(val) => setFormData({...formData, isActive: val === "ACTIVE"})}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10 text-[13px]">
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ACTIVE">Active</SelectItem>
-                      <SelectItem value="INACTIVE">Inactive</SelectItem>
+                      <SelectItem value="ACTIVE" className="text-[13px]">Active</SelectItem>
+                      <SelectItem value="INACTIVE" className="text-[13px]">Inactive</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               )}
             </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isSubmitting}>
+            <DialogFooter className="shrink-0 mx-0 mb-0 mt-0 p-0 px-6 py-3.5 border-t bg-muted/30 flex items-center justify-end gap-2">
+              <Button type="button" variant="outline" className="text-[13px] h-9 px-4" onClick={() => setIsOpen(false)} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              <Button type="submit" className="text-[13px] h-9 px-4" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 {editId ? 'Save Changes' : 'Save Vendor'}
               </Button>
             </DialogFooter>

@@ -66,22 +66,26 @@ function MovementsContent() {
   const getTransactionBadge = (type: string, qty: number = 0) => {
     switch (type) {
       case 'IN':
-        return <Badge variant="outline" className="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-xs">Goods In</Badge>;
+        return <Badge variant="outline" className="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-[13px] py-0.5 px-2.5 font-medium whitespace-normal break-words">Goods In</Badge>;
+      case 'IN_MANUAL_ENTRY':
+        return <Badge variant="outline" className="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-[13px] py-0.5 px-2.5 font-medium whitespace-normal break-words">Masuk Catat Manual</Badge>;
       case 'DO_RECEIPT':
-        return <Badge variant="outline" className="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-xs">DO Receipt (In)</Badge>;
+        return <Badge variant="outline" className="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-[13px] py-0.5 px-2.5 font-medium whitespace-normal break-words">DO Receipt (In)</Badge>;
       case 'OUT':
-        return <Badge variant="outline" className="text-red-600 bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-xs">Goods Out</Badge>;
+        return <Badge variant="outline" className="text-red-600 bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-[13px] py-0.5 px-2.5 font-medium whitespace-normal break-words">Goods Out</Badge>;
+      case 'OUT_MANUAL_ADJUSTMENT':
+        return <Badge variant="outline" className="text-red-600 bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-[13px] py-0.5 px-2.5 font-medium whitespace-normal break-words">Keluar Catat Manual</Badge>;
       case 'RFC_ISSUE':
-        return <Badge variant="outline" className="text-red-600 bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-xs">RFC Issue (Out)</Badge>;
+        return <Badge variant="outline" className="text-red-600 bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-[13px] py-0.5 px-2.5 font-medium whitespace-normal break-words">RFC Issue (Out)</Badge>;
       case 'TRANSFER':
-        return <Badge variant="outline" className="text-blue-600 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800 text-xs">Transfer</Badge>;
+        return <Badge variant="outline" className="text-blue-600 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800 text-[13px] py-0.5 px-2.5 font-medium whitespace-normal break-words">Transfer</Badge>;
       case 'MANUAL_ENTRY':
-        return <Badge variant="outline" className="text-amber-600 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-xs">Manual Entry</Badge>;
+        return <Badge variant="outline" className="text-amber-600 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-[13px] py-0.5 px-2.5 font-medium whitespace-normal break-words">Manual Entry</Badge>;
       default:
         return isOutflow(type, qty) ? (
-          <Badge variant="outline" className="text-red-600 bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-xs">{type}</Badge>
+          <Badge variant="outline" className="text-red-600 bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-[13px] py-0.5 px-2.5 font-medium whitespace-normal break-words">{type}</Badge>
         ) : (
-          <Badge variant="outline" className="text-xs">{type}</Badge>
+          <Badge variant="outline" className="border-border text-foreground text-[13px] py-0.5 px-2.5 font-medium whitespace-normal break-words">{type}</Badge>
         );
     }
   };
@@ -199,7 +203,7 @@ function MovementsContent() {
                     {(tx.notes || tx.referenceId) && (
                       <div className="text-[11px] text-muted-foreground bg-muted/40 rounded p-2 flex flex-col gap-0.5">
                         {tx.notes && (
-                          <div className="truncate">
+                          <div className="break-words leading-relaxed">
                             <span className="font-medium text-foreground/80">Catatan: </span>
                             {tx.notes}
                           </div>
@@ -218,21 +222,21 @@ function MovementsContent() {
 
             {/* Desktop Table View (screen > 640px) */}
             <div className="hidden sm:block">
-              <Table className="table-fixed min-w-[1240px] w-full">
+              <Table className="w-full table-fixed">
                 <TableHeader>
                   <TableRow className="bg-secondary/30">
-                    <TableHead className="w-[140px]">Date</TableHead>
-                    <TableHead className="w-[180px]">Type</TableHead>
-                    <TableHead className="w-[460px]">Material</TableHead>
-                    <TableHead className="w-[180px]">Warehouse</TableHead>
-                    <TableHead className="w-[120px] text-right">Quantity</TableHead>
-                    <TableHead className="w-[180px]">Notes</TableHead>
+                    <TableHead className="w-[115px] text-left text-[13px] font-semibold">Date</TableHead>
+                    <TableHead className="w-[215px] text-left text-[13px] font-semibold">Type</TableHead>
+                    <TableHead className="w-[260px] text-left text-[13px] font-semibold">Material</TableHead>
+                    <TableHead className="w-[160px] text-left text-[13px] font-semibold">Warehouse</TableHead>
+                    <TableHead className="w-[110px] text-left text-[13px] font-semibold">Quantity</TableHead>
+                    <TableHead className="text-left text-[13px] font-semibold !whitespace-normal">Notes</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {paginatedMovements.map((tx) => (
                     <TableRow key={tx.id} className="hover:bg-muted/30">
-                      <TableCell className="text-[12px] whitespace-nowrap">
+                      <TableCell className="text-[13px] text-left whitespace-nowrap py-2.5">
                         <div className="flex flex-col leading-tight">
                           <span className="font-medium text-foreground">
                             {new Date(tx.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
@@ -242,30 +246,31 @@ function MovementsContent() {
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="text-left whitespace-nowrap align-middle py-2.5">
                         <div className="flex items-center gap-2">
                           {getTransactionIcon(tx.transactionType, tx.quantity)}
                           {getTransactionBadge(tx.transactionType, tx.quantity)}
                         </div>
                       </TableCell>
-                      <TableCell className="whitespace-normal">
+                      <TableCell className="text-left py-2.5 !whitespace-normal">
                         <div 
-                          className="max-w-[67ch] break-words text-sm font-medium text-primary leading-snug" 
-                          style={{ maxWidth: '67ch' }}
+                          className="whitespace-normal break-words text-[13px] font-medium text-primary leading-snug" 
                           title={tx.material?.materialName}
                         >
                           {tx.material?.materialName || '—'}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">{tx.material?.materialCode}</p>
+                        <p className="text-[12px] text-muted-foreground mt-0.5 font-mono">{tx.material?.materialCode}</p>
                       </TableCell>
-                      <TableCell className="truncate text-sm" title={tx.warehouse?.warehouseName || tx.warehouse?.name || '—'}>
+                      <TableCell className="text-left truncate text-[13px] py-2.5" title={tx.warehouse?.warehouseName || tx.warehouse?.name || '—'}>
                         {tx.warehouse?.warehouseName || tx.warehouse?.name || '—'}
                       </TableCell>
-                      <TableCell className={`text-right font-semibold whitespace-nowrap ${isOutflow(tx.transactionType, tx.quantity) ? 'text-red-500' : isInflow(tx.transactionType, tx.quantity) ? 'text-emerald-500' : ''}`}>
+                      <TableCell className={`text-left font-semibold whitespace-nowrap text-[13px] py-2.5 ${isOutflow(tx.transactionType, tx.quantity) ? 'text-red-500' : isInflow(tx.transactionType, tx.quantity) ? 'text-emerald-500' : ''}`}>
                         {isOutflow(tx.transactionType, tx.quantity) ? '-' : '+'}{Math.abs(Number(tx.quantity || 0)).toLocaleString()} {tx.material?.unit}
                       </TableCell>
-                      <TableCell className="text-muted-foreground text-sm truncate" title={tx.notes || '-'}>
-                        {tx.notes || '-'}
+                      <TableCell className="text-left py-2.5 !whitespace-normal align-middle">
+                        <div className="whitespace-normal break-words leading-relaxed text-[13px] text-muted-foreground" title={tx.notes || '-'}>
+                          {tx.notes || '-'}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

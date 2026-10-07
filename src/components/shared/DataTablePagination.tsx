@@ -24,8 +24,8 @@ export function DataTablePagination({
   const endIndex = Math.min(startIndex + pageSize, totalItems);
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-2">
-      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-2 text-[13px]">
+      <div className="flex items-center space-x-2 text-[13px] text-muted-foreground">
         <p>Showing</p>
         <Select
           value={pageSize.toString()}
@@ -34,12 +34,12 @@ export function DataTablePagination({
             onPageChange(1); // Reset to page 1 on size change
           }}
         >
-          <SelectTrigger className="h-8 w-[70px]">
+          <SelectTrigger className="h-8 w-[70px] text-[13px]">
             <SelectValue placeholder={pageSize} />
           </SelectTrigger>
           <SelectContent side="top">
             {pageSizeOptions.map((size) => (
-              <SelectItem key={size} value={size.toString()}>
+              <SelectItem key={size} value={size.toString()} className="text-[13px]">
                 {size}
               </SelectItem>
             ))}
@@ -50,8 +50,8 @@ export function DataTablePagination({
         </p>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <span className="text-sm text-muted-foreground sm:hidden">
+      <div className="flex items-center space-x-2 text-[13px]">
+        <span className="text-[13px] text-muted-foreground sm:hidden">
           {totalItems > 0 ? startIndex + 1 : 0}-{endIndex} of {totalItems}
         </span>
         <Button
@@ -59,12 +59,12 @@ export function DataTablePagination({
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1 || totalItems === 0}
-          className="h-8 px-2"
+          className="h-8 px-2 text-[13px]"
         >
           <ChevronLeft className="h-4 w-4" />
           <span className="sr-only">Previous Page</span>
         </Button>
-        <div className="text-sm font-medium w-16 text-center">
+        <div className="text-[13px] font-medium w-16 text-center">
           {currentPage} / {totalPages}
         </div>
         <Button
@@ -72,7 +72,7 @@ export function DataTablePagination({
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages || totalItems === 0}
-          className="h-8 px-2"
+          className="h-8 px-2 text-[13px]"
         >
           <ChevronRight className="h-4 w-4" />
           <span className="sr-only">Next Page</span>

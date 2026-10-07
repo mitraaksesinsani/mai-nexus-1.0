@@ -17,6 +17,8 @@ import {
   Database,
   Zap,
   UserCheck,
+  ChevronRight,
+  ChevronLeft,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -34,7 +36,11 @@ import {
   SidebarGroupContent,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -162,7 +168,90 @@ const groupedNavigation = [
   }
 ];
 
-// Replaced NavCollapsible with AppSidebar internal drill-down logic
+function getBadgeForLabel(childLabel: string, parentLabel: string, counts: any) {
+  if (childLabel === 'Approval Queue' && parentLabel === 'PR Management' && counts.prApprovals > 0) {
+    return <Badge variant="destructive" className="ml-auto h-5 px-1.5 flex items-center justify-center text-[10px]">{counts.prApprovals}</Badge>;
+  }
+  if (childLabel === 'Approval Queue' && parentLabel === 'RFC' && counts.rfcApprovals > 0) {
+    return <Badge variant="destructive" className="ml-auto h-5 px-1.5 flex items-center justify-center text-[10px]">{counts.rfcApprovals}</Badge>;
+  }
+  if (childLabel === 'Approval Queue' && parentLabel === 'Procurement' && counts.poApprovals > 0) {
+    return <Badge variant="destructive" className="ml-auto h-5 px-1.5 flex items-center justify-center text-[10px]">{counts.poApprovals}</Badge>;
+  }
+  if (childLabel === 'Delivery Tracking' && counts.pendingLogistics > 0) {
+    return <Badge variant="destructive" className="ml-auto h-5 px-1.5 flex items-center justify-center text-[10px]">{counts.pendingLogistics}</Badge>;
+  }
+  if (childLabel === 'Material Receive' && counts.materialReceives > 0) {
+    return <Badge variant="destructive" className="ml-auto h-5 px-1.5 flex items-center justify-center text-[10px]">{counts.materialReceives}</Badge>;
+  }
+  return null;
+}
+
+function groupHasNotification(item: any, counts: any) {
+  if (item.label === 'PR Management' && counts.prApprovals > 0) return true;
+  if (item.label === 'RFC' && counts.rfcApprovals > 0) return true;
+  if (item.label === 'Procurement' && counts.poApprovals > 0) return true;
+  if (item.label === 'Logistics' && counts.pendingLogistics > 0) return true;
+  if (item.label === 'Warehouse' && counts.materialReceives > 0) return true;
+  return false;
+}
+
+function NavCollapsible({
+  item,
+  pathname,
+  counts,
+  onNavigate,
+}: {
+  item: any;
+  pathname: string;
+  counts: any;
+  onNavigate?: () => void;
+}) {
+  const isItemActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+  const [open, setOpen] = React.useState(isItemActive);
+
+  React.useEffect(() => {
+    if (isItemActive) setOpen(true);
+  }, [isItemActive]);
+
+  return (
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
+      className="group/collapsible"
+    >
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          isActive={isItemActive} 
+          tooltip={item.label}
+          render={<CollapsibleTrigger />}
+        >
+          <item.icon />
+          <span>{item.label}</span>
+          {!open && groupHasNotification(item, counts) && (
+            <div className="w-2 h-2 rounded-full bg-destructive absolute right-10 top-1/2 -translate-y-1/2" />
+          )}
+          <ChevronRight className={`ml-auto transition-transform duration-200 ${open ? 'rotate-90' : ''}`} />
+        </SidebarMenuButton>
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            {item.children?.map((child: any) => (
+              <SidebarMenuSubItem key={child.label}>
+                <SidebarMenuSubButton 
+                  isActive={pathname === child.href}
+                  render={<Link href={child.href} onClick={onNavigate} />}
+                >
+                  <span>{child.label}</span>
+                  {getBadgeForLabel(child.label, item.label, counts)}
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            ))}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </SidebarMenuItem>
+    </Collapsible>
+  );
+}
 
 export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
@@ -173,14 +262,26 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
   const [activeGroup, setActiveGroup] = React.useState<any | null>(null);
   const [renderedGroup, setRenderedGroup] = React.useState<any | null>(null);
 
+  // Deteksi layar <= 390px (Mobile drill-down) vs > 390px (Web View normal collapsible)
+  const [isNarrowMobile, setIsNarrowMobile] = React.useState(false);
+
   React.useEffect(() => {
-    if (!openMobile) {
+    const checkWidth = () => {
+      setIsNarrowMobile(window.innerWidth <= 390);
+    };
+    checkWidth();
+    window.addEventListener('resize', checkWidth);
+    return () => window.removeEventListener('resize', checkWidth);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isNarrowMobile || !openMobile) {
       setActiveGroup(null);
       setRenderedGroup(null);
     } else if (openMobile && contentRef.current) {
       contentRef.current.scrollTo({ top: 0, behavior: 'instant' });
     }
-  }, [openMobile]);
+  }, [openMobile, isNarrowMobile]);
 
   const handleSelectGroup = (group: any) => {
     setRenderedGroup(group);
@@ -190,34 +291,6 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
   const handleBack = () => {
     setActiveGroup(null);
     setTimeout(() => setRenderedGroup(null), 300);
-  };
-
-  const getBadgeForLabel = (childLabel: string, parentLabel: string) => {
-    if (childLabel === 'Approval Queue' && parentLabel === 'PR Management' && counts.prApprovals > 0) {
-      return <Badge variant="destructive" className="ml-auto h-5 px-1.5 flex items-center justify-center text-[10px]">{counts.prApprovals}</Badge>;
-    }
-    if (childLabel === 'Approval Queue' && parentLabel === 'RFC' && counts.rfcApprovals > 0) {
-      return <Badge variant="destructive" className="ml-auto h-5 px-1.5 flex items-center justify-center text-[10px]">{counts.rfcApprovals}</Badge>;
-    }
-    if (childLabel === 'Approval Queue' && parentLabel === 'Procurement' && counts.poApprovals > 0) {
-      return <Badge variant="destructive" className="ml-auto h-5 px-1.5 flex items-center justify-center text-[10px]">{counts.poApprovals}</Badge>;
-    }
-    if (childLabel === 'Delivery Tracking' && counts.pendingLogistics > 0) {
-      return <Badge variant="destructive" className="ml-auto h-5 px-1.5 flex items-center justify-center text-[10px]">{counts.pendingLogistics}</Badge>;
-    }
-    if (childLabel === 'Material Receive' && counts.materialReceives > 0) {
-      return <Badge variant="destructive" className="ml-auto h-5 px-1.5 flex items-center justify-center text-[10px]">{counts.materialReceives}</Badge>;
-    }
-    return null;
-  };
-
-  const groupHasNotification = (item: any) => {
-    if (item.label === 'PR Management' && counts.prApprovals > 0) return true;
-    if (item.label === 'RFC' && counts.rfcApprovals > 0) return true;
-    if (item.label === 'Procurement' && counts.poApprovals > 0) return true;
-    if (item.label === 'Logistics' && counts.pendingLogistics > 0) return true;
-    if (item.label === 'Warehouse' && counts.materialReceives > 0) return true;
-    return false;
   };
 
   const filteredNavigation = groupedNavigation.map(group => {
@@ -322,9 +395,57 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
         </div>
       </SidebarHeader>
 
-      <SidebarContent ref={contentRef} className="px-2 pt-4 pb-[35px]">
-        {!activeGroup ? (
-          filteredNavigation.map((group) => (
+      {!isNarrowMobile ? (
+        /* ================= Layar Lebar (> 390px): Tampilan Normal Sebelumnya ================= */
+        <SidebarContent className="px-2 py-4">
+          {filteredNavigation.map((group) => (
+            <SidebarGroup key={group.group} className="mb-2 last:mb-0">
+              {group.group !== 'Main' && (
+                <SidebarGroupLabel className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  {group.group}
+                </SidebarGroupLabel>
+              )}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {group.items.map((item) => {
+                    const hasChildren = item.children && item.children.length > 0;
+                    const isItemActive = isActive(item.href);
+
+                    if (hasChildren) {
+                      return (
+                        <NavCollapsible 
+                          key={item.label} 
+                          item={item} 
+                          pathname={pathname} 
+                          counts={counts}
+                          onNavigate={() => setOpenMobile(false)}
+                        />
+                      );
+                    }
+
+                    return (
+                      <SidebarMenuItem key={item.label}>
+                        <SidebarMenuButton 
+                          isActive={isItemActive} 
+                          tooltip={item.label}
+                          render={<Link href={item.href} onClick={() => setOpenMobile(false)} />}
+                        >
+                          <item.icon />
+                          <span>{item.label}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
+        </SidebarContent>
+      ) : (
+        /* ================= Layar Mobile (<= 390px): Drill-down Navigation ================= */
+        <SidebarContent ref={contentRef} className="px-2 pt-4 pb-[35px]">
+          {!activeGroup ? (
+            filteredNavigation.map((group) => (
               <SidebarGroup key={group.group} className="mb-2 last:mb-0">
                 {group.group !== 'Main' && (
                   <SidebarGroupLabel className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
@@ -336,7 +457,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                     {group.items.map((item) => {
                       const hasChildren = item.children && item.children.length > 0;
                       const isItemActive = isActive(item.href);
-                      
+
                       if (hasChildren) {
                         return (
                           <SidebarMenuItem key={item.label}>
@@ -347,7 +468,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                             >
                               <item.icon />
                               <span>{item.label}</span>
-                              {groupHasNotification(item) && (
+                              {groupHasNotification(item, counts) && (
                                 <div className="w-2 h-2 rounded-full bg-destructive absolute right-10 top-1/2 -translate-y-1/2" />
                               )}
                               <ChevronRight className="ml-auto opacity-50" />
@@ -373,43 +494,44 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
-          ))
-        ) : (
-          renderedGroup && (
-            <div className="flex flex-col gap-2">
-              <button 
-                onClick={handleBack}
-                className="flex items-center gap-2 px-2 py-1.5 mb-2 text-muted-foreground hover:text-foreground transition-colors group w-max"
-              >
-                <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                <span className="text-[13px] font-medium">Back to Menu</span>
-              </button>
-              <div className="px-2 pb-2 mb-2 border-b">
-                <div className="flex items-center gap-2 text-foreground font-semibold">
-                  <renderedGroup.icon className="w-4 h-4" />
-                  <span className="text-[13px]">{renderedGroup.label}</span>
+            ))
+          ) : (
+            renderedGroup && (
+              <div className="flex flex-col gap-2">
+                <button 
+                  onClick={handleBack}
+                  className="flex items-center gap-2 px-2 py-1.5 mb-2 text-muted-foreground hover:text-foreground transition-colors group w-max"
+                >
+                  <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+                  <span className="text-[13px] font-medium">Back to Menu</span>
+                </button>
+                <div className="px-2 pb-2 mb-2 border-b">
+                  <div className="flex items-center gap-2 text-foreground font-semibold">
+                    <renderedGroup.icon className="w-4 h-4" />
+                    <span className="text-[13px]">{renderedGroup.label}</span>
+                  </div>
                 </div>
+                <SidebarMenu className="gap-1.5">
+                  {renderedGroup.children.map((child: any) => (
+                    <SidebarMenuItem key={child.label}>
+                      <SidebarMenuButton 
+                        isActive={pathname === child.href}
+                        className="text-[14px] border border-sidebar-border/50 px-[9px] py-[11px] h-auto"
+                        render={<Link href={child.href} onClick={() => setOpenMobile(false)} />}
+                      >
+                        <span>{child.label}</span>
+                        {getBadgeForLabel(child.label, renderedGroup.label, counts)}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
               </div>
-              <SidebarMenu className="gap-1.5">
-                {renderedGroup.children.map((child: any) => (
-                  <SidebarMenuItem key={child.label}>
-                    <SidebarMenuButton 
-                      isActive={pathname === child.href}
-                      className="text-[14px] border border-sidebar-border/50 px-[9px] py-[11px] h-auto"
-                      render={<Link href={child.href} onClick={() => setOpenMobile(false)} />}
-                    >
-                      <span>{child.label}</span>
-                      {getBadgeForLabel(child.label, renderedGroup.label)}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </div>
-          )
-        )}
-      </SidebarContent>
+            )
+          )}
+        </SidebarContent>
+      )}
 
-      {!activeGroup && (
+      {(!isNarrowMobile || !activeGroup) && (
         <SidebarFooter className="border-t p-4">
           <SidebarMenu>
             <SidebarMenuItem>

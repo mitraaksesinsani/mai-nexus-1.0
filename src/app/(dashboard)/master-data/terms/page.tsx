@@ -76,21 +76,55 @@ export default function TermsMasterDataPage() {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val || 'financial')} className="w-full">
-        <TabsList className="w-full !h-auto !p-0 !bg-transparent !rounded-lg shadow-sm outline outline-1 outline-offset-[-1px] outline-border inline-flex justify-start items-stretch overflow-hidden">
-          <TabsTrigger value="financial" className="flex-1 min-h-10 px-4 py-2 !bg-muted hover:!bg-muted/80 data-active:!bg-background border-r border-border flex justify-center items-center gap-2 !rounded-none !shadow-none text-sm font-semibold !text-muted-foreground hover:!text-foreground data-active:!text-foreground transition-colors">
-            <Percent className="w-4 h-4" />
-            Ketentuan
+      <Tabs 
+        value={activeTab} 
+        onValueChange={(val) => setActiveTab(val || 'financial')} 
+        orientation="vertical"
+        className="flex flex-col sm:flex-row items-start gap-6 w-full"
+      >
+        <TabsList className="w-full sm:w-64 shrink-0 flex flex-row sm:flex-col gap-1.5 p-1.5 bg-muted/40 dark:bg-card/60 rounded-xl border border-border/80 shadow-none !shadow-none !h-auto">
+          <TabsTrigger 
+            value="financial" 
+            className={`flex-1 sm:flex-initial w-full min-h-[48px] px-3.5 py-2.5 sm:justify-start justify-center flex items-center gap-3 rounded-lg text-sm transition-all border ${
+              activeTab === 'financial'
+                ? '!bg-background !text-foreground !shadow-none border-border/60 font-semibold'
+                : '!bg-transparent !text-muted-foreground hover:!text-foreground hover:!bg-muted/60 border-transparent font-medium !shadow-none'
+            }`}
+          >
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+              activeTab === 'financial' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+            }`}>
+              <Percent className="w-4 h-4" />
+            </div>
+            <div className="flex flex-col text-left">
+              <span className="leading-tight">Ketentuan</span>
+              <span className="text-[11px] text-muted-foreground font-normal hidden sm:inline leading-tight mt-0.5">PPN & Down Payment</span>
+            </div>
           </TabsTrigger>
-          <TabsTrigger value="uom" className="flex-1 min-h-10 px-4 py-2 !bg-muted hover:!bg-muted/80 data-active:!bg-background flex justify-center items-center gap-2 !rounded-none !shadow-none text-sm font-semibold !text-muted-foreground hover:!text-foreground data-active:!text-foreground transition-colors">
-            <Scale className="w-4 h-4" />
-            Konversi
+
+          <TabsTrigger 
+            value="uom" 
+            className={`flex-1 sm:flex-initial w-full min-h-[48px] px-3.5 py-2.5 sm:justify-start justify-center flex items-center gap-3 rounded-lg text-sm transition-all border ${
+              activeTab === 'uom'
+                ? '!bg-background !text-foreground !shadow-none border-border/60 font-semibold'
+                : '!bg-transparent !text-muted-foreground hover:!text-foreground hover:!bg-muted/60 border-transparent font-medium !shadow-none'
+            }`}
+          >
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+              activeTab === 'uom' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+            }`}>
+              <Scale className="w-4 h-4" />
+            </div>
+            <div className="flex flex-col text-left">
+              <span className="leading-tight">Konversi</span>
+              <span className="text-[11px] text-muted-foreground font-normal hidden sm:inline leading-tight mt-0.5">Satuan Roll & Haspel</span>
+            </div>
           </TabsTrigger>
         </TabsList>
 
         {/* TAB 1: Ketentuan PO & Finansial */}
-        <TabsContent value="financial" className="mt-[10px] focus-visible:outline-none">
-          <Card className="min-h-[480px] flex flex-col justify-between border-0 shadow-none ring-0 bg-transparent">
+        <TabsContent value="financial" className="flex-1 w-full min-w-0 !mt-0 focus-visible:outline-none">
+          <Card className="min-h-[480px] flex flex-col justify-between border border-border/80 shadow-none !shadow-none ring-0 rounded-xl bg-card">
             <div>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -156,7 +190,7 @@ export default function TermsMasterDataPage() {
 
             <div className="p-6 pt-0">
               <div className="flex justify-end pt-4 border-t">
-                <Button onClick={handleSave} disabled={saving} className="bg-primary text-white">
+                <Button onClick={handleSave} disabled={saving} className="bg-primary text-white shadow-none !shadow-none">
                   {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                   Simpan Perubahan
                 </Button>
@@ -166,8 +200,8 @@ export default function TermsMasterDataPage() {
         </TabsContent>
 
         {/* TAB 2: Konversi Satuan Material (UOM) */}
-        <TabsContent value="uom" className="mt-[10px] focus-visible:outline-none">
-          <Card className="min-h-[480px] flex flex-col justify-between border-0 shadow-none ring-0 bg-transparent">
+        <TabsContent value="uom" className="flex-1 w-full min-w-0 !mt-0 focus-visible:outline-none">
+          <Card className="min-h-[480px] flex flex-col justify-between border border-border/80 shadow-none !shadow-none ring-0 rounded-xl bg-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Scale className="w-5 h-5 text-primary" />
@@ -300,7 +334,7 @@ export default function TermsMasterDataPage() {
               </div>
 
               <div className="flex justify-end pt-4 border-t">
-                <Button onClick={handleSave} disabled={saving} className="bg-primary text-white">
+                <Button onClick={handleSave} disabled={saving} className="bg-primary text-white shadow-none !shadow-none">
                   {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                   Simpan Perubahan
                 </Button>

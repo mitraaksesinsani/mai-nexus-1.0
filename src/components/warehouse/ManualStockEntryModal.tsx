@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -230,66 +230,67 @@ export function ManualStockEntryModal({
 
   return (
     <>
-      {/* Main Drawer */}
-      <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetContent side="bottom" className="rounded-t-2xl max-h-[92vh] flex flex-col p-0 overflow-hidden" showCloseButton={true}>
-          <SheetHeader className="px-5 pt-5 pb-3">
-            <SheetTitle className="text-lg font-bold">
+      {/* Main Stock Adjustment Dialog */}
+      <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+        <DialogContent className="w-full sm:max-w-4xl md:max-w-5xl max-h-[82vh] flex flex-col gap-0 p-0 overflow-hidden rounded-xl border bg-popover shadow-2xl">
+          {/* Header */}
+          <DialogHeader className="px-6 py-4 border-b shrink-0 pr-12 bg-background/50">
+            <DialogTitle className="text-lg font-bold">
               Penyesuaian Stok Manual
-            </SheetTitle>
-            <SheetDescription className="text-xs text-muted-foreground">
+            </DialogTitle>
+            <DialogDescription className="text-[13px] text-muted-foreground mt-0.5">
               Sesuaikan stok fisik gudang {warehouseName ? <strong className="text-foreground">({warehouseName})</strong> : ''} secara langsung.
-            </SheetDescription>
-          </SheetHeader>
+            </DialogDescription>
+          </DialogHeader>
           
           {/* Scrollable content area */}
-          <div className="flex-1 overflow-y-auto px-5 space-y-4 pb-4">
-            {/* Toggle Mode & Alasan - NO outline/border */}
-            <div className="space-y-3 bg-muted/30 rounded-xl p-3">
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 min-h-0">
+            {/* Toggle Mode & Alasan */}
+            <div className="space-y-3 bg-muted/40 rounded-xl p-3.5 border border-border/50">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                 <div>
-                  <Label className="text-xs text-muted-foreground mb-1.5 block font-medium">Tipe Penyesuaian</Label>
+                  <Label className="text-[13px] text-muted-foreground mb-1.5 block font-medium">Tipe Penyesuaian</Label>
                   <div className="grid grid-cols-2 p-1 bg-background border rounded-lg gap-1">
                     <button
                       type="button"
                       onClick={() => handleTypeChange('IN')}
                       className={cn(
-                        "flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-semibold transition-all",
+                        "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-[13px] font-semibold transition-all",
                         adjustmentType === 'IN'
                           ? "bg-emerald-600 text-white shadow-sm"
                           : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                       )}
                     >
-                      <ArrowUpRight className="w-3.5 h-3.5" />
+                      <ArrowUpRight className="w-4 h-4 shrink-0" />
                       + Stok Masuk (In)
                     </button>
                     <button
                       type="button"
                       onClick={() => handleTypeChange('OUT')}
                       className={cn(
-                        "flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-semibold transition-all",
+                        "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-[13px] font-semibold transition-all",
                         adjustmentType === 'OUT'
                           ? "bg-rose-600 text-white shadow-sm"
                           : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                       )}
                     >
-                      <ArrowDownRight className="w-3.5 h-3.5" />
+                      <ArrowDownRight className="w-4 h-4 shrink-0" />
                       - Stok Keluar (Out)
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-xs text-muted-foreground mb-1.5 block font-medium">Alasan Penyesuaian</Label>
+                  <Label className="text-[13px] text-muted-foreground mb-1.5 block font-medium">Alasan Penyesuaian</Label>
                   <Select value={selectedReason} onValueChange={(val) => setSelectedReason(val || activeReasons[0])}>
-                    <SelectTrigger className="bg-background h-9 text-xs">
+                    <SelectTrigger className="bg-background h-10 text-[13px]">
                       <SelectValue placeholder="Pilih Alasan">
                         {selectedReason}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="z-[70]">
                       {activeReasons.map(r => (
-                        <SelectItem key={r} value={r} className="text-xs">{r}</SelectItem>
+                        <SelectItem key={r} value={r} className="text-[13px]">{r}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -297,12 +298,12 @@ export function ManualStockEntryModal({
               </div>
 
               {selectedReason === 'Lainnya' && (
-                <div className="pt-1 animate-fade-in">
+                <div className="pt-1">
                   <Input
                     placeholder="Ketik keterangan alasan penyesuaian..."
                     value={customReason}
                     onChange={(e) => setCustomReason(e.target.value)}
-                    className="bg-background h-8 text-xs"
+                    className="bg-background h-10 text-[13px]"
                   />
                 </div>
               )}
@@ -311,12 +312,12 @@ export function ManualStockEntryModal({
             {/* Material Selection */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label className="text-xs font-medium">
+                <Label className="text-[13px] font-medium text-foreground">
                   Pilih Material yang Disesuaikan
                 </Label>
                 {adjustmentType === 'OUT' && (
-                  <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" /> Hanya stok &gt; 0
+                  <span className="text-[13px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5" /> Hanya stok &gt; 0
                   </span>
                 )}
               </div>
@@ -326,18 +327,18 @@ export function ManualStockEntryModal({
                   disabled={loadingMaterials}
                   onClick={() => setMaterialDrawerOpen(true)}
                   className={cn(
-                    "flex min-h-10 h-auto w-full items-center justify-between rounded-lg border border-input bg-background px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground text-left",
+                    "flex min-h-10 h-10 w-full items-center justify-between rounded-lg border border-input bg-background px-3 py-2 text-[13px] transition-colors hover:bg-accent hover:text-accent-foreground text-left",
                     loadingMaterials && "opacity-50 cursor-not-allowed"
                   )}
                 >
-                  <span className="flex-1 pr-2">
+                  <span className="flex-1 pr-2 truncate">
                     {loadingMaterials ? (
-                      <span className="text-muted-foreground flex items-center gap-2 text-xs">
+                      <span className="text-muted-foreground flex items-center gap-2 text-[13px]">
                         <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" /> Memuat daftar material...
                       </span>
                     ) : (
-                      <span className="text-muted-foreground flex items-center gap-2 text-xs">
-                        <Search className="w-4 h-4 opacity-50" />
+                      <span className="text-muted-foreground flex items-center gap-2 text-[13px]">
+                        <Search className="w-4 h-4 opacity-50 shrink-0" />
                         Ketik atau klik untuk cari & pilih material...
                       </span>
                     )}
@@ -362,14 +363,14 @@ export function ManualStockEntryModal({
             {/* Selected Items as List */}
             <div className="space-y-2">
               {items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center text-muted-foreground py-10 text-center">
+                <div className="flex flex-col items-center justify-center text-muted-foreground py-10 text-center border border-dashed rounded-xl bg-muted/10">
                   <Package className="w-8 h-8 mb-2 opacity-20" />
-                  <p className="text-xs font-medium">Belum ada material yang ditambahkan.</p>
-                  <p className="text-[11px] opacity-70 mt-0.5">Pilih material di atas untuk memulai.</p>
+                  <p className="text-[13px] font-medium text-foreground">Belum ada material yang ditambahkan.</p>
+                  <p className="text-[13px] text-muted-foreground mt-0.5">Pilih material di atas untuk memulai penyesuaian stok.</p>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <div className="text-xs text-muted-foreground font-medium">
+                <div className="space-y-2.5">
+                  <div className="text-[13px] text-muted-foreground font-medium">
                     {items.length} material dipilih
                   </div>
                   {items.map((item) => {
@@ -377,35 +378,35 @@ export function ManualStockEntryModal({
                     const isExceeded = adjustmentType === 'OUT' && !isNaN(numQty) && numQty > item.currentStock;
 
                     return (
-                      <div key={item.id} className="p-3 rounded-xl border border-border/70 bg-card space-y-2.5">
+                      <div key={item.id} className="p-3.5 rounded-xl border border-border/80 bg-card space-y-3">
                         {/* Material info header */}
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-[13px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
                                 {item.materialCode}
                               </span>
-                              <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                              <span className="text-[13px] font-semibold px-2 py-0.5 rounded bg-muted text-muted-foreground">
                                 Stok: {item.currentStock} {item.unit}
                               </span>
                             </div>
-                            <div className="text-xs text-muted-foreground line-clamp-1 mt-1">{item.materialName}</div>
+                            <div className="text-[13px] text-muted-foreground line-clamp-1 mt-1 font-medium">{item.materialName}</div>
                           </div>
                           <Button 
                             type="button" 
                             variant="ghost" 
                             size="icon" 
-                            className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0" 
+                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0" 
                             onClick={() => handleRemoveItem(item.id)}
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
 
                         {/* Input row */}
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-1">
-                            <Label className="text-[11px] text-muted-foreground">
+                            <Label className="text-[13px] text-muted-foreground font-medium">
                               Jumlah {adjustmentType === 'IN' ? '(+)' : '(-)'}
                             </Label>
                             <Input 
@@ -416,25 +417,25 @@ export function ManualStockEntryModal({
                               onChange={(e) => updateItem(item.id, 'quantity', e.target.value)}
                               placeholder="0"
                               className={cn(
-                                "h-8 text-xs font-bold",
+                                "h-9 text-[13px] font-bold",
                                 isExceeded 
                                   ? "border-rose-500 focus-visible:ring-rose-500 bg-rose-50 dark:bg-rose-950/20 text-rose-600"
                                   : ""
                               )}
                             />
                             {isExceeded && (
-                              <span className="text-[10px] text-rose-600 font-medium flex items-center gap-0.5">
-                                <AlertTriangle className="w-2.5 h-2.5 shrink-0" /> Maks: {item.currentStock}
+                              <span className="text-[13px] text-rose-600 font-medium flex items-center gap-1 mt-1">
+                                <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Maks: {item.currentStock}
                               </span>
                             )}
                           </div>
                           <div className="space-y-1">
-                            <Label className="text-[11px] text-muted-foreground">Catatan (opsional)</Label>
+                            <Label className="text-[13px] text-muted-foreground font-medium">Catatan (opsional)</Label>
                             <Input 
                               value={item.notes} 
                               onChange={(e) => updateItem(item.id, 'notes', e.target.value)}
-                              placeholder="Keterangan..."
-                              className="h-8 text-xs"
+                              placeholder="Keterangan penyesuaian..."
+                              className="h-9 text-[13px]"
                             />
                           </div>
                         </div>
@@ -447,12 +448,12 @@ export function ManualStockEntryModal({
           </div>
 
           {/* Footer */}
-          <SheetFooter className="border-t px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-xs text-muted-foreground font-medium">
+          <DialogFooter className="shrink-0 mx-0 mb-0 mt-0 p-0 px-6 py-3.5 border-t bg-muted/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="text-[13px] text-muted-foreground font-medium w-full sm:w-auto text-left">
               Total: <strong className="text-foreground">{items.length}</strong> material
             </div>
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="text-xs h-9">
+              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="flex-1 sm:flex-none text-[13px] h-9 px-4">
                 Batal
               </Button>
               <Button 
@@ -464,40 +465,40 @@ export function ManualStockEntryModal({
                   (adjustmentType === 'OUT' && items.some(i => parseFloat(i.quantity) > i.currentStock))
                 }
                 className={cn(
-                  "text-xs h-9 font-semibold",
+                  "flex-1 sm:flex-none text-[13px] h-9 px-4 font-semibold",
                   adjustmentType === 'OUT' 
                     ? "bg-rose-600 hover:bg-rose-700 text-white" 
                     : "bg-emerald-600 hover:bg-emerald-700 text-white"
                 )}
               >
-                {isSubmitting && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {adjustmentType === 'OUT'
                   ? `Simpan Pengurangan (${items.length})`
                   : `Simpan Penambahan (${items.length})`
                 }
               </Button>
             </div>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      {/* Material Picker Drawer */}
-      <Sheet open={materialDrawerOpen} onOpenChange={setMaterialDrawerOpen}>
-        <SheetContent side="bottom" className="rounded-t-2xl max-h-[80vh] flex flex-col p-0 overflow-hidden" showCloseButton={true}>
-          <SheetHeader className="px-5 pt-5 pb-2">
-            <SheetTitle className="text-base font-bold">Pilih Material</SheetTitle>
-            <SheetDescription className="text-xs">
-              Cari dan pilih material untuk penyesuaian stok.
-            </SheetDescription>
-          </SheetHeader>
+      {/* Material Picker Dialog */}
+      <Dialog open={materialDrawerOpen} onOpenChange={setMaterialDrawerOpen}>
+        <DialogContent className="w-full sm:max-w-4xl md:max-w-5xl max-h-[82vh] flex flex-col gap-0 p-0 overflow-hidden rounded-xl border bg-popover shadow-2xl">
+          <DialogHeader className="px-6 py-4 border-b shrink-0 pr-12 bg-background/50">
+            <DialogTitle className="text-base font-bold">Pilih Material</DialogTitle>
+            <DialogDescription className="text-[13px] text-muted-foreground mt-0.5">
+              Cari dan pilih material untuk penyesuaian stok gudang.
+            </DialogDescription>
+          </DialogHeader>
 
           {/* Search */}
-          <div className="px-5 pb-3">
+          <div className="px-6 py-3 border-b bg-background shrink-0">
             <div className="flex items-center border rounded-lg px-3 bg-background">
               <Search className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
               <Input
-                placeholder="Cari kode, nama, atau kategori..."
-                className="flex h-9 w-full bg-transparent text-xs outline-none placeholder:text-muted-foreground border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 shadow-none"
+                placeholder="Cari kode, nama, atau kategori material..."
+                className="flex h-10 w-full bg-transparent text-[13px] outline-none placeholder:text-muted-foreground border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 shadow-none"
                 value={materialSearch}
                 onChange={(e) => setMaterialSearch(e.target.value)}
                 autoFocus
@@ -508,14 +509,14 @@ export function ManualStockEntryModal({
                   onClick={() => setMaterialSearch('')}
                   className="p-1 text-muted-foreground hover:text-foreground"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <X className="h-4 w-4" />
                 </button>
               )}
             </div>
           </div>
 
           {/* Material List */}
-          <div className="flex-1 overflow-y-auto px-5 pb-5">
+          <div className="flex-1 overflow-y-auto px-6 py-3 min-h-0 space-y-1">
             {(() => {
               const srch = materialSearch.toLowerCase().trim();
               const filtered = materials.filter(m => 
@@ -527,15 +528,15 @@ export function ManualStockEntryModal({
 
               if (filtered.length === 0) {
                 return (
-                  <div className="py-10 text-center text-xs text-muted-foreground">
-                    <Search className="w-6 h-6 mx-auto mb-1 opacity-30" />
+                  <div className="py-12 text-center text-[13px] text-muted-foreground">
+                    <Search className="w-6 h-6 mx-auto mb-2 opacity-30" />
                     Material tidak ditemukan dengan kata kunci &quot;{materialSearch}&quot;.
                   </div>
                 );
               }
 
               return (
-                <div className="space-y-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pb-2">
                   {filtered.map(m => {
                     const isAlreadyInList = items.some(item => item.materialId === m.id);
                     const stockAvailable = warehouseStockMap[m.id] || 0;
@@ -546,12 +547,12 @@ export function ManualStockEntryModal({
                       <div
                         key={m.id}
                         className={cn(
-                          "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-xs transition-colors cursor-pointer",
+                          "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-[13px] transition-colors cursor-pointer border border-border/40",
                           isAlreadyInList
-                            ? "opacity-50 bg-muted/20"
+                            ? "opacity-50 bg-muted/30"
                             : disabledForOut
-                            ? "opacity-40 cursor-not-allowed bg-muted/10"
-                            : "hover:bg-accent hover:text-accent-foreground"
+                            ? "opacity-40 cursor-not-allowed bg-muted/20"
+                            : "hover:bg-accent hover:text-accent-foreground bg-card"
                         )}
                         onClick={() => {
                           if (disabledForOut) {
@@ -565,36 +566,36 @@ export function ManualStockEntryModal({
                           handleAddMaterial(m);
                         }}
                       >
-                        <div className="flex items-start gap-2 min-w-0 flex-1">
+                        <div className="flex items-start gap-2.5 min-w-0 flex-1">
                           <div className="mt-0.5">
                             {isAlreadyInList ? (
-                              <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                              <Check className="h-4 w-4 text-primary shrink-0" />
                             ) : (
-                              <div className="h-3.5 w-3.5" />
+                              <div className="h-4 w-4" />
                             )}
                           </div>
                           <div className="flex flex-col min-w-0 flex-1">
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-[11px] font-bold text-primary bg-primary/10 px-1 py-0.5 rounded border border-primary/20">
+                              <span className="text-[13px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
                                 {m.materialCode}
                               </span>
                               {m.category && (
-                                <span className="text-[10px] text-muted-foreground bg-muted px-1 py-0.5 rounded">
+                                <span className="text-[13px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                                   {m.category}
                                 </span>
                               )}
                             </div>
-                            <span className="text-xs font-medium mt-0.5 leading-snug break-words">
+                            <span className="text-[13px] font-medium mt-1 leading-snug break-words text-foreground">
                               {m.materialName}
                             </span>
                           </div>
                         </div>
 
-                        <div className="shrink-0 ml-2 text-right">
+                        <div className="shrink-0 ml-3 text-right">
                           <span className={cn(
-                            "text-[11px] font-semibold px-1.5 py-0.5 rounded",
+                            "text-[13px] font-semibold px-2 py-1 rounded",
                             stockAvailable > 0
-                              ? "text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40"
+                              ? "text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/20"
                               : "text-muted-foreground bg-muted"
                           )}>
                             Stok: {stockAvailable} {m.unit || 'Unit'}
@@ -607,8 +608,20 @@ export function ManualStockEntryModal({
               );
             })()}
           </div>
-        </SheetContent>
-      </Sheet>
+
+          <DialogFooter className="shrink-0 mx-0 mb-0 mt-0 p-0 px-6 py-3 border-t flex items-center justify-end bg-muted/30">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setMaterialDrawerOpen(false)}
+              className="text-[13px] h-9 px-4"
+            >
+              Selesai Memilih
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

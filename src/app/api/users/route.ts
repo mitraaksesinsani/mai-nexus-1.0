@@ -51,7 +51,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ data: user, message: 'User created' }, { status: 201 });
   } catch (error: any) {
     console.error('Error creating user:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    if (error.code === '23505') {
+      return NextResponse.json({ message: 'Email sudah terdaftar. Silakan gunakan email lain.' }, { status: 409 });
+    }
+    return NextResponse.json({ message: error.message || 'Internal server error' }, { status: 500 });
   }
 }
 

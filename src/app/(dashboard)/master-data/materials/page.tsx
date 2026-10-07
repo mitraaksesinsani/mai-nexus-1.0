@@ -311,11 +311,11 @@ export default function MaterialsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in">
         <div>
           <h1 className="text-[24px] font-medium tracking-tight">Material Master Data</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage network materials, prices, and inventory catalog</p>
+          <p className="text-[13px] text-muted-foreground mt-1">Manage network materials, prices, and inventory catalog</p>
         </div>
         <div className="self-stretch bg-white dark:bg-card rounded-xl shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] outline outline-1 outline-offset-[-1px] outline-gray-200 dark:outline-gray-800 inline-flex flex-col justify-start items-start overflow-hidden">
           <div className="self-stretch px-6 pt-6 pb-8 flex flex-col justify-start items-start gap-2.5">
-            <div className="self-stretch justify-start text-slate-600 dark:text-slate-400 text-[14px] font-normal font-['Inter'] leading-5">Total Material</div>
+            <div className="self-stretch justify-start text-slate-600 dark:text-slate-400 text-[13px] font-normal font-['Inter'] leading-5">Total Material</div>
             <div className="justify-start text-gray-900 dark:text-gray-100 text-[18px] font-semibold font-['Inter'] leading-7">{materials.length}</div>
           </div>
           <div className="self-stretch h-px bg-gray-200 dark:bg-gray-800" />
@@ -337,7 +337,7 @@ export default function MaterialsPage() {
               <Button
                 variant="destructive"
                 size="sm"
-                className="gap-2 h-9"
+                className="gap-2 h-9 text-[13px]"
                 onClick={() => setBulkDeleteOpen(true)}
               >
                 <Trash2 className="w-4 h-4" />
@@ -357,14 +357,14 @@ export default function MaterialsPage() {
                 placeholder="Search materials..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 bg-background h-auto py-[10px] text-[16px]"
+                className="pl-9 bg-background h-auto py-[10px] text-[16px] sm:h-10 sm:py-2 sm:text-[13px]"
               />
             </div>
 
             {/* Mobile Filters Drawer Trigger */}
             <div className="block sm:hidden shrink-0">
               <Sheet>
-                <SheetTrigger render={<Button variant="outline" size="icon" className="h-[46px] w-[46px] shrink-0" />}>
+                <SheetTrigger render={<Button variant="outline" size="icon" className="h-[46px] w-[46px] sm:h-10 sm:w-10 shrink-0" />}>
                   <SlidersHorizontal className="w-4 h-4" />
                 </SheetTrigger>
                 <SheetContent side="bottom" className="rounded-t-2xl px-4 pt-6 pb-8">
@@ -373,42 +373,42 @@ export default function MaterialsPage() {
                   </SheetHeader>
                   <div className="flex flex-col gap-2">
                     <div className="w-full">
-                      <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Kategori</Label>
+                      <Label className="text-[13px] mb-1.5 block text-muted-foreground">Filter by Kategori</Label>
                       <Select value={filterGroup} onValueChange={(val) => setFilterGroup(val || "")}>
-                        <SelectTrigger className="bg-background">
+                        <SelectTrigger className="h-10 bg-background text-[13px]">
                           <SelectValue placeholder="Semua Kategori" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="ALL">Semua Kategori</SelectItem>
+                          <SelectItem value="ALL" className="text-[13px]">Semua Kategori</SelectItem>
                           {allCategories.map(c => (
-                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                            <SelectItem key={c} value={c} className="text-[13px]">{c}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="w-full">
-                      <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by UOM</Label>
+                      <Label className="text-[13px] mb-1.5 block text-muted-foreground">Filter by UOM</Label>
                       <Select value={filterUom} onValueChange={(val) => setFilterUom(val || "")}>
-                        <SelectTrigger className="bg-background">
+                        <SelectTrigger className="h-10 bg-background text-[13px]">
                           <SelectValue placeholder="All UOMs" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="ALL">All UOMs</SelectItem>
+                          <SelectItem value="ALL" className="text-[13px]">All UOMs</SelectItem>
                           {MATERIAL_UOMS.map(u => (
-                            <SelectItem key={u} value={u}>{u}</SelectItem>
+                            <SelectItem key={u} value={u} className="text-[13px]">{u}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="w-full">
-                      <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
+                      <Label className="text-[13px] mb-1.5 block text-muted-foreground">Sort By</Label>
                       <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
-                        <SelectTrigger className="bg-background">
+                        <SelectTrigger className="h-10 bg-background text-[13px]">
                           <SelectValue placeholder="Sort By" />
                         </SelectTrigger>
                         <SelectContent>
                           {SORT_OPTIONS.map(opt => (
-                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                            <SelectItem key={opt.value} value={opt.value} className="text-[13px]">{opt.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -417,49 +417,49 @@ export default function MaterialsPage() {
                 </SheetContent>
               </Sheet>
             </div>
-            <Button size="icon" className="shrink-0 h-[46px] w-[46px]" onClick={openCreateDialog}>
-              <Plus className="w-5 h-5" />
+            <Button size="icon" className="shrink-0 h-[46px] w-[46px] sm:h-10 sm:w-10" onClick={openCreateDialog}>
+              <Plus className="w-5 h-5 sm:w-4 sm:h-4" />
             </Button>
           </div>
 
           <div className="hidden sm:flex gap-4">
             <div className="w-[160px]">
-              <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by Kategori</Label>
+              <Label className="text-[13px] mb-1.5 block text-muted-foreground">Filter by Kategori</Label>
               <Select value={filterGroup} onValueChange={(val) => setFilterGroup(val || "")}>
-                <SelectTrigger className="bg-background">
+                <SelectTrigger className="h-10 bg-background text-[13px]">
                   <SelectValue placeholder="Semua Kategori" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">Semua Kategori</SelectItem>
+                  <SelectItem value="ALL" className="text-[13px]">Semua Kategori</SelectItem>
                   {allCategories.map(c => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                    <SelectItem key={c} value={c} className="text-[13px]">{c}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="w-[120px]">
-              <Label className="text-xs mb-1.5 block text-muted-foreground">Filter by UOM</Label>
+              <Label className="text-[13px] mb-1.5 block text-muted-foreground">Filter by UOM</Label>
               <Select value={filterUom} onValueChange={(val) => setFilterUom(val || "")}>
-                <SelectTrigger className="bg-background">
+                <SelectTrigger className="h-10 bg-background text-[13px]">
                   <SelectValue placeholder="All UOMs" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All UOMs</SelectItem>
+                  <SelectItem value="ALL" className="text-[13px]">All UOMs</SelectItem>
                   {MATERIAL_UOMS.map(u => (
-                    <SelectItem key={u} value={u}>{u}</SelectItem>
+                    <SelectItem key={u} value={u} className="text-[13px]">{u}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="w-[180px]">
-              <Label className="text-xs mb-1.5 block text-muted-foreground">Sort By</Label>
+              <Label className="text-[13px] mb-1.5 block text-muted-foreground">Sort By</Label>
               <Select value={sortBy} onValueChange={(val) => setSortBy(val || "")}>
-                <SelectTrigger className="bg-background">
+                <SelectTrigger className="h-10 bg-background text-[13px]">
                   <SelectValue placeholder="Sort By" />
                 </SelectTrigger>
                 <SelectContent>
                   {SORT_OPTIONS.map(opt => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    <SelectItem key={opt.value} value={opt.value} className="text-[13px]">{opt.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -471,13 +471,14 @@ export default function MaterialsPage() {
       {/* Selected items notification bar */}
       {selectedIds.length > 0 && (
         <div className="flex items-center justify-between bg-primary/10 border border-primary/20 p-3 rounded-lg animate-fade-in">
-          <span className="text-sm font-medium text-primary">
+          <span className="text-[13px] font-medium text-primary">
             {selectedIds.length} material dipilih
           </span>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
+              className="text-[13px]"
               onClick={() => setSelectedIds([])}
             >
               Batal Pilih
@@ -485,7 +486,7 @@ export default function MaterialsPage() {
             <Button
               variant="destructive"
               size="sm"
-              className="gap-2"
+              className="gap-2 text-[13px]"
               onClick={() => setBulkDeleteOpen(true)}
             >
               <Trash2 className="w-4 h-4" />
@@ -497,157 +498,164 @@ export default function MaterialsPage() {
 
       {/* Add / Edit Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[500px] w-full max-w-full !bottom-0 !top-auto !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 !rounded-t-2xl !rounded-b-none sm:!rounded-xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 mb-0">
-          <DialogHeader>
-            <DialogTitle>{editId ? 'Edit Material' : 'Add Material'}</DialogTitle>
-            <DialogDescription>
-              {editId ? 'Update the details of this material.' : 'Add a new material to the master data catalog.'}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="code">Material Code</Label>
-                <Input
-                  id="code"
-                  placeholder="e.g. CBL-FO-48"
-                  required
-                  value={formData.code}
-                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="uom">Unit of Measure (UOM)</Label>
-                <Select value={formData.uom} onValueChange={(val) => setFormData({ ...formData, uom: val || "" })}>
-                  <SelectTrigger id="uom">
-                    <SelectValue placeholder="Select UOM">
-                      {formData.uom || undefined}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MATERIAL_UOMS.map(u => (
-                      <SelectItem key={u} value={u}>{u}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">Material Name</Label>
-              <Input
-                id="name"
-                placeholder="e.g. Fiber Optic Cable 48 Core"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="group">Kategori</Label>
-                {isAddingNewCategory ? (
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-1.5">
-                      <Input
-                        id="newCategory"
-                        placeholder="Nama kategori baru..."
-                        value={newCategoryInput}
-                        onChange={(e) => {
-                          setNewCategoryInput(e.target.value);
-                          setFormData({ ...formData, group: e.target.value });
-                        }}
-                        autoFocus
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setIsAddingNewCategory(false);
-                          setNewCategoryInput('');
-                          setFormData({ ...formData, group: allCategories[0] || 'Pipa' });
-                        }}
-                        className="text-xs text-muted-foreground hover:text-foreground shrink-0 h-9 px-2"
-                      >
-                        Batal
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <Select 
-                    value={formData.group} 
-                    onValueChange={(val) => {
-                      if (val === '__NEW__') {
-                        setIsAddingNewCategory(true);
-                        setNewCategoryInput('');
-                        setFormData({ ...formData, group: '' });
-                      } else {
-                        setFormData({ ...formData, group: val || "" });
-                      }
-                    }}
-                  >
-                    <SelectTrigger id="group">
-                      <SelectValue placeholder="Pilih Kategori">
-                        {formData.group || undefined}
+        <DialogContent className="w-full sm:max-w-xl md:max-w-2xl max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden rounded-xl border bg-popover shadow-2xl text-[13px]">
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+            <DialogHeader className="px-6 py-4 border-b shrink-0 pr-12 bg-background/50">
+              <DialogTitle className="text-lg font-bold">{editId ? 'Edit Material' : 'Add Material'}</DialogTitle>
+              <DialogDescription className="text-[13px] text-muted-foreground mt-0.5">
+                {editId ? 'Update the details of this material.' : 'Add a new material to the master data catalog.'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 min-h-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="code" className="text-[13px] font-medium">Material Code</Label>
+                  <Input
+                    id="code"
+                    placeholder="e.g. CBL-FO-48"
+                    required
+                    value={formData.code}
+                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                    className="h-10 text-[13px]"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="uom" className="text-[13px] font-medium">Unit of Measure (UOM)</Label>
+                  <Select value={formData.uom} onValueChange={(val) => setFormData({ ...formData, uom: val || "" })}>
+                    <SelectTrigger id="uom" className="h-10 text-[13px]">
+                      <SelectValue placeholder="Select UOM">
+                        {formData.uom || undefined}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {allCategories.map(c => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      {MATERIAL_UOMS.map(u => (
+                        <SelectItem key={u} value={u} className="text-[13px]">{u}</SelectItem>
                       ))}
-                      <SelectItem value="__NEW__" className="font-semibold text-primary">
-                        + Tambah Kategori Baru...
-                      </SelectItem>
                     </SelectContent>
                   </Select>
-                )}
+                </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="unitPrice">Unit Price (Rp)</Label>
+                <Label htmlFor="name" className="text-[13px] font-medium">Material Name</Label>
                 <Input
-                  id="unitPrice"
-                  type="number"
-                  placeholder="e.g. 15000"
-                  value={formData.unitPrice}
-                  onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
+                  id="name"
+                  placeholder="e.g. Fiber Optic Cable 48 Core"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="h-10 text-[13px]"
                 />
               </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="group" className="text-[13px] font-medium">Kategori</Label>
+                  {isAddingNewCategory ? (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <Input
+                          id="newCategory"
+                          placeholder="Nama kategori baru..."
+                          value={newCategoryInput}
+                          onChange={(e) => {
+                            setNewCategoryInput(e.target.value);
+                            setFormData({ ...formData, group: e.target.value });
+                          }}
+                          autoFocus
+                          className="h-10 text-[13px]"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setIsAddingNewCategory(false);
+                            setNewCategoryInput('');
+                            setFormData({ ...formData, group: allCategories[0] || 'Pipa' });
+                          }}
+                          className="text-[13px] text-muted-foreground hover:text-foreground shrink-0 h-10 px-2"
+                        >
+                          Batal
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Select 
+                      value={formData.group} 
+                      onValueChange={(val) => {
+                        if (val === '__NEW__') {
+                          setIsAddingNewCategory(true);
+                          setNewCategoryInput('');
+                          setFormData({ ...formData, group: '' });
+                        } else {
+                          setFormData({ ...formData, group: val || "" });
+                        }
+                      }}
+                    >
+                      <SelectTrigger id="group" className="h-10 text-[13px]">
+                        <SelectValue placeholder="Pilih Kategori">
+                          {formData.group || undefined}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {allCategories.map(c => (
+                          <SelectItem key={c} value={c} className="text-[13px]">{c}</SelectItem>
+                        ))}
+                        <SelectItem value="__NEW__" className="font-semibold text-primary text-[13px]">
+                          + Tambah Kategori Baru...
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="unitPrice" className="text-[13px] font-medium">Unit Price (Rp)</Label>
+                  <Input
+                    id="unitPrice"
+                    type="number"
+                    placeholder="e.g. 15000"
+                    value={formData.unitPrice}
+                    onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
+                    className="h-10 text-[13px]"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-[13px] font-medium">Description</Label>
+                <Input
+                  id="description"
+                  placeholder="Optional details"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="h-10 text-[13px]"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="packagingType" className="text-[13px] font-medium">Tipe Kemasan Fisik (Packaging UOM)</Label>
+                <Select 
+                  value={formData.packagingType} 
+                  onValueChange={(val) => setFormData({ ...formData, packagingType: val || 'NON_PACKAGING' })}
+                >
+                  <SelectTrigger id="packagingType" className="h-10 text-[13px]">
+                    <SelectValue placeholder="Pilih Tipe Kemasan">
+                      {PACKAGING_TYPES.find(p => p.value === formData.packagingType)?.label || formData.packagingType || undefined}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PACKAGING_TYPES.map(p => (
+                      <SelectItem key={p.value} value={p.value} className="text-[13px]">{p.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[12px] text-muted-foreground">
+                  Kategori kemasan standar untuk konversi material ke wujud haspel/roll di dashboard.
+                </p>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                placeholder="Optional details"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="packagingType">Tipe Kemasan Fisik (Packaging UOM)</Label>
-              <Select 
-                value={formData.packagingType} 
-                onValueChange={(val) => setFormData({ ...formData, packagingType: val || 'NON_PACKAGING' })}
-              >
-                <SelectTrigger id="packagingType">
-                  <SelectValue placeholder="Pilih Tipe Kemasan">
-                    {PACKAGING_TYPES.find(p => p.value === formData.packagingType)?.label || formData.packagingType || undefined}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {PACKAGING_TYPES.map(p => (
-                    <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-[11px] text-muted-foreground">
-                Kategori kemasan standar untuk konversi material ke wujud haspel/roll di dashboard.
-              </p>
-            </div>
-            <DialogFooter className="pt-4">
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+            <DialogFooter className="shrink-0 mx-0 mb-0 mt-0 p-0 px-6 py-3.5 border-t bg-muted/30 flex items-center justify-end gap-2">
+              <Button type="button" variant="outline" className="text-[13px] h-9 px-4" onClick={() => setIsOpen(false)} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" className="text-[13px] h-9 px-4" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {editId ? 'Save Changes' : 'Save Material'}
               </Button>
@@ -658,18 +666,18 @@ export default function MaterialsPage() {
 
       {/* Single Delete Dialog */}
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] text-[13px]">
           <DialogHeader>
             <DialogTitle>Confirm Deletion</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-[13px]">
               Are you sure you want to delete this material? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="pt-4">
-            <Button type="button" variant="outline" onClick={() => setDeleteOpen(false)}>
+            <Button type="button" variant="outline" className="text-[13px]" onClick={() => setDeleteOpen(false)}>
               Cancel
             </Button>
-            <Button type="button" variant="destructive" onClick={confirmDelete} disabled={isSubmitting}>
+            <Button type="button" variant="destructive" className="text-[13px]" onClick={confirmDelete} disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Delete
             </Button>
@@ -679,18 +687,18 @@ export default function MaterialsPage() {
 
       {/* Bulk Delete Dialog */}
       <Dialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] text-[13px]">
           <DialogHeader>
             <DialogTitle>Konfirmasi Hapus Banyak ({selectedIds.length} item)</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-[13px]">
               Apakah Anda yakin ingin menghapus <strong>{selectedIds.length} material</strong> yang dipilih? Tindakan ini tidak dapat dibatalkan.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="pt-4">
-            <Button type="button" variant="outline" onClick={() => setBulkDeleteOpen(false)}>
+            <Button type="button" variant="outline" className="text-[13px]" onClick={() => setBulkDeleteOpen(false)}>
               Batal
             </Button>
-            <Button type="button" variant="destructive" onClick={confirmBulkDelete} disabled={isSubmitting}>
+            <Button type="button" variant="destructive" className="text-[13px]" onClick={confirmBulkDelete} disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Hapus Semua ({selectedIds.length})
             </Button>
@@ -787,7 +795,7 @@ export default function MaterialsPage() {
             </div>
 
             <div className="hidden sm:block">
-              <Table className="whitespace-nowrap sm:whitespace-normal">
+              <Table className="whitespace-nowrap sm:whitespace-normal text-[13px]">
               <TableHeader className="hidden sm:table-header-group">
                 <TableRow>
                   <TableHead className="w-[40px]">
@@ -797,13 +805,13 @@ export default function MaterialsPage() {
                       aria-label="Select all on current page"
                     />
                   </TableHead>
-                  <TableHead className="w-[150px]">Code</TableHead>
-                  <TableHead className="w-[350px]">Name</TableHead>
-                  <TableHead className="w-[120px]">Kategori</TableHead>
-                  <TableHead className="w-[130px]">Unit Price</TableHead>
-                  <TableHead className="w-[250px]">Description</TableHead>
-                  <TableHead className="w-[80px]">UOM</TableHead>
-                  <TableHead className="w-[80px] text-right">Action</TableHead>
+                  <TableHead className="w-[150px] text-[13px] font-semibold">Code</TableHead>
+                  <TableHead className="w-[350px] text-[13px] font-semibold">Name</TableHead>
+                  <TableHead className="w-[120px] text-[13px] font-semibold">Kategori</TableHead>
+                  <TableHead className="w-[130px] text-[13px] font-semibold">Unit Price</TableHead>
+                  <TableHead className="w-[250px] text-[13px] font-semibold">Description</TableHead>
+                  <TableHead className="w-[80px] text-[13px] font-semibold">UOM</TableHead>
+                  <TableHead className="w-[80px] text-right text-[13px] font-semibold">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -824,54 +832,54 @@ export default function MaterialsPage() {
                           aria-label={`Select ${material.materialCode}`}
                         />
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell w-[150px] font-medium text-primary px-3 py-2 border-b border-border/50 break-words">
+                      <TableCell className="hidden sm:table-cell w-[150px] font-medium text-primary px-3 py-2 border-b border-border/50 break-words text-[13px]">
                         {material.materialCode}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell max-w-[350px] px-3 py-2 border-b border-border/50 font-medium whitespace-normal">
+                      <TableCell className="hidden sm:table-cell max-w-[350px] px-3 py-2 border-b border-border/50 font-medium whitespace-normal text-[13px]">
                         <div>
                           <span 
-                            className="line-clamp-2 leading-snug break-words" 
+                            className="line-clamp-2 leading-snug break-words text-[13px]" 
                             title={material.materialName}
                           >
                             {material.materialName}
                           </span>
                           {material.packagingType === 'KABEL_UDARA' && (
-                            <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                            <span className="inline-block mt-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
                               1 Haspel (4.000m)
                             </span>
                           )}
                           {material.packagingType === 'KABEL_TANAH' && (
-                            <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            <span className="inline-block mt-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                               1 Haspel (3.000m)
                             </span>
                           )}
                           {material.packagingType === 'HDPE_SUBDUCT' && (
-                            <span className="inline-block mt-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                            <span className="inline-block mt-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                               1 Roll (200m)
                             </span>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50">
-                        <Badge variant="secondary" className="text-xs font-normal bg-muted text-muted-foreground">
+                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50 text-[13px]">
+                        <Badge variant="secondary" className="text-[13px] font-normal bg-muted text-muted-foreground">
                           {material.category}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50 font-medium text-xs text-foreground">
+                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50 font-medium text-[13px] text-foreground">
                         {priceFormatted}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell max-w-[250px] px-3 py-2 border-b border-border/50 whitespace-normal text-xs text-muted-foreground">
+                      <TableCell className="hidden sm:table-cell max-w-[250px] px-3 py-2 border-b border-border/50 whitespace-normal text-[13px] text-muted-foreground">
                         <span 
-                          className="line-clamp-2 leading-snug break-words" 
+                          className="line-clamp-2 leading-snug break-words text-[13px]" 
                           title={material.specification || '-'}
                         >
                           {material.specification || '-'}
                         </span>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50">
+                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50 text-[13px]">
                         {material.unit}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50 text-right">
+                      <TableCell className="hidden sm:table-cell px-3 py-2 border-b border-border/50 text-right text-[13px]">
                         <div className="flex justify-end gap-2">
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => openEditDialog(material)}>
                             <Pencil className="h-4 w-4" />
@@ -898,7 +906,7 @@ export default function MaterialsPage() {
         ) : (
           <div className="text-center py-16 bg-card border rounded-xl ">
             <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
-            <p className="text-muted-foreground">No materials found</p>
+            <p className="text-muted-foreground text-[13px]">No materials found</p>
             <Button variant="link" onClick={openCreateDialog} className="mt-2 text-[13px]">
               Create your first material
             </Button>

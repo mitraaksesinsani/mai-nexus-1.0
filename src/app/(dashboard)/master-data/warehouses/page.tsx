@@ -1,7 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Warehouse, Search, Plus, Loader2, Pencil, Trash2, MapPin, Upload, Image as ImageIcon, X, ExternalLink, Map, Globe, Check, ChevronsUpDown, MoreHorizontal, Eye, PackagePlus, User, SlidersHorizontal } from 'lucide-react';
+import { 
+  Warehouse, Search, Plus, Loader2, Pencil, Trash2, MapPin, Upload, 
+  Image as ImageIcon, X, ExternalLink, Map, Globe, Check, ChevronsUpDown, 
+  MoreHorizontal, Eye, Package, PackagePlus, User, SlidersHorizontal 
+} from 'lucide-react';
 import api from '@/lib/api';
 import StatusBadge from '@/components/shared/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -20,6 +24,7 @@ import { DataTablePagination } from '@/components/shared/DataTablePagination';
 import { Badge } from '@/components/ui/badge';
 import { ManualStockEntryModal } from '@/components/warehouse/ManualStockEntryModal';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 export default function WarehousePage() {
   const router = useRouter();
@@ -42,6 +47,17 @@ export default function WarehousePage() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+
+  // Detail Modal state
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedWarehouseDetail, setSelectedWarehouseDetail] = useState<any | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+
+  // Assign/Ubah PIC Modal state
+  const [picModalOpen, setPicModalOpen] = useState(false);
+  const [selectedWarehousePic, setSelectedWarehousePic] = useState<any | null>(null);
+  const [selectedPicId, setSelectedPicId] = useState<string>('UNASSIGNED');
+  const [isSubmittingPic, setIsSubmittingPic] = useState(false);
 
   // Delete state
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -166,6 +182,89 @@ export default function WarehousePage() {
   const openStockEntryDialog = (w: any) => {
     setStockEntryWarehouseId(w.id);
     setStockEntryOpen(true);
+  };
+
+  const openDetailDialog = async (w: any) => {
+    setSelectedWarehouseDetail(w);
+    setDetailModalOpen(true);
+    setLoadingDetail(true);
+    try {
+      const { data } = await api.get(`/api/warehouse/${w.id}`);
+      if (data?.data) {
+        setSelectedWarehouseDetail((prev: any) => ({
+          ...(prev || {}),
+          ...data.data,
+          totalMaterials: data.data.totalMaterials !== undefined ? data.data.totalMaterials : (prev?.totalMaterials || 0),
+          totalStock: data.data.totalStock !== undefined ? data.data.totalStock : (prev?.totalStock || 0),
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to fetch detailed warehouse data', err);
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
+
+  const openPicDialog = (w: any) => {
+    setSelectedWarehousePic(w);
+    setSelectedPicId(w.picId ? w.picId : (w.picName ? `LEGACY_${w.picName}` : 'UNASSIGNED'));
+    setPicModalOpen(true);
+  };
+
+  const handleSavePic = async () => {
+    if (!selectedWarehousePic) return;
+    setIsSubmittingPic(true);
+    try {
+      const isUnassigned = selectedPicId === 'UNASSIGNED';
+      const isLegacy = selectedPicId.startsWith('LEGACY_');
+      let newPicId: string | null = null;
+      let newPicName: string | null = null;
+
+      if (!isUnassigned) {
+        if (isLegacy) {
+          newPicName = selectedWarehousePic.picName || null;
+        } else {
+          newPicId = selectedPicId;
+          const u = usersList.find(user => user.id === selectedPicId);
+          newPicName = u?.name || null;
+        }
+      }
+
+      await api.put('/api/warehouse', {
+        id: selectedWarehousePic.id,
+        code: selectedWarehousePic.code,
+        name: selectedWarehousePic.name,
+        location: selectedWarehousePic.location || '',
+        coordinates: selectedWarehousePic.coordinates || '',
+        evidence: selectedWarehousePic.evidence || null,
+        type: selectedWarehousePic.type || 'MAIN',
+        capacity: parseInt(selectedWarehousePic.capacity) || 0,
+        status: selectedWarehousePic.status || 'ACTIVE',
+        picId: newPicId,
+        picName: newPicName,
+        projectIds: selectedWarehousePic.projects ? selectedWarehousePic.projects.map((p: any) => p.id) : []
+      });
+
+      toast.success(`PIC untuk gudang "${selectedWarehousePic.name}" berhasil diperbarui`);
+      setPicModalOpen(false);
+
+      // Sinkronkan ke modal detail jika sedang terbuka
+      if (selectedWarehouseDetail && selectedWarehouseDetail.id === selectedWarehousePic.id) {
+        setSelectedWarehouseDetail((prev: any) => ({
+          ...prev,
+          picId: newPicId,
+          picName: newPicName,
+          picUser: newPicId ? usersList.find(u => u.id === newPicId) : null
+        }));
+      }
+
+      fetchWarehouses();
+    } catch (err: any) {
+      console.error('Failed to update warehouse PIC:', err);
+      toast.error(err.response?.data?.message || 'Gagal memperbarui PIC gudang');
+    } finally {
+      setIsSubmittingPic(false);
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -319,21 +418,21 @@ export default function WarehousePage() {
         
         <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start sm:items-end w-full">
           <div className="flex w-full sm:flex-1 gap-2 items-center">
-            <div className="relative flex-1 min-w-[200px]">
+            <div className="relative flex-1 min-w-0 sm:min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
                 type="search" 
                 placeholder="Search warehouse code or name..." 
                 value={search} 
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 bg-background h-auto py-[10px] text-[16px]"
+                className="pl-9 bg-background h-10 text-sm"
               />
             </div>
 
             {/* Mobile Filters Drawer Trigger */}
             <div className="block sm:hidden shrink-0">
               <Sheet>
-                <SheetTrigger render={<Button variant="outline" size="icon" className="h-[46px] w-[46px] shrink-0" />}>
+                <SheetTrigger render={<Button variant="outline" size="icon" className="h-10 w-10 shrink-0" />}>
                   <SlidersHorizontal className="w-4 h-4" />
                 </SheetTrigger>
                 <SheetContent side="bottom" className="rounded-t-2xl px-4 pt-6 pb-8">
@@ -388,8 +487,8 @@ export default function WarehousePage() {
                 </SheetContent>
               </Sheet>
             </div>
-            <Button size="icon" className="shrink-0 h-[46px] w-[46px]" onClick={openCreateDialog}>
-              <Plus className="w-5 h-5" />
+            <Button size="icon" className="shrink-0 h-10 w-10" onClick={openCreateDialog}>
+              <Plus className="w-4 h-4" />
             </Button>
           </div>
 
@@ -531,11 +630,11 @@ export default function WarehousePage() {
                              </button>
                            } />
                            <DropdownMenuContent align="end" className="w-auto min-w-[200px]">
-                             <DropdownMenuItem onClick={() => router.push(`/warehouse/${w.id}`)}>
+                             <DropdownMenuItem onClick={() => openDetailDialog(w)}>
                                <Eye className="mr-2 h-4 w-4" />
                                <span>Lihat Detil</span>
                              </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => openEditDialog(w)}>
+                             <DropdownMenuItem onClick={() => openPicDialog(w)}>
                                <User className="mr-2 h-4 w-4 text-primary" />
                                <span>Assign / Ubah PIC</span>
                              </DropdownMenuItem>
@@ -613,7 +712,7 @@ export default function WarehousePage() {
                         {w.picId ? (
                           <div 
                             className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-                            onClick={() => openEditDialog(w)}
+                            onClick={() => openPicDialog(w)}
                             title="Klik untuk ubah penugasan PIC"
                           >
                             <div className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -633,7 +732,7 @@ export default function WarehousePage() {
                         ) : w.picName ? (
                           <div 
                             className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-                            onClick={() => openEditDialog(w)}
+                            onClick={() => openPicDialog(w)}
                             title="Klik untuk menghubungkan ke Akun Pengguna"
                           >
                             <div className="w-7 h-7 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
@@ -649,7 +748,7 @@ export default function WarehousePage() {
                         ) : (
                           <button
                             type="button"
-                            onClick={() => openEditDialog(w)}
+                            onClick={() => openPicDialog(w)}
                             className="text-xs text-muted-foreground italic hover:text-primary hover:underline transition-colors flex items-center gap-1"
                           >
                             <span>+ Assign PIC</span>
@@ -666,11 +765,11 @@ export default function WarehousePage() {
                             <MoreHorizontal className="h-4 w-4" />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-auto min-w-[240px] px-1.5 py-1.5 whitespace-nowrap">
-                            <DropdownMenuItem onClick={() => router.push(`/warehouse/${w.id}`)} className="cursor-pointer">
+                            <DropdownMenuItem onClick={() => openDetailDialog(w)} className="cursor-pointer">
                               <Eye className="mr-2 h-4 w-4" />
                               <span>Lihat Detil</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => openEditDialog(w)} className="cursor-pointer">
+                            <DropdownMenuItem onClick={() => openPicDialog(w)} className="cursor-pointer">
                               <User className="mr-2 h-4 w-4 text-primary" />
                               <span>Assign / Ubah PIC</span>
                             </DropdownMenuItem>
@@ -715,96 +814,103 @@ export default function WarehousePage() {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-2xl w-full max-w-full !bottom-0 !top-auto !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 !rounded-t-2xl !rounded-b-none sm:!rounded-xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 mb-0">
-          <form onSubmit={handleSubmit}>
-            <DialogHeader>
-              <DialogTitle>{editId ? 'Edit Warehouse' : 'New Warehouse'}</DialogTitle>
-              <DialogDescription>{editId ? 'Update warehouse details.' : 'Add a new warehouse location.'}</DialogDescription>
+        <DialogContent className="w-full sm:max-w-4xl md:max-w-5xl max-h-[82vh] flex flex-col gap-0 p-0 overflow-hidden rounded-xl border bg-popover shadow-2xl">
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+            <DialogHeader className="px-6 py-4 border-b shrink-0 pr-12 bg-background/50">
+              <DialogTitle className="text-lg font-bold">{editId ? 'Edit Warehouse' : 'New Warehouse'}</DialogTitle>
+              <DialogDescription className="text-[13px] text-muted-foreground mt-0.5">
+                {editId ? 'Perbarui informasi dan spesifikasi lokasi gudang.' : 'Tambahkan data lokasi gudang baru.'}
+              </DialogDescription>
             </DialogHeader>
-            <div className="flex flex-col gap-4 py-4">
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 min-h-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="code">Warehouse Code *</Label>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="code" className="text-[13px] font-medium">Warehouse Code *</Label>
                   <Input 
                     id="code" 
                     placeholder="e.g. WH-JKT-01" 
                     value={formData.code}
                     onChange={(e) => setFormData({...formData, code: e.target.value})}
                     required 
+                    className="h-10 text-[13px]"
                   />
                 </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="name">Warehouse Name *</Label>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="name" className="text-[13px] font-medium">Warehouse Name *</Label>
                   <Input 
                     id="name" 
                     placeholder="e.g. Jakarta Central Hub" 
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                     required 
+                    className="h-10 text-[13px]"
                   />
                 </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="location">Location / Address</Label>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="location" className="text-[13px] font-medium">Location / Address</Label>
                   <Input 
                     id="location" 
                     placeholder="e.g. Jl. Sudirman No. 123" 
                     value={formData.location}
                     onChange={(e) => setFormData({...formData, location: e.target.value})}
+                    className="h-10 text-[13px]"
                   />
                 </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="coordinates">Coordinates (Lat, Long)</Label>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="coordinates" className="text-[13px] font-medium">Coordinates (Lat, Long)</Label>
                   <Input 
                     id="coordinates" 
                     placeholder="e.g. -6.2234, 106.8463" 
                     value={formData.coordinates}
                     onChange={(e) => setFormData({...formData, coordinates: e.target.value})}
+                    className="h-10 text-[13px]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="type">Type</Label>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="type" className="text-[13px] font-medium">Type</Label>
                   <Select value={formData.type} onValueChange={(val) => setFormData({ ...formData, type: val || "" })}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10 text-[13px]">
                       <SelectValue placeholder="Select Type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="MAIN">Main Hub</SelectItem>
-                      <SelectItem value="SITE">Site Storage</SelectItem>
-                      <SelectItem value="TRANSIT">Transit Point</SelectItem>
+                      <SelectItem value="MAIN" className="text-[13px]">Main Hub</SelectItem>
+                      <SelectItem value="SITE" className="text-[13px]">Site Storage</SelectItem>
+                      <SelectItem value="TRANSIT" className="text-[13px]">Transit Point</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="capacity">Capacity (CBM)</Label>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="capacity" className="text-[13px] font-medium">Capacity (CBM)</Label>
                   <Input 
                     id="capacity" 
                     type="number"
                     placeholder="e.g. 5000" 
                     value={formData.capacity}
                     onChange={(e) => setFormData({...formData, capacity: e.target.value})}
+                    className="h-10 text-[13px]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="picSelect" className="font-medium text-sm">
+                    <Label htmlFor="picSelect" className="text-[13px] font-medium">
                       PIC (Person In Charge) / Assign Akun User
                     </Label>
                     {formData.picId && (
-                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
-                        <Check className="w-3 h-3" /> Akun Terhubung
+                      <span className="text-[13px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                        <Check className="w-3.5 h-3.5" /> Akun Terhubung
                       </span>
                     )}
                     {!formData.picId && formData.picName && (
-                      <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
+                      <span className="text-[13px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
                         Teks Lama (Belum Terhubung)
                       </span>
                     )}
@@ -827,7 +933,7 @@ export default function WarehousePage() {
                       }
                     }}
                   >
-                    <SelectTrigger id="picSelect" className="w-full h-10 bg-background">
+                    <SelectTrigger id="picSelect" className="w-full h-10 text-[13px] bg-background">
                       <SelectValue placeholder="Pilih User sebagai PIC Gudang">
                         {formData.picId
                           ? (usersList.find(user => user.id === formData.picId)?.name || formData.picName)
@@ -835,34 +941,34 @@ export default function WarehousePage() {
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px]">
-                      <SelectItem value="UNASSIGNED">
+                      <SelectItem value="UNASSIGNED" className="text-[13px]">
                         <span className="text-muted-foreground italic">-- Tanpa PIC (Kosongkan Penugasan) --</span>
                       </SelectItem>
 
                       {formData.picName && !formData.picId && (
-                        <SelectItem value={`LEGACY_${formData.picName}`}>
+                        <SelectItem value={`LEGACY_${formData.picName}`} className="text-[13px]">
                           <span>{formData.picName} (Teks Lama)</span>
                         </SelectItem>
                       )}
 
                       {usersList.map((u) => (
-                        <SelectItem key={u.id} value={u.id}>
+                        <SelectItem key={u.id} value={u.id} className="text-[13px]">
                           <div className="flex items-center justify-between w-full gap-4">
                             <span className="font-medium text-foreground">{u.name}</span>
                             <div className="flex items-center gap-1.5 shrink-0">
                               {u.role && (
-                                <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal">
+                                <Badge variant="outline" className="text-[13px] px-1.5 py-0 font-normal">
                                   {u.role.replace(/_/g, ' ')}
                                 </Badge>
                               )}
-                              <span className="text-xs text-muted-foreground">({u.email})</span>
+                              <span className="text-[13px] text-muted-foreground">({u.email})</span>
                             </div>
                           </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[13px] text-muted-foreground">
                     Pilih akun pengguna terdaftar untuk ditugaskan sebagai PIC gudang ini.
                   </p>
                 </div>
@@ -870,26 +976,26 @@ export default function WarehousePage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {editId ? (
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="status">Status</Label>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="status" className="text-[13px] font-medium">Status</Label>
                     <Select value={formData.status} onValueChange={(val) => setFormData({ ...formData, status: val || "" })}>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-10 text-[13px]">
                         <SelectValue placeholder="Status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ACTIVE">Active</SelectItem>
-                        <SelectItem value="INACTIVE">Inactive</SelectItem>
-                        <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
+                        <SelectItem value="ACTIVE" className="text-[13px]">Active</SelectItem>
+                        <SelectItem value="INACTIVE" className="text-[13px]">Inactive</SelectItem>
+                        <SelectItem value="MAINTENANCE" className="text-[13px]">Maintenance</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 ) : <div className="hidden md:block" />}
                 
-                <div className="flex flex-col gap-2 min-w-0">
-                  <Label>Warehouse Evidence (Photo)</Label>
-                  <div className="flex flex-col gap-3 min-w-0">
+                <div className="flex flex-col gap-1.5 min-w-0">
+                  <Label className="text-[13px] font-medium">Warehouse Evidence (Photo)</Label>
+                  <div className="flex flex-col gap-2.5 min-w-0">
                     {!formData.evidence && (
-                      <Button variant="outline" type="button" className="relative overflow-hidden cursor-pointer w-full sm:w-fit">
+                      <Button variant="outline" type="button" className="relative overflow-hidden cursor-pointer w-full sm:w-fit text-[13px] h-10">
                         {isUploading ? (
                           <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Uploading...</>
                         ) : (
@@ -911,8 +1017,8 @@ export default function WarehousePage() {
                             <img src={formData.evidence} alt="Preview" className="w-full h-full object-cover" />
                           </div>
                           <div className="flex flex-col min-w-0 pr-2">
-                            <span className="text-[16px] font-medium truncate">{formData.evidence.split('/').pop()?.split('?')[0] || 'evidence_file'}</span>
-                            <span className="text-xs text-muted-foreground uppercase">{formData.evidence.split('.').pop()?.split('?')[0] || 'IMG'} • File</span>
+                            <span className="text-[13px] font-medium truncate">{formData.evidence.split('/').pop()?.split('?')[0] || 'evidence_file'}</span>
+                            <span className="text-[13px] text-muted-foreground uppercase">{formData.evidence.split('.').pop()?.split('?')[0] || 'IMG'} • File</span>
                           </div>
                         </div>
                         <Button variant="ghost" size="icon" type="button" onClick={() => setFormData({ ...formData, evidence: '' })} className="h-8 w-8 text-muted-foreground shrink-0">
@@ -925,11 +1031,11 @@ export default function WarehousePage() {
               </div>
 
               <div className="flex flex-col gap-2 mt-2 pt-4 border-t">
-                <Label>Assigned Projects</Label>
-                <div className="text-sm text-muted-foreground mb-2">Pilih project yang menggunakan gudang ini.</div>
+                <Label className="text-[13px] font-medium">Assigned Projects</Label>
+                <div className="text-[13px] text-muted-foreground mb-1">Pilih project yang menggunakan gudang ini.</div>
                 
                 <Popover>
-                  <PopoverTrigger render={<Button variant="outline" role="combobox" className="w-full justify-between font-normal h-auto py-2.5" />}>
+                  <PopoverTrigger render={<Button variant="outline" role="combobox" className="w-full justify-between font-normal h-10 text-[13px]" />}>
                     {formData.projectIds.length > 0 
                       ? `${formData.projectIds.length} project dipilih` 
                       : "Pilih project..."}
@@ -940,7 +1046,7 @@ export default function WarehousePage() {
                       <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                       <Input 
                         placeholder="Cari project..." 
-                        className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className="flex h-10 w-full rounded-md bg-transparent py-2 text-[13px] outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                         value={projectSearch}
                         onChange={(e) => setProjectSearch(e.target.value)}
                       />
@@ -964,13 +1070,13 @@ export default function WarehousePage() {
                               }}
                             />
                             <div className="grid gap-0.5 min-w-0">
-                              <span className="text-[16px] font-medium leading-none truncate">{p.projectCode || p.code}</span>
+                              <span className="text-[13px] font-medium leading-none truncate">{p.projectCode || p.code}</span>
                               <span className="text-[13px] text-muted-foreground truncate">{p.projectName || p.name}</span>
                             </div>
                           </label>
                       ))}
                       {projectsList.filter(p => (p.projectName || p.name || '').toLowerCase().includes(projectSearch.toLowerCase()) || (p.projectCode || p.code || '').toLowerCase().includes(projectSearch.toLowerCase())).length === 0 && (
-                        <div className="p-4 text-center text-sm text-muted-foreground">Tidak ada project ditemukan.</div>
+                        <div className="p-4 text-center text-[13px] text-muted-foreground">Tidak ada project ditemukan.</div>
                       )}
                     </div>
                   </PopoverContent>
@@ -979,7 +1085,7 @@ export default function WarehousePage() {
                 {formData.projectIds.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {projectsList.filter(p => formData.projectIds.includes(p.id)).map(p => (
-                      <Badge key={p.id} variant="secondary" className="px-2 py-1 font-medium">
+                      <Badge key={p.id} variant="secondary" className="px-2.5 py-1 text-[13px] font-medium">
                         {p.projectCode || p.code}
                       </Badge>
                     ))}
@@ -987,11 +1093,11 @@ export default function WarehousePage() {
                 )}
               </div>
             </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isSubmitting}>
+            <DialogFooter className="shrink-0 mx-0 mb-0 mt-0 p-0 px-6 py-3.5 border-t bg-muted/30 flex items-center justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isSubmitting} className="text-[13px] h-9 px-4">
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="text-[13px] h-9 px-4">
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 {editId ? 'Save Changes' : 'Save Warehouse'}
               </Button>
@@ -1042,40 +1148,417 @@ export default function WarehousePage() {
         </DialogContent>
       </Dialog>
 
+      {/* Single Evidence Preview Dialog */}
       <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
-        <DialogContent className="sm:max-w-xl p-0 overflow-hidden">
+        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden rounded-xl">
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-2 text-sm font-medium">
               <ImageIcon className="w-4 h-4 text-muted-foreground" />
-              Evidence Preview
+              Evidence / Foto Gudang
             </div>
-            <div className="flex items-center gap-2">
-              {previewImage && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  render={<a href={previewImage} target="_blank" rel="noreferrer" />} 
-                  nativeButton={false}
-                  className="flex items-center gap-2"
-                >
-                  <ExternalLink className="w-4 h-4" /> Open in new tab
-                </Button>
-              )}
-            </div>
-          </div>
-          <div className="bg-muted p-4 flex items-center justify-center min-h-[300px]">
             {previewImage && (
-              <img src={previewImage} alt="Preview" className="max-w-full max-h-[70vh] rounded-md shadow-sm border bg-background" />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                render={<a href={previewImage} target="_blank" rel="noreferrer" />} 
+                nativeButton={false}
+                className="flex items-center gap-1.5 text-xs h-8"
+              >
+                <ExternalLink className="w-3.5 h-3.5" /> Buka Tab Baru
+              </Button>
+            )}
+          </div>
+          <div className="bg-muted/50 p-4 flex items-center justify-center min-h-[300px] max-h-[75vh] overflow-auto">
+            {previewImage && (
+              <img src={previewImage} alt="Preview" className="max-w-full max-h-[70vh] rounded-lg shadow-sm border object-contain bg-background" />
             )}
           </div>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
-        <DialogContent className="sm:max-w-3xl p-1 bg-transparent border-none shadow-none">
-          {previewImage && (
-            <img src={previewImage} alt="Preview Evidence" className="w-full h-auto rounded-xl object-contain max-h-[80vh]" />
+      {/* 1. Modal Lihat Detil Gudang */}
+      <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
+        <DialogContent className="w-full sm:max-w-4xl md:max-w-5xl max-h-[82vh] flex flex-col gap-0 p-0 overflow-hidden rounded-xl border bg-popover shadow-2xl">
+          {selectedWarehouseDetail && (
+            <>
+              <DialogHeader className="px-6 py-4 border-b shrink-0 pr-12 bg-background/50">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <DialogTitle className="text-xl font-bold tracking-tight">
+                      {selectedWarehouseDetail.name}
+                    </DialogTitle>
+                    <StatusBadge status={selectedWarehouseDetail.status} />
+                    <Badge variant="secondary" className="text-[13px] py-0.5">
+                      {selectedWarehouseDetail.type === 'MAIN' ? 'Main Hub' : (selectedWarehouseDetail.type === 'SITE' ? 'Site Storage' : 'Transit Point')}
+                    </Badge>
+                  </div>
+                  <DialogDescription className="text-[13px] text-muted-foreground flex items-center gap-2 flex-wrap pt-0.5">
+                    <span className="font-mono font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
+                      {selectedWarehouseDetail.code}
+                    </span>
+                    <span>•</span>
+                    <span>
+                      Dibuat: {selectedWarehouseDetail.createdAt ? new Date(selectedWarehouseDetail.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
+                    </span>
+                    {loadingDetail && (
+                      <span className="flex items-center gap-1 text-[13px] text-muted-foreground ml-1">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" /> Menyinkronkan...
+                      </span>
+                    )}
+                  </DialogDescription>
+                </div>
+              </DialogHeader>
+
+              {/* Scrollable area */}
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 min-h-0">
+                {/* Ringkasan Metrik Cepat */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-3.5 bg-muted/30 rounded-xl border border-border/50">
+                    <div className="text-[13px] font-medium text-muted-foreground flex items-center gap-1.5 mb-1">
+                      <Package className="w-4 h-4 text-primary" /> Total Material
+                    </div>
+                    <div className="text-xl font-bold text-foreground">
+                      {selectedWarehouseDetail.totalMaterials || 0}
+                    </div>
+                    <div className="text-[13px] text-muted-foreground mt-0.5">Varian item material</div>
+                  </div>
+
+                  <div className="p-3.5 bg-muted/30 rounded-xl border border-border/50">
+                    <div className="text-[13px] font-medium text-muted-foreground flex items-center gap-1.5 mb-1">
+                      <PackagePlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Total Stok Fisik
+                    </div>
+                    <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                      {(selectedWarehouseDetail.totalStock || 0).toLocaleString()}
+                    </div>
+                    <div className="text-[13px] text-muted-foreground mt-0.5">Kuantitas agregat stok</div>
+                  </div>
+
+                  <div className="p-3.5 bg-muted/30 rounded-xl border border-border/50">
+                    <div className="text-[13px] font-medium text-muted-foreground flex items-center gap-1.5 mb-1">
+                      <Warehouse className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Daya Tampung
+                    </div>
+                    <div className="text-xl font-bold text-foreground">
+                      {selectedWarehouseDetail.capacity ? `${Number(selectedWarehouseDetail.capacity).toLocaleString()} CBM` : '-'}
+                    </div>
+                    <div className="text-[13px] text-muted-foreground mt-0.5">Kapasitas volume gudang</div>
+                  </div>
+                </div>
+
+                {/* Lokasi & PIC Berdampingan */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Lokasi & Koordinat */}
+                  <div className="p-4 rounded-xl border border-border/70 bg-card space-y-3 flex flex-col justify-between">
+                    <div className="space-y-3">
+                      <div className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">
+                        Lokasi & Geotag
+                      </div>
+                      <div className="space-y-2.5">
+                        <div className="flex items-start gap-2.5">
+                          <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[13px] text-muted-foreground">Alamat / Lokasi Fisik:</div>
+                            <div className="text-[13px] font-medium text-foreground mt-0.5 break-words">
+                              {selectedWarehouseDetail.location || <span className="italic text-muted-foreground">Tidak ada alamat spesifik</span>}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {selectedWarehouseDetail.coordinates && (
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-border/40 mt-3">
+                        <div className="flex items-center gap-2">
+                          <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+                          <span className="text-[13px] font-mono text-muted-foreground">
+                            {selectedWarehouseDetail.coordinates}
+                          </span>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-[13px] gap-1.5 px-3"
+                          render={
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedWarehouseDetail.coordinates)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            />
+                          }
+                          nativeButton={false}
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" /> Buka Google Maps
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Person In Charge (PIC) */}
+                  <div className="p-4 rounded-xl border border-border/70 bg-card space-y-3 flex flex-col justify-between">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">
+                          Penanggung Jawab (PIC)
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 text-[13px] text-primary hover:text-primary hover:bg-primary/10 gap-1.5 px-2.5"
+                          onClick={() => {
+                            openPicDialog(selectedWarehouseDetail);
+                          }}
+                        >
+                          <User className="w-3.5 h-3.5" /> Ubah PIC
+                        </Button>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                          <User className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          {selectedWarehouseDetail.picId ? (
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-[13px] font-semibold text-foreground">
+                                  {selectedWarehouseDetail.picName || selectedWarehouseDetail.picUser?.name}
+                                </span>
+                                {selectedWarehouseDetail.picUser?.role && (
+                                  <Badge variant="outline" className="text-[13px] py-0.5 px-2 text-primary border-primary/30">
+                                    {selectedWarehouseDetail.picUser.role.replace(/_/g, ' ')}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="text-[13px] text-muted-foreground mt-0.5">
+                                {selectedWarehouseDetail.picUser?.email || 'Akun pengguna terhubung'}
+                              </div>
+                            </div>
+                          ) : selectedWarehouseDetail.picName ? (
+                            <div>
+                              <span className="text-[13px] font-semibold text-foreground">
+                                {selectedWarehouseDetail.picName}
+                              </span>
+                              <div className="text-[13px] text-amber-600 dark:text-amber-400 mt-0.5 font-medium">
+                                Nama tercatat manual (Belum terhubung akun pengguna)
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-[13px] text-muted-foreground italic">
+                              Belum ada PIC yang ditugaskan untuk gudang ini.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Proyek Terkait & Foto Dokumentasi Berdampingan */}
+                <div className={cn(
+                  "grid gap-4",
+                  selectedWarehouseDetail.evidence ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
+                )}>
+                  {/* Proyek Terkait */}
+                  <div className="p-4 rounded-xl border border-border/70 bg-card space-y-3">
+                    <div className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      Proyek Terkait ({selectedWarehouseDetail.projects?.length || 0})
+                    </div>
+                    {selectedWarehouseDetail.projects && selectedWarehouseDetail.projects.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {selectedWarehouseDetail.projects.map((p: any) => (
+                          <Badge key={p.id} variant="secondary" className="px-2.5 py-1 text-[13px]">
+                            <span className="font-semibold text-primary mr-1">{p.code}</span>
+                            {p.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-[13px] text-muted-foreground italic">
+                        Belum ada proyek yang dikaitkan dengan gudang ini.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Evidence Foto Gudang (Jika ada) */}
+                  {selectedWarehouseDetail.evidence && (
+                    <div className="p-4 rounded-xl border border-border/70 bg-card space-y-3">
+                      <div className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">
+                        Foto Dokumentasi Gudang
+                      </div>
+                      <div 
+                        className="relative w-full h-44 rounded-lg overflow-hidden border border-border cursor-pointer group bg-muted/20"
+                        onClick={() => setPreviewImage(selectedWarehouseDetail.evidence)}
+                      >
+                        <img
+                          src={selectedWarehouseDetail.evidence}
+                          alt={selectedWarehouseDetail.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[13px] gap-1.5 font-medium">
+                          <Eye className="w-4 h-4" /> Klik untuk memperbesar foto
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <DialogFooter className="shrink-0 mx-0 mb-0 mt-0 p-0 px-6 py-3.5 border-t bg-muted/30 flex flex-col sm:flex-row items-center justify-between gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push(`/warehouse/${selectedWarehouseDetail.id}`)}
+                  className="w-full sm:w-auto text-[13px] h-9 gap-1.5 px-3"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
+                  Buka Halaman Inventaris Lengkap
+                </Button>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setDetailModalOpen(false);
+                      openStockEntryDialog(selectedWarehouseDetail);
+                    }}
+                    className="text-[13px] h-9 gap-1.5 px-3"
+                  >
+                    <SlidersHorizontal className="w-3.5 h-3.5 text-primary" />
+                    Penyesuaian Stok
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      setDetailModalOpen(false);
+                      openEditDialog(selectedWarehouseDetail);
+                    }}
+                    className="text-[13px] h-9 gap-1.5 px-3"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    Edit Gudang
+                  </Button>
+                </div>
+              </DialogFooter>
+            </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 2. Modal Assign / Ubah PIC Gudang */}
+      <Dialog open={picModalOpen} onOpenChange={setPicModalOpen}>
+        <DialogContent className="w-full sm:max-w-4xl max-h-[82vh] flex flex-col gap-0 p-0 overflow-hidden rounded-xl border bg-popover shadow-2xl">
+          <DialogHeader className="px-6 py-4 border-b shrink-0 pr-12 bg-background/50">
+            <DialogTitle className="text-lg font-bold">
+              Assign / Ubah PIC Gudang
+            </DialogTitle>
+            <DialogDescription className="text-[13px] text-muted-foreground mt-0.5">
+              Tugaskan akun pengguna sebagai Person In Charge (PIC) untuk gudang ini.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedWarehousePic && (
+            <div className="px-6 py-5 space-y-4 flex-1 min-h-0 overflow-y-auto">
+              <div className="p-4 bg-muted/40 rounded-xl border border-border/50 text-[13px] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="font-semibold text-foreground text-[13px]">
+                    {selectedWarehousePic.name}
+                  </div>
+                  <div className="text-muted-foreground flex items-center gap-2 flex-wrap text-[13px]">
+                    <span className="font-mono text-primary font-medium">{selectedWarehousePic.code}</span>
+                    {selectedWarehousePic.location && (
+                      <>
+                        <span>•</span>
+                        <span className="truncate max-w-md">{selectedWarehousePic.location}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                {selectedWarehousePic.picName && (
+                  <div className="text-[13px] sm:text-right shrink-0">
+                    <span className="text-muted-foreground block text-[13px]">PIC Saat Ini:</span>
+                    <span className="font-medium text-foreground text-[13px]">{selectedWarehousePic.picName}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="picModalSelect" className="text-[13px] font-medium text-foreground">
+                  Pilih Akun Pengguna (PIC)
+                </Label>
+                <Select
+                  value={selectedPicId}
+                  onValueChange={(val) => setSelectedPicId(val || 'UNASSIGNED')}
+                >
+                  <SelectTrigger id="picModalSelect" className="w-full h-10 text-[13px] bg-background">
+                    <SelectValue placeholder="Pilih user sebagai PIC...">
+                      {selectedPicId === 'UNASSIGNED'
+                        ? <span className="text-muted-foreground italic">-- Tanpa PIC (Kosongkan Penugasan) --</span>
+                        : selectedPicId.startsWith('LEGACY_')
+                        ? <span>{selectedWarehousePic.picName} (Teks Manual Lama)</span>
+                        : (usersList.find(u => u.id === selectedPicId)?.name || 'Pilih user...')}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[280px]">
+                    <SelectItem value="UNASSIGNED" className="text-[13px]">
+                      <span className="text-muted-foreground italic">-- Tanpa PIC (Kosongkan Penugasan) --</span>
+                    </SelectItem>
+
+                    {selectedWarehousePic.picName && !selectedWarehousePic.picId && (
+                      <SelectItem value={`LEGACY_${selectedWarehousePic.picName}`} className="text-[13px]">
+                        <span>{selectedWarehousePic.picName} (Teks Manual Lama)</span>
+                      </SelectItem>
+                    )}
+
+                    {usersList.map((u) => (
+                      <SelectItem key={u.id} value={u.id} className="text-[13px]">
+                        <div className="flex items-center justify-between w-full gap-3">
+                          <span className="font-medium text-foreground">{u.name}</span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {u.role && (
+                              <Badge variant="outline" className="text-[13px] px-1.5 py-0 font-normal">
+                                {u.role.replace(/_/g, ' ')}
+                              </Badge>
+                            )}
+                            <span className="text-[13px] text-muted-foreground">({u.email})</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[13px] text-muted-foreground mt-1">
+                  PIC bertanggung jawab atas operasional dan logistik material di gudang ini.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="shrink-0 mx-0 mb-0 mt-0 p-0 px-6 py-3.5 border-t bg-muted/30 flex items-center justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setPicModalOpen(false)}
+              disabled={isSubmittingPic}
+              className="text-[13px] h-9 px-4"
+            >
+              Batal
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleSavePic}
+              disabled={isSubmittingPic}
+              className="text-[13px] h-9 px-4"
+            >
+              {isSubmittingPic && <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />}
+              Simpan PIC
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

@@ -114,9 +114,10 @@ export default function UsersPage() {
       setIsOpen(false);
       fetchUsers();
       toast.success(`User ${editId ? 'updated' : 'created'} successfully`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving user:', error);
-      toast.error('Failed to save User');
+      const errMsg = error.response?.data?.message || 'Failed to save User';
+      toast.error(errMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -224,14 +225,20 @@ export default function UsersPage() {
               <Button
                 variant="destructive"
                 size="sm"
-                className="gap-2 h-9"
+                className="gap-2 h-9 text-[13px]"
                 onClick={() => setBulkDeleteOpen(true)}
               >
                 <Trash2 className="w-4 h-4" />
                 Hapus Terpilih ({selectedIds.length})
               </Button>
             )}
-            
+            <Button
+              onClick={openCreateDialog}
+              className="gap-2 h-9 text-[13px]"
+            >
+              <Plus className="w-4 h-4" />
+              Add User
+            </Button>
           </div>
         </div>
         
@@ -244,9 +251,12 @@ export default function UsersPage() {
                 placeholder="Search name or email..." 
                 value={search} 
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 bg-background h-auto py-[10px] text-[16px]"
+                className="pl-9 bg-background h-10 text-[13px]"
               />
             </div>
+            <Button size="icon" className="shrink-0 h-10 w-10 sm:hidden" onClick={openCreateDialog}>
+              <Plus className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </div>
@@ -447,88 +457,93 @@ export default function UsersPage() {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-xl w-full max-w-full !bottom-0 !top-auto !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 !rounded-t-2xl !rounded-b-none sm:!rounded-xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 mb-0">
-          <form onSubmit={handleSubmit}>
-            <DialogHeader>
-              <DialogTitle>{editId ? 'Edit User' : 'Add New User'}</DialogTitle>
-              <DialogDescription>{editId ? 'Update user details.' : 'Register a new user to the system.'}</DialogDescription>
+        <DialogContent className="w-full sm:max-w-xl max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden rounded-xl border bg-popover shadow-2xl text-[13px]">
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+            <DialogHeader className="px-6 py-4 border-b shrink-0 pr-12 bg-background/50">
+              <DialogTitle className="text-lg font-bold">{editId ? 'Edit User' : 'Add New User'}</DialogTitle>
+              <DialogDescription className="text-[13px] text-muted-foreground mt-0.5">
+                {editId ? 'Perbarui informasi akun pengguna.' : 'Daftarkan akun pengguna baru ke sistem.'}
+              </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="name">Full Name *</Label>
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 min-h-0">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="name" className="text-[13px] font-medium">Full Name *</Label>
                 <Input 
                   id="name" 
                   placeholder="e.g. John Doe" 
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                   required 
+                  className="h-10 text-[13px]"
                 />
               </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="email">Email Address *</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="email" className="text-[13px] font-medium">Email Address *</Label>
                 <Input 
                   id="email" 
-                  type="email"
+                  type="email" 
                   placeholder="e.g. john@example.com" 
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                   required 
+                  className="h-10 text-[13px]"
                 />
               </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="password">Password {editId ? '(Opsional)' : '*'}</Label>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="password" className="text-[13px] font-medium">Password {editId ? '(Opsional)' : '*'}</Label>
                 <Input 
                   id="password" 
-                  type="text"
+                  type="text" 
                   placeholder={editId ? "Isi untuk mengubah password" : "Password baru"} 
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                   required={!editId}
+                  className="h-10 text-[13px]"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="role">System Role</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="role" className="text-[13px] font-medium">System Role</Label>
                   <Select value={formData.role} onValueChange={(val) => setFormData({ ...formData, role: val || "" })}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10 text-[13px]">
                       <SelectValue placeholder="Select Role" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ADMIN">Administrator</SelectItem>
-                      <SelectItem value="DIREKTUR">Direktur</SelectItem>
-                      <SelectItem value="OWNER">Owner</SelectItem>
-                      <SelectItem value="PROJECT_MANAGER">Project Manager</SelectItem>
-                      <SelectItem value="SITE_MANAGER">Site Manager</SelectItem>
-                      <SelectItem value="PROCUREMENT">Procurement</SelectItem>
-                      <SelectItem value="LOGISTICS">Logistics</SelectItem>
-                      <SelectItem value="FINANCE">Finance</SelectItem>
-                      <SelectItem value="MANAGER">Manager</SelectItem>
-                      <SelectItem value="USER">Standard User</SelectItem>
+                      <SelectItem value="ADMIN" className="text-[13px]">Administrator</SelectItem>
+                      <SelectItem value="DIREKTUR" className="text-[13px]">Direktur</SelectItem>
+                      <SelectItem value="OWNER" className="text-[13px]">Owner</SelectItem>
+                      <SelectItem value="PROJECT_MANAGER" className="text-[13px]">Project Manager</SelectItem>
+                      <SelectItem value="SITE_MANAGER" className="text-[13px]">Site Manager</SelectItem>
+                      <SelectItem value="PROCUREMENT" className="text-[13px]">Procurement</SelectItem>
+                      <SelectItem value="LOGISTICS" className="text-[13px]">Logistics</SelectItem>
+                      <SelectItem value="FINANCE" className="text-[13px]">Finance</SelectItem>
+                      <SelectItem value="MANAGER" className="text-[13px]">Manager</SelectItem>
+                      <SelectItem value="USER" className="text-[13px]">Standard User</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 {editId && (
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="status">Status</Label>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="status" className="text-[13px] font-medium">Status</Label>
                     <Select value={formData.isActive ? "ACTIVE" : "INACTIVE"} onValueChange={(val) => setFormData({...formData, isActive: val === "ACTIVE"})}>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-10 text-[13px]">
                         <SelectValue placeholder="Status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ACTIVE">Active</SelectItem>
-                        <SelectItem value="INACTIVE">Inactive</SelectItem>
+                        <SelectItem value="ACTIVE" className="text-[13px]">Active</SelectItem>
+                        <SelectItem value="INACTIVE" className="text-[13px]">Inactive</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 )}
               </div>
             </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isSubmitting}>
+            <DialogFooter className="shrink-0 mx-0 mb-0 mt-0 p-0 px-6 py-3.5 border-t bg-muted/30 flex items-center justify-end gap-2">
+              <Button type="button" variant="outline" className="text-[13px] h-9 px-4" onClick={() => setIsOpen(false)} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              <Button type="submit" className="text-[13px] h-9 px-4" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 {editId ? 'Save Changes' : 'Save User'}
               </Button>
             </DialogFooter>

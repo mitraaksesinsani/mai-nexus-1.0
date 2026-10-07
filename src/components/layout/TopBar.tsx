@@ -1,19 +1,27 @@
 'use client';
 
+import * as React from 'react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import {
   Bell,
-  Search,
   LogOut,
   User,
   Settings,
   ChevronDown,
 } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { Input } from '@/components/ui/input';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -25,10 +33,72 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 
+const PATH_MAP: Record<string, { label: string; parent?: { label: string; href: string } }> = {
+  '/': { label: 'Dashboard' },
+  '/pic-dashboard': { label: 'PIC Dashboard' },
+  '/owner-dashboard': { label: 'Owner Dashboard' },
+  '/projects': { label: 'Project List', parent: { label: 'Project Management', href: '/projects' } },
+  '/projects/requirements': { label: 'Material Requirement', parent: { label: 'Project Management', href: '/projects' } },
+  '/pr': { label: 'PR List', parent: { label: 'PR Management', href: '/pr' } },
+  '/pr/approval': { label: 'Approval Queue', parent: { label: 'PR Management', href: '/pr' } },
+  '/pr/history': { label: 'Purchase Log', parent: { label: 'PR Management', href: '/pr' } },
+  '/procurement': { label: 'Active POs', parent: { label: 'Procurement', href: '/procurement' } },
+  '/procurement/approval': { label: 'Approval Queue', parent: { label: 'Procurement', href: '/procurement' } },
+  '/procurement/history': { label: 'PO History', parent: { label: 'Procurement', href: '/procurement' } },
+  '/logistics': { label: 'Delivery Tracking', parent: { label: 'Logistics', href: '/logistics' } },
+  '/logistics/history': { label: 'Shipment History', parent: { label: 'Logistics', href: '/logistics' } },
+  '/rfc': { label: 'RFC List', parent: { label: 'RFC', href: '/rfc' } },
+  '/rfc/approval': { label: 'Approval Queue', parent: { label: 'RFC', href: '/rfc' } },
+  '/rfclog': { label: 'RFC History Log', parent: { label: 'RFC', href: '/rfc' } },
+  '/warehouse': { label: 'Warehouse List', parent: { label: 'Warehouse', href: '/warehouse' } },
+  '/warehouse/receive': { label: 'Material Receive', parent: { label: 'Warehouse', href: '/warehouse' } },
+  '/warehouse/stock': { label: 'Stock Monitoring', parent: { label: 'Warehouse', href: '/warehouse' } },
+  '/inventory': { label: 'Stock Balance', parent: { label: 'Inventory', href: '/inventory' } },
+  '/inventory/catalog': { label: 'Material Catalog', parent: { label: 'Inventory', href: '/inventory' } },
+  '/inventory/movements': { label: 'Movement History', parent: { label: 'Inventory', href: '/inventory' } },
+  '/transfer': { label: 'Material Transfer' },
+  '/reports': { label: 'Reports' },
+  '/master-data': { label: 'Master Data' },
+  '/master-data/materials': { label: 'Materials', parent: { label: 'Master Data', href: '/master-data/materials' } },
+  '/master-data/warehouses': { label: 'Warehouses', parent: { label: 'Master Data', href: '/master-data/materials' } },
+  '/master-data/vendors': { label: 'Vendors', parent: { label: 'Master Data', href: '/master-data/materials' } },
+  '/master-data/users': { label: 'Users', parent: { label: 'Master Data', href: '/master-data/materials' } },
+  '/master-data/terms': { label: 'Terms Configuration', parent: { label: 'Master Data', href: '/master-data/materials' } },
+};
+
+function getBreadcrumbs(pathname: string) {
+  if (PATH_MAP[pathname]) {
+    const item = PATH_MAP[pathname];
+    if (item.parent) {
+      return [
+        { label: item.parent.label, href: item.parent.href },
+        { label: item.label, href: pathname, isCurrent: true },
+      ];
+    }
+    return [{ label: item.label, href: pathname, isCurrent: true }];
+  }
+
+  const segments = pathname.split('/').filter(Boolean);
+  if (segments.length === 0) {
+    return [{ label: 'Dashboard', href: '/', isCurrent: true }];
+  }
+
+  return segments.map((seg, idx) => {
+    const href = '/' + segments.slice(0, idx + 1).join('/');
+    const isCurrent = idx === segments.length - 1;
+    const label = seg
+      .replace(/-/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+    return { label, href, isCurrent };
+  });
+}
+
 export default function TopBar() {
+  const pathname = usePathname();
   const { user, logout } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [hasUnread, setHasUnread] = useState(false);
+  const breadcrumbs = getBreadcrumbs(pathname);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -72,18 +142,35 @@ export default function TopBar() {
 
   return (
     <header className="h-16 shrink-0 border-b bg-background flex items-center justify-between px-6 sticky top-0 z-30">
-      <div className="flex items-center gap-4 flex-1 max-w-md">
+      <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
         <SidebarTrigger className="-ml-2" />
-        {!isOwner && (
-          <div className="relative w-full">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search anything..."
-              className="w-full pl-9 bg-muted/50 focus-visible:bg-background"
-            />
-          </div>
-        )}
+        <div className="h-4 w-px bg-border/70 hidden sm:block shrink-0" />
+        <Breadcrumb className="min-w-0">
+          <BreadcrumbList className="flex-nowrap sm:flex-wrap">
+            {breadcrumbs.map((item, index) => {
+              const isLast = index === breadcrumbs.length - 1;
+              return (
+                <React.Fragment key={item.href + index}>
+                  <BreadcrumbItem className="shrink-0 sm:shrink">
+                    {isLast ? (
+                      <BreadcrumbPage className="truncate max-w-[180px] sm:max-w-none text-[13px] font-medium text-foreground">
+                        {item.label}
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink 
+                        href={item.href}
+                        className="truncate max-w-[120px] sm:max-w-none text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {item.label}
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                  {!isLast && <BreadcrumbSeparator />}
+                </React.Fragment>
+              );
+            })}
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
 
       <div className="flex items-center gap-4">
